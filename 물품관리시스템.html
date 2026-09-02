@@ -1,0 +1,3607 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>물품관리 시스템</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%234a90d9'/%3E%3Crect x='14' y='18' width='36' height='40' rx='3' fill='white'/%3E%3Crect x='24' y='12' width='16' height='12' rx='4' fill='%232d6fb3'/%3E%3Crect x='19' y='30' width='26' height='3' rx='1.5' fill='%234a90d9'/%3E%3Crect x='19' y='38' width='26' height='3' rx='1.5' fill='%234a90d9'/%3E%3Crect x='19' y='46' width='18' height='3' rx='1.5' fill='%234a90d9'/%3E%3C/svg%3E" type="image/svg+xml">
+  <style>
+    body {
+      font-family: '맑은 고딕', sans-serif;
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 30px 20px 60px;
+      background: #f5f5f5;
+      color: #333;
+      position: relative;
+    }
+
+    /* 좌상단 설정 버튼 */
+    .btn-settings {
+      position: absolute;
+      top: 24px;
+      left: calc(20px + max(0px, (100% - 1306px) / 2));
+      padding: 8px 14px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      color: #555;
+    }
+    .btn-settings:hover {
+      background: #f0f7ff;
+      border-color: #4a90d9;
+      color: #4a90d9;
+    }
+
+    /* 화면 오른쪽 아래 버전·제작자 표시 (인쇄 제외) */
+    .app-version {
+      position: fixed;
+      bottom: 8px;
+      right: 12px;
+      font-size: 11px;
+      color: #aab2bb;
+      letter-spacing: 0.2px;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    /* 상단 제목 */
+    .top-title {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .top-title h1 {
+      margin: 0;
+      font-size: 28px;
+      color: #2c3e50;
+    }
+    .top-title p {
+      margin: 6px 0 0;
+      color: #888;
+      font-size: 14px;
+    }
+
+    /* ===== 홈 화면 (대단원) ===== */
+    .home-menu {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 40px;
+    }
+    .menu-card {
+      width: 240px;
+      padding: 40px 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .menu-card:hover {
+      border-color: #4a90d9;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(74,144,217,0.25);
+    }
+    .menu-card .icon { font-size: 48px; }
+    .menu-card .title { font-size: 20px; font-weight: bold; margin-top: 14px; color: #2c3e50; }
+    .menu-card .desc { font-size: 13px; color: #888; margin-top: 8px; line-height: 1.5; }
+
+    /* 사용설명서(도움말) */
+    .manual-select {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 30px;
+    }
+    .manual-select-card {
+      width: 300px;
+      padding: 34px 26px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      text-align: center;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .manual-select-card:hover {
+      border-color: #4a90d9;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgba(74,144,217,0.25);
+    }
+    .manual-select-card .icon { font-size: 44px; }
+    .manual-select-card .title { font-size: 19px; font-weight: bold; margin-top: 12px; color: #2c3e50; }
+    .manual-select-card .desc { font-size: 13px; color: #888; margin-top: 8px; line-height: 1.6; }
+
+    .manual-content {
+      max-width: 820px;
+      margin: 0 auto;
+      background: white;
+      padding: 40px 48px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      line-height: 1.85;
+      color: #2c3e50;
+      font-size: 15px;
+    }
+    .manual-content h1 { font-size: 26px; margin: 0 0 6px; color: #1a2733; }
+    .manual-content h2 { font-size: 21px; margin: 34px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #e0e6ec; color: #1a2733; }
+    .manual-content h3 { font-size: 17px; margin: 24px 0 8px; color: #2c3e50; }
+    .manual-content p { margin: 10px 0; }
+    .manual-content ul, .manual-content ol { margin: 10px 0; padding-left: 24px; }
+    .manual-content li { margin: 5px 0; }
+    .manual-content table { border-collapse: collapse; margin: 14px 0; }
+    .manual-content th, .manual-content td { border: 1px solid #bbb; padding: 7px 16px; text-align: center; }
+    .manual-content th { background: #f0f4f8; }
+    .manual-content blockquote {
+      margin: 12px 0;
+      padding: 10px 16px;
+      background: #f7f9fb;
+      border-left: 4px solid #b8c4d0;
+      color: #5a6b7b;
+      font-size: 13.5px;
+      line-height: 1.7;
+    }
+    .manual-content blockquote p { margin: 4px 0; }
+    .manual-content .manual-intro {
+      background: #f7f9fb;
+      border-left: 4px solid #b8c4d0;
+      padding: 12px 16px;
+      color: #5a6b7b;
+      font-size: 14px;
+      margin: 0 0 20px;
+      line-height: 1.7;
+    }
+    .manual-content .manual-warn {
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      border-radius: 6px;
+      padding: 6px 16px;
+      margin: 14px 0;
+    }
+
+    .backup-box {
+      max-width: 540px;
+      margin: 28px auto 0;
+      padding: 18px 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .backup-box button { margin: 4px; }
+
+    .home-note {
+      max-width: 520px;
+      margin: 40px auto 0;
+      padding: 14px 18px;
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #8a6d3b;
+      line-height: 1.6;
+    }
+
+    /* ===== 소단원 공통 ===== */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .section-header h2 {
+      margin: 0;
+      font-size: 22px;
+      color: #2c3e50;
+    }
+    .btn-home {
+      padding: 7px 16px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .btn-home:hover { background: #545b62; }
+
+    /* 입력 영역 */
+    .input-area {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .input-area label {
+      display: inline-block;
+      width: 80px;
+      font-weight: bold;
+      color: #555;
+    }
+    .input-area input {
+      width: 160px;
+      padding: 6px 8px;
+      margin: 6px 16px 6px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .input-area input[type="radio"] {
+      width: auto;
+      padding: 0;
+      margin: 0 3px 0 0;
+      border: none;
+      border-radius: 0;
+    }
+
+    /* 버튼들 */
+    .btn-add {
+      margin-top: 10px;
+      padding: 8px 24px;
+      background: #4a90d9;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    .btn-add:hover { background: #357abd; }
+
+    .action-area {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .btn-gray {
+      padding: 7px 18px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .btn-gray:hover { background: #545b62; }
+    .btn-blue {
+      padding: 7px 18px;
+      background: #4a90d9;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .btn-blue:hover { background: #357abd; }
+
+    /* 테이블 */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    th {
+      background: #4a90d9;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      font-size: 14px;
+      border: 1px solid #3a7bc0;
+    }
+    td {
+      padding: 9px 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+      font-size: 14px;
+    }
+    tr:hover td { background: #f0f7ff; }
+
+    /* 물품관리대장 표 (칸이 많음) */
+    /* 표가 들어가는 칸: 칸 합계(1166px)만큼만 차지하고 가운데 정렬 → 오른쪽 빈 공간 없음 */
+    .table-scroll { overflow-x: auto; width: 1166px; max-width: 100%; margin: 0 auto; }
+    /* 표는 그 칸을 꽉 채우고, 칸 너비는 머리글 지정값으로 고정(쪽 넘겨도 안 변함) */
+    .ledger-table { width: 100%; table-layout: fixed; }
+    .ledger-table .col-approval { width: 0; }    /* 결재칸: 화면에선 폭 0(숨김) */
+    .ledger-table .col-action   { width: 78px; } /* 처리칸: 화면에선 보임 */
+    .ledger-table th, .ledger-table td {
+      box-sizing: border-box;  /* 지정 너비 안에 안쪽 여백 포함 → 칸 합계가 정확히 맞음 */
+      padding: 6px 6px;
+      font-size: 13px;
+      overflow-wrap: break-word;
+      word-break: break-all;   /* 긴 글자는 정해진 칸 안에서 줄바꿈(2줄이 되더라도 폭 고정) */
+    }
+    .ledger-table .c-date { white-space: nowrap; }  /* 날짜는 항상 한 줄 */
+    .ledger-table .c-cat  { white-space: nowrap; }  /* 구분(일반비품/교재교구)은 항상 한 줄 */
+
+    /* 쪽 이동 + 표시 갯수 */
+    .pager {
+      display: flex;
+      align-items: center;
+      margin-top: 16px;
+    }
+    .pager-side { flex: 1; font-size: 14px; color: #555; }
+    .pager-right { text-align: right; }
+    .pager-right select {
+      padding: 5px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-left: 4px;
+    }
+    .pager-pages { text-align: center; }
+    .pager-pages button {
+      min-width: 34px;
+      padding: 6px 10px;
+      margin: 0 3px;
+      border: 1px solid #ccc;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .pager-pages button:hover { background: #f0f7ff; }
+    .pager-pages button.current {
+      background: #4a90d9;
+      color: white;
+      border-color: #4a90d9;
+      font-weight: bold;
+    }
+
+    /* 재물조사 단계 페이지 분할 버튼 */
+    .survey-pager {
+      display: flex;
+      align-items: center;
+      margin: 14px 0;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .survey-pager-pages { flex: 1; text-align: center; }
+    .survey-pager-size { font-size: 14px; color: #555; }
+    .page-btn, .pager-btn {
+      min-width: 34px;
+      padding: 6px 10px;
+      margin: 0 3px;
+      border: 1px solid #ccc;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .page-btn:hover, .pager-btn:hover { background: #f0f7ff; }
+    .page-btn.current, .pager-btn.current {
+      background: #4a90d9;
+      color: white;
+      border-color: #4a90d9;
+      font-weight: bold;
+    }
+
+    .btn-delete {
+      padding: 4px 12px;
+      background: #e55;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .btn-delete:hover { background: #c33; }
+
+    .empty-msg {
+      text-align: center;
+      color: #999;
+      padding: 30px;
+      background: white;
+      border-radius: 8px;
+    }
+
+    /* 정렬 가능한 컬럼 헤더 */
+    .ledger-table th.sortable { cursor: pointer; user-select: none; white-space: nowrap; }
+    .ledger-table th.sortable:hover { background: #e8f0fb; }
+    .sort-icon { font-size: 9px; color: white; margin-left: 2px; vertical-align: middle; }
+
+    /* 도움말 툴팁 */
+    .tip-wrap { position: relative; display: inline-flex; align-items: center; }
+    .tip-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 16px; height: 16px; border-radius: 50%;
+      background: #888; color: white; font-size: 11px; font-weight: bold;
+      cursor: help; flex-shrink: 0; margin-left: 4px;
+    }
+    .tip-box {
+      display: none; position: absolute;
+      left: 22px; top: 50%; transform: translateY(-50%);
+      background: #2c3e50; color: white;
+      padding: 10px 14px; border-radius: 7px;
+      font-size: 12px; line-height: 1.7; white-space: nowrap;
+      z-index: 2000; box-shadow: 0 3px 12px rgba(0,0,0,0.35);
+      pointer-events: none;
+    }
+    .tip-wrap:hover .tip-box { display: block; }
+
+    /* 재물조사 표 열 너비 고정 */
+    #survey-table { width: 100%; table-layout: fixed; }
+
+    /* 재물조사 입력 요소 */
+    .survey-select {
+      padding: 4px 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    .survey-note {
+      width: 90%;
+      padding: 4px 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    /* ===== 재물조사 단계 표시바 ===== */
+    .step-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 0 0 22px;
+      flex-wrap: wrap;
+    }
+    .step-item {
+      padding: 9px 18px;
+      border-radius: 20px;
+      background: #e9ecef;
+      color: #888;
+      font-size: 14px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+    .step-item.current {
+      background: #4a90d9;
+      color: white;
+    }
+    .step-item.done {
+      background: #d4edda;
+      color: #2e7d32;
+    }
+    .step-arrow { color: #bbb; font-size: 16px; }
+
+    /* ===== 재물조사 개요 입력(1단계) ===== */
+    /* 각 행의 첫 번째 label(항목명)만 고정폭 적용, 라디오 label 제외 */
+    .survey-overview > div > label:first-child {
+      display: inline-block;
+      width: 110px;
+      font-weight: bold;
+      color: #555;
+      vertical-align: middle;
+    }
+    .survey-overview input[type="text"],
+    .survey-overview input[type="number"] {
+      width: 200px;
+      padding: 7px 9px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .survey-overview .radio-group { display: inline-flex; align-items: center; gap: 16px; }
+    .survey-overview .radio-group label {
+      display: inline-flex !important;
+      align-items: center;
+      gap: 5px;
+      width: auto !important;
+      font-weight: normal !important;
+      cursor: pointer;
+    }
+    .survey-overview .radio-group input { margin: 0; }
+
+    /* 3단계 개요 요약 / 실태 요약 카운트 */
+    .survey-summary {
+      background: white;
+      padding: 16px 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 18px;
+      font-size: 14px;
+      line-height: 1.9;
+    }
+    .survey-count {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .survey-count span {
+      padding: 6px 14px;
+      border-radius: 16px;
+      background: #f0f7ff;
+      border: 1px solid #cfe2ff;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+
+    /* 재물조사 사진 버튼/썸네일 */
+    .survey-photo-btn {
+      padding: 3px 8px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .survey-photo-btn:hover { background: #545b62; }
+    .survey-thumb {
+      max-width: 60px;
+      max-height: 46px;
+      border-radius: 3px;
+      cursor: pointer;
+      vertical-align: middle;
+    }
+    .survey-photo-del {
+      margin-left: 4px;
+      padding: 1px 6px;
+      background: #e55;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .survey-photo-del:hover { background: #c33; }
+    /* 결과서 인쇄용 사진(평소엔 화면 썸네일과 별개) */
+    .survey-print-photo { display: none; }
+    .survey-result-sign { display: none; page-break-inside: avoid; break-inside: avoid; }
+
+    /* 물품등록 서브창(모달) */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 100;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: white;
+      margin-top: 70px;
+      padding: 28px 30px;
+      border-radius: 10px;
+      width: 380px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+    .modal-title { margin: 0 0 20px; font-size: 20px; color: #2c3e50; }
+    .modal-field { margin-bottom: 14px; }
+    .modal-field label {
+      display: inline-block;
+      width: 70px;
+      font-weight: bold;
+      color: #555;
+      white-space: nowrap;   /* 라벨 글자 한 줄 유지 */
+      vertical-align: top;
+    }
+
+    /* 사진 크게 보기(팝업) */
+    .photo-viewer {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .photo-viewer.active { display: flex; }
+    .photo-viewer-box {
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      max-width: 92vw;
+      max-height: 92vh;
+    }
+    .photo-viewer-box img {
+      max-width: 86vw;
+      max-height: 78vh;
+      display: block;
+      margin: 0 auto;
+    }
+    .modal-field input {
+      width: 250px;
+      padding: 7px 9px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    .modal-buttons { text-align: right; margin-top: 22px; }
+    .modal-buttons button { margin-left: 8px; }
+
+    /* 인쇄용 제목 (평소엔 숨김) */
+    .print-title { display: none; }
+    /* 인쇄 전용 머리글(출력일시·어린이집명) — 평소엔 숨김 */
+    .print-meta { display: none; }
+
+    /* 인쇄할 때만 보이는 칸(결재란) */
+    .print-only { display: none; }
+
+    /* 불용결정서 인쇄 영역 (화면에서는 숨김) */
+    #disposal-doc-area { display: none; }
+
+    /* 결과서 인쇄용 조사 요약 블록 (화면에서는 숨김) */
+    #survey-result-summary-print { display: none; }
+
+    /* 불용처리된 행 표시 */
+    tr.disposed td { color: #aaa; background: #fafafa; }
+    .ledger-table tr.disposed:hover td { background: #f3f3f3; }
+
+    .btn-disposal {
+      padding: 4px 10px;
+      background: #e67e22;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .btn-disposal:hover { background: #cf6e15; }
+    .btn-undo {
+      padding: 4px 10px;
+      background: #95a5a6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .btn-undo:hover { background: #7f8c8d; }
+
+    /* 화면 전환 */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* 물품대장 화면: 표는 .ledger-table 자체를 가운데 정렬(아래 참고) */
+
+    /* ===== 인쇄 스타일 ===== */
+    @media print {
+      @page { size: A4 portrait; margin: 10mm; }
+      body { background: white; margin: 0; padding: 0; max-width: none; width: auto; }
+      #screen-ledger { width: auto; margin-left: 0; }
+      .print-only { display: table-cell !important; }   /* 결재란은 인쇄할 때만 표시 */
+      .ledger-table { width: 100%; }                     /* 인쇄는 용지 폭에 맞춰 채움 */
+      #screen-ledger.active { width: auto; }             /* 인쇄: 폭 제한 해제 */
+      .ledger-table .col-approval { width: 64px; }       /* 인쇄: 결재칸 보이게 */
+      .ledger-table .col-action   { width: 0; }          /* 인쇄: 처리칸 숨김 */
+      .ledger-table th, .ledger-table td { font-size: 11px; padding: 4px 3px; }  /* 가로 한 장에 맞춤 */
+      .no-print { display: none !important; }
+      .input-area, .action-area, .section-header, .btn-delete { display: none !important; }
+      .top-title { display: none; }               /* 상단 제목영역은 인쇄 제외(자체 머리글 사용) */
+      .table-scroll { overflow: visible; width: auto; max-width: none; margin: 0; }
+      .ledger-table { min-width: 0; width: 100%; }
+      table { box-shadow: none; }
+      /* 인쇄 시 관공서 양식처럼 흰 바탕 + 검은 격자 */
+      th, td {
+        background: white !important;
+        color: black !important;
+        border: 1px solid #000 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .print-title {
+        display: block;
+        text-align: center;
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 8px;
+      }
+      .print-meta { display: block; }
+      .print-datetime { text-align: left; font-size: 12px; margin-bottom: 2px; }
+      .print-centername { text-align: right; font-size: 14px; font-weight: bold; margin-bottom: 4px; }
+      .survey-select, .survey-note { border: none; }
+
+      /* ===== 재물조사 인쇄: 조서 vs 결과서 ===== */
+      /* 화면 전용 사진 버튼/삭제 버튼은 인쇄 제외 */
+      .survey-photo-btn, .survey-photo-del { display: none !important; }
+
+      /* (1) 조서 인쇄: 실태칸 빈칸, 사진칸 숨김 */
+      body.printing-survey-doc .survey-select { display: none !important; }
+      body.printing-survey-doc .survey-status-text { visibility: hidden; }  /* 3단계에서도 실태는 빈칸으로 */
+      body.printing-survey-doc .survey-photo-col,
+      body.printing-survey-doc .survey-photo-cell { display: none !important; }
+      body.printing-survey-doc #survey-table { table-layout: auto; }
+      body.printing-survey-result #survey-table {
+        table-layout: fixed;
+        width: 100%;
+        max-width: 100%;
+      }
+      body.printing-survey-result #survey-table td,
+      body.printing-survey-result #survey-table th { word-break: break-word; }
+      /* 결과서 인쇄: 표가 용지 폭을 넘어 맨 오른쪽 세로선이 잘리는 현상 방지.
+         고정 px 폭(합계 865px) 대신 용지 폭 기준 비율(합계 100%)로 지정하고,
+         특이사항 칸을 줄여 사진 칸이 밀려나지 않도록 함 */
+      body.printing-survey-result #survey-table th:nth-child(1),
+      body.printing-survey-result #survey-table td:nth-child(1) { width: 12% !important; }  /* 고유번호 */
+      body.printing-survey-result #survey-table th:nth-child(2),
+      body.printing-survey-result #survey-table td:nth-child(2) { width: 23% !important; }  /* 물품명 */
+      body.printing-survey-result #survey-table th:nth-child(3),
+      body.printing-survey-result #survey-table td:nth-child(3) { width: 13% !important; }  /* 규격 */
+      body.printing-survey-result #survey-table th:nth-child(4),
+      body.printing-survey-result #survey-table td:nth-child(4) { width: 11% !important; }  /* 실태 */
+      body.printing-survey-result #survey-table th:nth-child(5),
+      body.printing-survey-result #survey-table td:nth-child(5) { width: 22% !important; }  /* 특이사항 (줄임) */
+      body.printing-survey-result #survey-table th:nth-child(6),
+      body.printing-survey-result #survey-table td:nth-child(6) { width: 19% !important; }  /* 사진 */
+      /* 사진(최대 110px)이 칸 밖으로 삐져나가지 않도록 사진 칸 좌우 여백만 줄임 */
+      body.printing-survey-result #survey-table td:nth-child(6) { padding-left: 4px; padding-right: 4px; }
+
+      /* (2) 결과서 인쇄: 실태 값 그대로, 사진 표시, 화면 썸네일은 숨기고 인쇄용 사진 표시 */
+      body.printing-survey-result .survey-thumb { display: none !important; }
+      body.printing-survey-result .survey-print-photo {
+        display: block !important;
+        margin: 0 auto;
+        max-width: 110px;
+        max-height: 90px;
+      }
+      body.printing-survey-result .survey-result-sign { display: block !important; }
+      body.printing-survey-result #survey-result-summary-print { display: block !important; }
+      body.printing-survey-result #survey-date-print { display: none !important; }
+      body.printing-survey-doc #survey-result-summary-print { display: block !important; }
+      body.printing-survey-doc #survey-date-print { display: none !important; }
+
+      /* 불용결정서 인쇄 */
+      body.printing-disposal * { display: none !important; }
+      body.printing-disposal #disposal-doc-area,
+      body.printing-disposal #disposal-doc-area * { display: revert !important; }
+      body.printing-disposal #disposal-doc-area { display: block !important; }
+
+      /* 사용설명서 인쇄 */
+      body.printing-manual * { display: none !important; }
+      body.printing-manual .screen.active,
+      body.printing-manual .screen.active .manual-content,
+      body.printing-manual .screen.active .manual-content * { display: revert !important; }
+      body.printing-manual .manual-content {
+        max-width: none; box-shadow: none; padding: 0; margin: 0;
+        font-size: 12px; line-height: 1.6;
+      }
+      body.printing-manual .manual-content h2 { font-size: 17px; margin: 18px 0 8px; }
+      body.printing-manual .manual-content h3 { font-size: 14px; }
+      body.printing-manual .manual-content h2,
+      body.printing-manual .manual-content h3 { page-break-after: avoid; }
+      body.printing-manual .manual-content table,
+      body.printing-manual .manual-content blockquote,
+      body.printing-manual .manual-content .manual-warn { page-break-inside: avoid; }
+      body.printing-manual .manual-content th { background: #f0f4f8 !important; }
+      body.printing-manual .manual-content blockquote,
+      body.printing-manual .manual-content .manual-intro,
+      body.printing-manual .manual-content .manual-warn {
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="btn-settings no-print" onclick="showScreen('settings')">⚙ 설정</button>
+
+  <div class="app-version no-print">물품관리 시스템 v1.0.1 · 제작 이현재</div>
+
+  <div class="top-title">
+    <h1>물품관리 시스템</h1>
+    <p id="center-name-display">OO어린이집</p>
+  </div>
+
+  <!-- ============ 홈 화면 ============ -->
+  <div id="screen-home" class="screen active">
+    <div class="home-menu">
+      <div class="menu-card" onclick="showScreen('ledger')">
+        <div class="icon">📋</div>
+        <div class="title">물품대장</div>
+        <div class="desc">보유 물품을 등록하고<br>물품대장을 출력합니다</div>
+      </div>
+      <div class="menu-card" style="cursor:default;">
+        <div class="icon">🔍</div>
+        <div class="title">재물조사</div>
+        <div class="desc">등록된 물품의 실태를<br>조사하고 조서를 출력합니다</div>
+        <div style="margin-top:16px; display:flex; flex-direction:column; gap:8px;">
+          <button class="btn-blue" onclick="event.stopPropagation(); startSurveyFromHome()">🔍 재물조사 시작</button>
+          <button class="btn-gray" onclick="event.stopPropagation(); showScreen('survey-history')">📜 조사이력 조회</button>
+        </div>
+      </div>
+      <div class="menu-card" onclick="showScreen('manual')">
+        <div class="icon">📖</div>
+        <div class="title">사용설명서</div>
+        <div class="desc">프로그램 사용법을<br>읽거나 인쇄합니다</div>
+      </div>
+    </div>
+    <div class="backup-box">
+      <div style="font-weight:bold; margin-bottom:10px;">💾 자료 백업</div>
+      <button class="btn-blue" onclick="exportBackup()">백업 파일로 내보내기</button>
+      <button class="btn-gray" onclick="document.getElementById('import-file').click()">백업 파일 가져오기</button>
+      <input type="file" id="import-file" accept=".json,application/json" style="display:none" onchange="importBackupFile(this)">
+      <div style="font-size:12px; color:#888; margin-top:10px; line-height:1.7;">
+        ※ 브라우저 자료를 지우기 전이나 다른 컴퓨터로 옮길 때, 반드시 <b>"내보내기"</b>로 백업하세요.<br>
+        내려받은 백업 파일을 이 프로그램 폴더에 함께 보관해 두면 안전합니다.<br>
+        나중에 <b>"가져오기"</b>로 그 파일을 고르면 사진까지 그대로 복원됩니다.
+      </div>
+    </div>
+
+    <div class="home-note">
+      ※ 입력한 자료는 <b>이 컴퓨터의 브라우저 안에만</b> 저장됩니다.
+      다른 컴퓨터에서 열거나 브라우저 자료를 지우면 사라지므로,
+      가끔 위 <b>"백업 파일로 내보내기"</b>를 눌러 백업해 두세요.
+    </div>
+  </div>
+
+  <!-- ============ 설정 ============ -->
+  <div id="screen-settings" class="screen">
+    <div class="section-header no-print">
+      <button class="btn-home" onclick="showScreen('home')">← 홈으로</button>
+      <h2>⚙ 설정</h2>
+    </div>
+
+    <!-- 어린이집 이름 -->
+    <div class="input-area">
+      <div>
+        <label style="width:100px; white-space:nowrap;">어린이집 이름</label>
+        <input type="text" id="inp-center-name" placeholder="예) 여수시립 햇살어린이집" style="width:280px;">
+        <button class="btn-blue" style="margin-left:10px;" onclick="saveCenterName()">저장</button>
+      </div>
+      <p style="margin:12px 0 0; font-size:13px; color:#888;">
+        여기서 정한 이름은 화면 상단과 물품대장·재물조사 조서 인쇄물에 함께 표시됩니다.
+      </p>
+    </div>
+
+    <!-- 시스템 초기화 -->
+    <div class="input-area" style="margin-top:32px; border-top:2px solid #e74c3c; padding-top:20px;">
+      <div style="font-size:15px; font-weight:bold; color:#e74c3c; margin-bottom:10px;">⚠ 시스템 초기화</div>
+      <p style="font-size:13px; color:#555; margin:0 0 6px; line-height:1.8;">
+        아래 버튼을 누르면 다음 자료가 <b>모두 삭제</b>되고 처음 설치한 상태로 돌아갑니다.<br>
+        &nbsp;&nbsp;• 물품대장 전체 (물품 목록, 불용결정 내역, 첨부 사진)<br>
+        &nbsp;&nbsp;• 재물조사 진행 중 자료 및 조사이력 전체<br>
+        &nbsp;&nbsp;※ 어린이집 이름 설정은 유지됩니다.<br>
+        &nbsp;&nbsp;※ <b>삭제된 자료는 복구할 수 없습니다.</b> 반드시 먼저 백업 파일로 내보내기 하세요.
+      </p>
+      <button class="btn-delete" style="margin-top:10px; padding:8px 20px; font-size:14px;" onclick="systemReset()">시스템 초기화</button>
+    </div>
+  </div>
+
+  <!-- ============ 사용설명서 — 선택 화면 ============ -->
+  <div id="screen-manual" class="screen">
+    <div class="section-header no-print">
+      <button class="btn-home" onclick="showScreen('home')">← 홈으로</button>
+      <h2>📖 사용설명서</h2>
+    </div>
+    <p class="manual-lead" style="text-align:center; color:#666; font-size:14px; margin:4px 0 0;">
+      읽고 싶은 설명서를 고르세요. 화면에서 읽거나 인쇄할 수 있습니다.
+    </p>
+    <div class="manual-select">
+      <div class="manual-select-card" onclick="showScreen('manual-full')">
+        <div class="icon">📘</div>
+        <div class="title">상세 설명서</div>
+        <div class="desc">처음 쓰는 분을 위한<br>차근차근 전체 설명</div>
+      </div>
+      <div class="manual-select-card" onclick="showScreen('manual-quick')">
+        <div class="icon">⚡</div>
+        <div class="title">빠른 시작 가이드</div>
+        <div class="desc">바쁠 때 핵심만<br>(A4 1~2장 분량)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 사용설명서 — 상세 설명서 (= 도움말, 본문 A) ============ -->
+  <div id="screen-manual-full" class="screen">
+    <div class="section-header no-print">
+      <button class="btn-home" onclick="showScreen('manual')">← 사용설명서로</button>
+      <h2>📘 상세 설명서</h2>
+      <button class="btn-blue" style="margin-left:auto;" onclick="printManual()">🖨 인쇄</button>
+    </div>
+    <div class="manual-content">
+      <h1>물품관리 시스템 — 상세 사용설명서</h1>
+      <div class="manual-intro">
+        설치 없이 더블클릭으로 쓰는, 어린이집 물품관리·재물조사 프로그램입니다.<br>
+        컴퓨터를 잘 다루지 못해도 이 순서대로 따라 하시면 됩니다.
+      </div>
+
+      <h2>1. 이 프로그램은 무엇인가요? (1분 소개)</h2>
+      <p>어린이집의 물품(비품)을 컴퓨터에 등록해 두고, 필요할 때 <b>물품대장·재물조사 서류·불용결정서를 인쇄</b>까지 할 수 있는 프로그램입니다.</p>
+      <ul>
+        <li><b>설치가 필요 없습니다.</b> 받은 파일을 더블클릭하면 바로 열립니다.</li>
+        <li><b>인터넷이 없어도 됩니다.</b></li>
+        <li>손으로 적던 비품관리대장을 컴퓨터로 깔끔하게 관리하고, 인쇄 버튼만 누르면 서류가 나오도록 만든 도구입니다.</li>
+      </ul>
+
+      <h2>2. ⚠️ 시작하기 전에 — 딱 3가지만 기억하세요 (가장 중요)</h2>
+      <p>이 세 가지만 지키면 자료를 잃어버릴 일이 거의 없습니다.</p>
+      <div class="manual-warn">
+        <p><b>① 입력한 자료는 "이 컴퓨터의 이 브라우저 안에만" 저장됩니다.</b><br>
+        다른 컴퓨터에서 열거나, 브라우저 자료를 청소하면 보이지 않게 됩니다. → 그래서 ②번이 중요합니다.</p>
+        <p><b>② 가끔 「백업 파일로 내보내기」를 꼭 하세요. (= 보험)</b><br>
+        홈 화면 아래쪽 <b>「백업 파일로 내보내기」</b> 버튼을 누르면, 그동안 입력한 자료(사진·조사 이력 포함)가 파일 하나로 저장됩니다. 이 파일만 잘 보관하면, 컴퓨터를 바꾸거나 자료가 사라져도 <b>「백업 파일 가져오기」</b>로 되살릴 수 있습니다.</p>
+        <p><b>③ 「시스템 초기화」는 함부로 누르지 마세요.</b><br>
+        설정 화면에 있는 <b>「시스템 초기화」</b>는 등록한 물품·재물조사 이력까지 <b>전부 지웁니다.</b> 정말 처음부터 다시 시작할 때만 사용하세요.</p>
+      </div>
+      <blockquote>이 프로그램은 정식 관급(공공) 기록관리 시스템이 아니라, 어린이집이 편하게 쓰도록 만든 <b>보조 도구</b>입니다. 그래서 백업 습관이 더욱 중요합니다.</blockquote>
+
+      <h2>3. 프로그램 열기 &amp; 첫 화면 둘러보기</h2>
+      <ol>
+        <li>받은 파일(예: <code>물품관리시스템.html</code>)을 <b>더블클릭</b>합니다.</li>
+        <li>크롬(Chrome)이나 엣지(Edge) 같은 인터넷 화면으로 프로그램이 열립니다.</li>
+      </ol>
+      <p><b>첫 화면(홈 화면)에는 다음이 있습니다.</b></p>
+      <ul>
+        <li><b>📋 물품대장</b> : 보유 물품을 등록하고 물품대장을 출력하는 곳</li>
+        <li><b>🔍 재물조사</b> : 등록된 물품의 실태를 조사하고 서류를 출력하는 곳 (그 안에 <b>「🔍 재물조사 시작」</b>, <b>「📜 조사이력 조회」</b> 버튼)</li>
+        <li><b>📖 사용설명서</b> : 이 설명서를 읽거나 인쇄하는 곳</li>
+        <li>화면 위쪽 <b>⚙ 설정</b> : 어린이집 이름 설정·시스템 초기화</li>
+        <li>화면 아래쪽 <b>💾 자료 백업</b> : 「백업 파일로 내보내기」, 「백업 파일 가져오기」</li>
+      </ul>
+
+      <h2>4. 맨 처음 한 번만 — 어린이집 이름 넣기</h2>
+      <p>인쇄물에 어린이집 이름이 자동으로 찍히게 하려면, 처음에 한 번만 설정하면 됩니다.</p>
+      <ol>
+        <li>화면 위 <b>⚙ 설정</b>을 누릅니다.</li>
+        <li><b>「어린이집 이름」</b> 칸에 이름을 적습니다. (예: 여수시립 햇살어린이집)</li>
+        <li><b>「저장」</b>을 누릅니다.</li>
+      </ol>
+      <p>이제 물품대장·재물조사 서류를 인쇄하면, 어린이집 이름이 자동으로 들어갑니다.</p>
+
+      <h2>5. 물품대장 — 물품 등록하고 관리하기</h2>
+      <p>홈 화면에서 <b>📋 물품대장</b>을 누르면 물품대장 화면으로 들어갑니다.</p>
+
+      <h3>5-0. 먼저 알아둘 것 — 무엇을 "물품"으로 등록하나요?</h3>
+      <p>어린이집은 회계장부의 하나로 <b>「비품관리대장」을 반드시 두도록</b> 정해져 있습니다. 이 프로그램의 물품대장이 바로 그 비품관리대장 역할을 합니다.</p>
+      <blockquote>▷ 근거: 「사회복지법인 및 사회복지시설 재무·회계 규칙」 제24조제1항 (회계장부로 현금출납부·총계정원장·재산대장·<b>비품관리대장</b>을 둠) — 2026년도 보육사업안내 부록 p.13</blockquote>
+      <p>그런데 물건이라고 다 등록하는 것은 아닙니다. <b>오래 쓰는 물건(비품)만</b> 등록합니다. 비품과 소모품을 가르는 기준은 <b>"내구연한 1년"</b>입니다.</p>
+      <p><b>▶ 등록하는 것 — 내구연한 1년 이상인 물품(비품)</b><br>
+      한 번 사면 1년 넘게 두고 쓰는 물품입니다. 이런 물품은 <b>자산취득비(721목)</b>로 구입하며, <b>반드시 물품대장(비품관리대장)에 등록</b>합니다.</p>
+      <ul><li>예: 책상·의자·교구장·사물함, 냉장고·세탁기·에어컨, 노트북·복합기, CCTV, 통학차량 등</li></ul>
+      <p><b>▶ 등록하지 않는 것 — 내구연한 1년 미만인 소모품</b><br>
+      1년 안에 닳거나 없어지는 소모성 물품입니다. <b>수용비 및 수수료(211목)</b> 등으로 구입하며, <b>물품대장에는 등록하지 않습니다.</b></p>
+      <ul><li>예: A4용지·복사용지, 물티슈·휴지, 건전지, 세제·일회용품, 한 번 쓰고 마는 소모성 재료 등</li></ul>
+      <blockquote>▷ 근거: 2025 어린이집 재무회계 매뉴얼 p.93 FAQ — 소모성 물품은 수용비 및 수수료로, 시설 운영에 필요한 비품으로서 <b>내구연한 1년 이상</b>인 물품은 자산취득비로 구분.</blockquote>
+      <p><b>▶ 헷갈리기 쉬운 것 — '집기'는 1년 넘게 써도 등록하지 않습니다</b><br>
+      식판·식기·소형 주방기구처럼 <b>일상적으로 쓰는 작은 생활도구(집기)</b>는, 1년 넘게 쓰더라도 값이 싸고 수량이 많아 하나하나 고유번호를 붙여 관리하는 것이 비효율적입니다. 이런 집기는 <b>수용비 및 수수료(211목)</b>로 구입하고 <b>물품대장에는 등록하지 않습니다.</b> (필요하면 비고 등에 "유아용 식판 50개"처럼 수량만 적어두면 충분합니다.)</p>
+      <ul><li>예: 식판·식기·수저, 소형 주방기구, 모서리 보호대 등</li></ul>
+      <p>즉 등록 여부는 <b>"1년 이상이냐"</b>만이 아니라 <b>"값이 나가고 따로 추적해 관리할 가치가 있느냐"</b>까지 함께 봅니다. 식판·식기는 1년 넘게 써도 대장에 올리지 않습니다.</p>
+      <p><b>▶ 1년 이상인지, 1년 미만인지는 어린이집이 스스로 판단하면 됩니다.</b><br>
+      딱 잘라 정해진 목록이 있는 것이 아닙니다. "이 물건은 1년 넘게 두고 쓸 물건이고, 따로 관리할 가치가 있는가?" 라고 생각해서, 그렇다면 등록, 한 철 쓰고 말 물건이거나 식판·식기 같은 집기면 등록하지 않으면 됩니다.</p>
+
+      <h3>5-0-2. 처음 시작할 때 — 이미 가지고 있는 물품 등록하기</h3>
+      <p>지금까지 사 모은 물품이 이미 많을 것입니다. 처음 이 프로그램을 쓸 때는 그 물품들을 한 번 등록해 넣어야 합니다.</p>
+      <ul>
+        <li>과거에 <b>어떤 세출목(예산 항목)으로 샀든 상관없습니다.</b> 자산취득비가 아닌 다른 항목으로 산 물품이 섞여 있어도 괜찮습니다.</li>
+        <li>지금 <b>1년 넘게 쓰고 있는 물품이면</b> 그대로 물품대장에 등록하면 됩니다.</li>
+        <li>과거 구입 기록(영수증, 지출 서류, 기존에 손으로 적어둔 비품목록 등)을 참고해서 <b>하나씩 차례대로 등록</b>해 나가면, 물품대장이 점점 갖춰집니다.</li>
+        <li>한 번에 다 하지 않아도 됩니다. <b>눈에 보이는 물품부터</b> 조금씩 등록해 나가면 됩니다.</li>
+      </ul>
+
+      <h3>5-0-3. 교재교구는 어떻게 하나요? — 「구분」 칸 사용법</h3>
+      <p>교재교구도 <b>1년 넘게 쓰는 것(블록교구·악기·그림책 세트 등)만</b> 물품대장에 등록합니다. 등록할 때 입력 창의 <b>「구분」</b>에서 <b>교재교구</b>를 고르면 됩니다.</p>
+      <ul>
+        <li><b>소모되는 교재교구는 등록하지 않습니다.</b> 만들기 재료, 한 번 쓰고 마는 자료, 완성해서 아이가 집에 가져가는 것 등은 대장에 올리지 않습니다.</li>
+        <li><b>교재교구구입비(312목)는 "온전히 교재·교구·도서·보육기자재인 것"에만 씁니다.</b> 소모품을 교재교구비로 사지 않도록 합니다.</li>
+        <li><b>장난감 소독기·교구 거치대처럼 '교구 자체'가 아닌 내구성 비품</b>은 교재교구가 아니라 <b>자산취득비(721목)</b>로 사고, 구분은 <b>일반비품</b>으로 등록합니다.</li>
+      </ul>
+      <p><b>「구분」은 일반비품 / 교재교구 두 가지</b>입니다. 인쇄할 때 이 구분에 따라 <b>「물품대장 인쇄」(일반비품)</b>와 <b>「교재교구대장 인쇄」(교재교구)</b>가 각각 따로 나옵니다.</p>
+      <blockquote>▷ 근거: 2025 어린이집 재무회계 매뉴얼 — 교재교구비(312목)는 보육 기자재·도서 등 구입에 쓰며 "각종 소모품 지출 비용이 교재교구비로 지출되지 않도록" 해야 함(p.74). 내구연한 1년 이상 비품은 자산취득비(721목)로 구분(p.93·94).</blockquote>
+
+      <h3>5-1. 물품 등록하기</h3>
+      <ol>
+        <li><b>「＋ 물품등록」</b> 버튼을 누릅니다. 입력 창이 뜹니다.</li>
+        <li>다음 칸을 채웁니다.
+          <ul>
+            <li><b>구분</b> (일반비품 / 교재교구 중 선택. 1년 이상 쓰는 교재교구만 '교재교구'를 고릅니다)</li>
+            <li><b>물품명</b> (예: 노트북)</li>
+            <li><b>규격</b> (모델명 등, 없으면 비워도 됨)</li>
+            <li><b>취득일자</b> : 숫자 8자리만 누르면 자동으로 날짜 모양이 됩니다. (예: <code>20260306</code> → 2026-03-06)</li>
+            <li><b>취득단가</b> : 금액을 적으면 쉼표가 자동으로 들어갑니다. (예: 1,500,000)</li>
+            <li><b>등록수량</b> (예: 1)</li>
+            <li><b>위치</b> (예: 2층 교사실)</li>
+            <li><b>비고</b> (메모할 내용)</li>
+            <li><b>사진</b> (필요하면 첨부)</li>
+          </ul>
+        </li>
+        <li><b>「등록」</b>을 누르면 물품대장 표에 추가됩니다.</li>
+      </ol>
+      <p><b>자동으로 해 주는 것들</b></p>
+      <ul>
+        <li><b>고유번호 자동부여</b> : 등록하면 <code>취득연도-순번</code> 모양의 번호가 자동으로 붙습니다. (예: 2026-001)</li>
+        <li><b>수량을 2개 이상</b> 넣으면, 물품마다 고유번호를 따로 매겨 줍니다. (예: 노트북 3개 → 2026-001, 2026-002, 2026-003)</li>
+        <li><b>금액 자동계산</b> : 금액 = 취득단가 × 수량 으로 표에 자동 표시됩니다.</li>
+      </ul>
+
+      <h3>5-1-2. 고유번호를 인쇄해 물품에 붙이기 (중요)</h3>
+      <p>등록하면 자동으로 붙는 <b>고유번호(예: 2026-001)</b>를, 그 물품에 <b>스티커로 붙여 두세요.</b></p>
+      <ul>
+        <li><b>왜 붙이나요?</b> 대장(컴퓨터)에 적힌 고유번호와, 창고·교실에 실제로 놓인 물품을 <b>1:1로 연결</b>해 줍니다. 번호가 붙어 있으면 재물조사 때 "이 물건이 대장의 어느 줄인지" 바로 찾을 수 있습니다.</li>
+        <li><b>어떻게 붙이나요?</b> 물품대장을 인쇄해 고유번호를 확인한 뒤, 라벨지·스티커에 번호를 적거나 인쇄해서 물품의 잘 보이는 곳에 붙입니다.</li>
+        <li><b>같은 물품이 여러 개면?</b> 의자 10개처럼 같은 물품도 고유번호는 하나씩 다르게 매겨집니다(2026-001, 2026-002 …). 그러니 <b>번호도 물품마다 다르게</b> 붙입니다.</li>
+      </ul>
+      <figure style="margin:16px 0; text-align:center; page-break-inside:avoid;">
+        <svg viewBox="0 0 360 320" width="280" style="max-width:100%; height:auto;" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="선풍기에 고유번호 스티커를 붙인 예시 그림">
+          <!-- 바닥 받침 -->
+          <ellipse cx="160" cy="298" rx="86" ry="15" fill="#cfd8e0"/>
+          <!-- 기둥(몸체) -->
+          <rect x="138" y="198" width="44" height="92" rx="8" fill="#e3e9ee" stroke="#b6c2cc" stroke-width="2"/>
+          <!-- 머리 목 -->
+          <rect x="152" y="178" width="16" height="34" fill="#cdd6de"/>
+          <!-- 그릴(둥근 머리) -->
+          <circle cx="160" cy="120" r="96" fill="#eef3f7" stroke="#9fb1c0" stroke-width="3"/>
+          <circle cx="160" cy="120" r="78" fill="none" stroke="#cad5de" stroke-width="2"/>
+          <circle cx="160" cy="120" r="58" fill="none" stroke="#cad5de" stroke-width="2"/>
+          <circle cx="160" cy="120" r="38" fill="none" stroke="#cad5de" stroke-width="2"/>
+          <!-- 날개 3개 -->
+          <g fill="#bcd6ea" stroke="#7fa5c4" stroke-width="1.5">
+            <ellipse cx="160" cy="86" rx="16" ry="30"/>
+            <ellipse cx="160" cy="86" rx="16" ry="30" transform="rotate(120 160 120)"/>
+            <ellipse cx="160" cy="86" rx="16" ry="30" transform="rotate(240 160 120)"/>
+          </g>
+          <!-- 중심 허브 -->
+          <circle cx="160" cy="120" r="15" fill="#7fa5c4"/>
+          <circle cx="160" cy="120" r="6" fill="#5b87a8"/>
+          <!-- 고유번호 스티커 (기둥에 부착) -->
+          <g transform="rotate(-3 160 238)">
+            <rect x="120" y="220" width="80" height="37" rx="4" fill="#ffffff" stroke="#e0a800" stroke-width="2.5"/>
+            <text x="160" y="234" text-anchor="middle" font-family="sans-serif" font-size="10" fill="#999">고유번호</text>
+            <text x="160" y="250" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="bold" fill="#2c3e50">2026-001</text>
+          </g>
+          <!-- 안내 화살표 + 글 -->
+          <path d="M252 238 L210 238" fill="none" stroke="#e74c3c" stroke-width="2" stroke-dasharray="4 3"/>
+          <polygon points="210,238 219,233 219,243" fill="#e74c3c"/>
+          <text x="256" y="234" font-family="sans-serif" font-size="12.5" fill="#e74c3c" font-weight="bold">고유번호</text>
+          <text x="256" y="251" font-family="sans-serif" font-size="12.5" fill="#e74c3c" font-weight="bold">스티커</text>
+        </svg>
+        <figcaption style="font-size:13px; color:#888; margin-top:6px;">▲ 등록 후 받은 고유번호(예: 2026-001)를 물품에 스티커로 붙인 모습</figcaption>
+      </figure>
+
+      <h3>5-2. 사진 첨부하고, 사진 크게 보기</h3>
+      <ul>
+        <li>등록할 때 <b>「📷 사진」</b>으로 사진을 붙일 수 있습니다.</li>
+        <li>표에 작게 나온 사진을 누르면 <b>크게</b> 볼 수 있습니다.</li>
+      </ul>
+
+      <h3>5-3. 등록한 물품 수정하기</h3>
+      <ul>
+        <li>표에서 고치고 싶은 <b>줄(행)을 더블클릭</b>하면, 등록할 때와 같은 창이 떠서 내용을 고칠 수 있습니다.</li>
+      </ul>
+
+      <h3>5-4. 잘못 등록한 물품 삭제하기 (※ "불용결정"과 다릅니다)</h3>
+      <ul>
+        <li>수정 창(행 더블클릭)을 열면 안에 <b>「삭제」</b> 버튼이 있습니다.</li>
+        <li>이 <b>「삭제」</b>는 <b>잘못 입력한 물품을 아예 지울 때</b> 씁니다. (예: 실수로 두 번 등록함)</li>
+        <li>⚠️ <b>못 쓰게 된 물품을 폐기 처리하는 것은 「삭제」가 아니라 「불용결정」입니다.</b> (→ 6번 참고)
+          <ul>
+            <li><b>삭제</b> = 처음부터 잘못 적은 것을 없던 일로 지움</li>
+            <li><b>불용결정</b> = 실제로 있던 물품을 "이제 못 쓴다"고 처리하고 기록으로 남김</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>5-5. 「지자체 소유물품」 체크란은 무엇인가요? (국공립어린이집용)</h3>
+      <p>물품 등록 창과 목록 화면에 <b>「지자체 소유물품」</b>이라는 체크란이 있습니다.</p>
+      <ul>
+        <li>이것은 <b>지자체(시청 등) 재산목록에 등록되어 있으면서, 어린이집에 놓여 있는 물품</b>을 표시하는 칸입니다.</li>
+        <li>이런 물품은 <b>지자체 정기재물조사의 대상</b>이 되기도 합니다.</li>
+        <li>해당하는 물품에 체크해 두면, 나중에 목록 화면에서 <b>「지자체 소유물품만 표시」</b>를 켜서 그 물품들만 따로 모아 볼 수 있습니다. (지자체에서 자료를 요청할 때 편리합니다.)</li>
+      </ul>
+
+      <h3>5-6. 목록 보기 — 정렬과 페이지</h3>
+      <ul>
+        <li><b>정렬</b> : 표의 제목 칸(고유번호·물품명·취득일자·금액·위치 등)을 누르면 오름차순/내림차순/원래순서로 바뀝니다.</li>
+        <li><b>한 화면에 보는 개수</b> : 10개·20개·50개·100개 중에서 고를 수 있습니다.</li>
+        <li><b>「불용물품 표시」</b>를 켜고 끄면, 불용결정된 물품을 보이거나 숨길 수 있습니다.</li>
+      </ul>
+
+      <h3>5-7. 물품대장 인쇄하기</h3>
+      <ol>
+        <li>인쇄 버튼은 <b>두 가지</b>입니다.
+          <ul>
+            <li><b>「물품대장 인쇄」</b> : 구분이 <b>일반비품</b>인 물품만 모아 "물품관리대장"으로 출력합니다.</li>
+            <li><b>「교재교구대장 인쇄」</b> : 구분이 <b>교재교구</b>인 물품만 모아 "교재교구관리대장"으로 출력합니다.</li>
+          </ul>
+        </li>
+        <li>인쇄 미리보기가 뜹니다. 두 대장 모두 <b>A4 가로</b> 방향으로 나옵니다.</li>
+        <li>인쇄물에는 어린이집 이름, 출력 일시, <b>결재란(물품출납원·시설장)</b>이 자동으로 들어갑니다.</li>
+      </ol>
+      <blockquote>▷ 결재란이 "물품출납원·시설장"인 이유: 규칙상 시설의 장이 물품을 관리하고, 물품 출납·보관을 위해 소속 직원 중에서 <b>물품출납원을 지정</b>하도록 정하고 있기 때문입니다.<br>
+      ▷ 근거: 「재무·회계 규칙」 제38조(물품의 관리자와 출납원) — 부록 p.14~15</blockquote>
+
+      <h2>6. 불용결정 — 못 쓰는 물품 처리하기</h2>
+      <p>오래되어 못 쓰거나 망가진 물품은 "불용(쓰지 않음)"으로 처리하고 기록을 남깁니다.</p>
+      <blockquote>▷ 근거: 「재무·회계 규칙」 제41조(불용품의 처리) — 물품 중 그 사용이 <b>불가능하거나 수리하여 다시 사용할 수 없게 된 물품</b>은 불용의 결정을 하도록 정하고 있습니다(부록 p.15). 즉 멀쩡히 쓰는 물품을 임의로 불용 처리하는 것이 아니라, 못 쓰게 된 물품을 정리하는 절차입니다.</blockquote>
+      <ol>
+        <li>물품대장 표에서 해당 물품의 <b>「불용결정」</b> 버튼을 누릅니다.</li>
+        <li><b>불용결정일·사유·사진</b>(필요 시)을 입력합니다.</li>
+        <li>표에 불용결정일과 사유가 표시됩니다.</li>
+      </ol>
+      <ul>
+        <li>잘못 눌렀거나 되돌리고 싶으면 <b>「불용취소」</b>를 누르면 됩니다.</li>
+        <li>서류가 필요하면 <b>「불용결정서 출력」</b>을 누릅니다. <b>A4 세로</b> 서식으로 나옵니다.</li>
+      </ul>
+
+      <h2>7. 재물조사 — 대장과 실물을 맞춰보기 (3단계)</h2>
+      <h3>재물조사가 무엇인가요? (먼저 읽어 주세요)</h3>
+      <p>재물조사는 단순히 "있는 물건을 적는 일"이 아닙니다. <b>물품대장에 적어 둔 물건이, 실제로 그대로 있는지 하나씩 맞춰 보는 일</b>입니다.</p>
+      <ul>
+        <li>대장에는 있는데 실물이 없으면? → 분실 여부 확인</li>
+        <li>망가졌거나 수리가 필요하면? → 그 상태를 기록</li>
+      </ul>
+      <p>이렇게 <b>대장(장부) ↔ 실물</b>을 대조해서, 대장을 실제와 맞게 정리하는 것이 재물조사입니다.</p>
+      <blockquote>▷ 근거: 「재무·회계 규칙」 제40조의2(재물조사) — 시설의 장은 <b>연 1회 그 관리에 속하는 물품에 대하여 정기적으로 재물조사</b>를 실시하여야 하며, 필요하다고 인정하는 때에는 정기재물조사 외에 수시로 재물조사를 할 수 있습니다(부록 p.15). 또한 제39조(물품의 관리의무)는 물품관리자·물품출납원이 <b>선량한 관리자의 주의</b>로 사무에 종사하도록, 제40조(물품의 관리)는 물품의 분류를 명백히 하여 출납하도록 정하고 있습니다.</blockquote>
+      <p>이 프로그램은 그 과정을 <b>3단계</b>로 도와줍니다. 홈 화면 <b>🔍 재물조사 → 「🔍 재물조사 시작」</b>을 누르면 시작됩니다. 화면 위에 진행 단계가 보입니다: <b>① 개요 및 조사대상 확정 → ② 결과 입력 → ③ 결과 확인</b></p>
+
+      <h3>7-1. ① 개요 및 조사대상 확정</h3>
+      <ol>
+        <li>다음을 입력합니다.
+          <ul>
+            <li><b>조사연도</b></li>
+            <li><b>조사구분</b> : 정기 / 수시 중 선택</li>
+            <li><b>조사 시작일 · 조사 종료일</b></li>
+          </ul>
+        </li>
+        <li>그 아래에 <b>등록된 물품들이 조사 대상 목록으로 자동으로 나타납니다.</b> (불용결정된 물품은 빠집니다.)</li>
+        <li><b>「조서 인쇄」</b>를 누르면, 실태 칸이 <b>빈칸</b>으로 된 조사 조서가 인쇄됩니다(A4 세로). 이 종이를 들고 다니며 손으로 체크할 수 있습니다.</li>
+        <li>준비가 되면 <b>「조사 시작 →」</b>을 누릅니다.</li>
+      </ol>
+
+      <h3>7-2. ② 결과 입력</h3>
+      <p>물품마다 실제 상태를 입력합니다.</p>
+      <ul>
+        <li><b>실태</b>를 고릅니다: <b>정상 / 분실 / 파손 / 수리필요 / 기타</b></li>
+        <li>필요하면 <b>특이사항</b>을 적고, <b>사진</b>을 붙입니다.</li>
+        <li>입력 도중 <b>「조사내용 저장」</b>을 누르면 저장됩니다. (중간에 멈췄다 다시 해도 됩니다.)</li>
+        <li>다 입력했으면 <b>「3단계(결과 확인)로 →」</b>를 누릅니다.</li>
+      </ul>
+
+      <h3>7-3. ③ 결과 확인 및 결과서 인쇄</h3>
+      <ul>
+        <li>실태별 건수(정상 몇 개, 분실 몇 개 …)가 요약되어 나옵니다.</li>
+        <li><b>「결과서 인쇄」</b>를 누르면 결과서가 인쇄됩니다(A4 세로). 결과서에는 조사 개요·결과 통계와 함께 <b>결재란(조사자·물품출납원·시설장)</b>이 들어갑니다.</li>
+        <li>⚠️ <b>3단계로 넘어가면, 이번 조사 결과가 자동으로 "조사이력"에 저장됩니다.</b></li>
+      </ul>
+
+      <h3>7-4. 조사 결과를 물품대장에 반영하기 (꼭 하세요)</h3>
+      <p>재물조사는 조사로 끝나는 것이 아닙니다. 조사에서 드러난 변화를 <b>물품대장에 실제로 정리</b>해야 마무리됩니다. 그래야 대장과 실물이 계속 일치합니다.</p>
+      <ul>
+        <li><b>파손·노후로 더 못 쓰게 된 물품</b> → 물품대장에서 <b>「불용결정」</b>으로 처리합니다. (→ 6번 참고)</li>
+        <li><b>분실된 물품</b> → 사실관계를 확인한 뒤, 필요하면 불용결정하거나 별도 조치를 하고, 비고에 경위를 적어 둡니다.</li>
+        <li><b>수리가 필요한 물품</b> → 수리를 진행하고, 상태가 바뀌면 내용을 갱신합니다.</li>
+        <li><b>위치가 바뀌었거나 정보가 틀린 물품</b> → 물품대장에서 그 줄을 <b>더블클릭</b>해 수정합니다. (→ 5-3 참고)</li>
+      </ul>
+      <blockquote>▷ 한마디로: <b>재물조사 결과 → 물품대장 반영</b>까지 해야 한 번의 재물조사가 끝납니다. 조사만 하고 대장을 그대로 두면, 다음 조사 때 같은 문제가 또 나옵니다.</blockquote>
+
+      <h3>7-5. 지난 조사 다시 보기</h3>
+      <ul>
+        <li>홈의 <b>🔍 재물조사 → 「📜 조사이력 조회」</b>를 누르면 지난 조사 목록이 나옵니다.</li>
+        <li><b>「상세보기」</b>로 그때의 결과를 다시 볼 수 있고, 결과서를 다시 인쇄할 수도 있습니다.</li>
+      </ul>
+
+      <h2>8. 자료 백업 — 안 하면 후회합니다</h2>
+      <p>(2번에서 말씀드린 가장 중요한 부분입니다.)</p>
+      <p><b>▶ 백업 만들기 (내보내기)</b></p>
+      <ul>
+        <li>홈 화면 아래 <b>「백업 파일로 내보내기」</b>를 누르면, 자료가 파일 하나로 저장됩니다.</li>
+        <li>이 백업 파일에는 <b>물품 목록·사진·재물조사 이력</b>이 모두 들어 있습니다.</li>
+        <li>저장한 백업 파일은 USB나 다른 폴더에 따로 보관해 두세요.</li>
+      </ul>
+      <p><b>▶ 백업 되살리기 (가져오기)</b></p>
+      <ul>
+        <li>컴퓨터를 바꿨거나 자료가 사라졌을 때, <b>「백업 파일 가져오기」</b>로 백업 파일을 불러오면 그대로 되살아납니다.</li>
+        <li>지금 화면에 자료가 있는 상태에서 가져오면, 안전을 위해 <b>현재 자료를 먼저 자동으로 백업한 뒤</b> 불러옵니다.</li>
+      </ul>
+      <p><b>▶ 백업 습관 (권장)</b></p>
+      <ul>
+        <li>물품을 많이 등록한 날, 재물조사를 마친 날처럼 <b>큰 작업을 한 뒤</b>에는 꼭 백업하세요.</li>
+        <li>평소에는 <b>한 달에 한 번</b> 정도 백업하면 안심입니다.</li>
+        <li>백업 파일 이름에 <b>날짜를 적어 두면</b>(예: <code>물품백업_20260628</code>) 나중에 찾기 쉽습니다.</li>
+      </ul>
+
+      <h2>9. 인쇄 요령 (공통)</h2>
+      <ul>
+        <li>인쇄 버튼을 누르면 미리보기 화면이 나옵니다. 거기서 종이에 어떻게 나올지 먼저 확인하세요.</li>
+        <li>인쇄물마다 종이 방향이 정해져 있습니다.</li>
+      </ul>
+      <table>
+        <thead><tr><th>인쇄물</th><th>종이 방향</th></tr></thead>
+        <tbody>
+          <tr><td>물품대장</td><td>A4 가로</td></tr>
+          <tr><td>재물조사 조서</td><td>A4 세로</td></tr>
+          <tr><td>재물조사 결과서</td><td>A4 세로</td></tr>
+          <tr><td>불용결정서</td><td>A4 세로</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li>표나 사진이 너무 작게 나오면, 미리보기의 <b>배율(크기)</b>을 조정해 보세요.</li>
+        <li>색이나 음영이 안 나오면, 인쇄 설정에서 <b>「배경 그래픽」</b>을 켜 보세요.</li>
+      </ul>
+
+      <h2>10. 자주 묻는 질문 / 문제가 생겼을 때</h2>
+      <p><b>Q. 입력했던 자료가 갑자기 안 보여요.</b></p>
+      <ul>
+        <li>다른 컴퓨터나 다른 브라우저로 열었는지 확인하세요. 자료는 입력한 그 컴퓨터·브라우저에만 저장됩니다.</li>
+        <li>브라우저 청소(검색기록 삭제 등)를 했다면 자료가 지워졌을 수 있습니다. → <b>「백업 파일 가져오기」</b>로 백업을 되살리세요.</li>
+      </ul>
+      <p><b>Q. 다른 컴퓨터로 자료를 옮기고 싶어요.</b></p>
+      <ul>
+        <li>원래 컴퓨터에서 <b>「백업 파일로 내보내기」</b> → 그 파일을 새 컴퓨터로 옮긴 뒤 → 새 컴퓨터에서 <b>「백업 파일 가져오기」</b> 하면 됩니다.</li>
+      </ul>
+      <p><b>Q. 사진이 안 올라가요.</b></p>
+      <ul>
+        <li>사진 파일이 너무 크면 시간이 걸릴 수 있습니다. 잠시 기다려 보세요. 그래도 안 되면 다른 사진으로 시도해 보세요.</li>
+      </ul>
+      <p><b>Q. 인쇄가 이상하게(잘려서/너무 작게) 나와요.</b></p>
+      <ul>
+        <li>미리보기에서 종이 방향(위 표 참고)과 배율을 확인하고, 여백을 「기본」으로 맞춰 보세요.</li>
+      </ul>
+      <p><b>Q. 글자가 깨져 보여요.</b></p>
+      <ul>
+        <li>크롬(Chrome)이나 엣지(Edge)에서 여는 것을 권합니다.</li>
+      </ul>
+
+      <h2>11. 마지막 당부</h2>
+      <ul>
+        <li><b>백업을 생활화하세요.</b> 자료를 지키는 가장 확실한 방법입니다.</li>
+        <li><b>「시스템 초기화」는 모든 자료를 지우니</b> 정말 필요할 때만 누르세요.</li>
+        <li>물품대장에는 <b>1년 넘게 쓰는 물품(비품)</b>만 등록하면 됩니다. 소모품까지 다 넣을 필요는 없습니다.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ 사용설명서 — 빠른 시작 가이드 (본문 B) ============ -->
+  <div id="screen-manual-quick" class="screen">
+    <div class="section-header no-print">
+      <button class="btn-home" onclick="showScreen('manual')">← 사용설명서로</button>
+      <h2>⚡ 빠른 시작 가이드</h2>
+      <button class="btn-blue" style="margin-left:auto;" onclick="printManual()">🖨 인쇄</button>
+    </div>
+    <div class="manual-content">
+      <h1>물품관리 시스템 — 빠른 시작 가이드</h1>
+      <div class="manual-intro">바쁘실 때, 이것만 보고도 바로 쓰실 수 있게 핵심만 모았습니다.</div>
+
+      <h3>① 프로그램 열기</h3>
+      <p>받은 파일을 <b>더블클릭</b> → 인터넷 화면(크롬/엣지)으로 열립니다. 설치·인터넷 필요 없음.</p>
+
+      <h3>② 맨 처음 한 번 — 어린이집 이름 넣기</h3>
+      <p><b>⚙ 설정 → 어린이집 이름 입력 → 「저장」.</b> (인쇄물에 자동으로 찍힙니다.)</p>
+
+      <h3>③ 무엇을 등록하나요? (내구연한 1년 + 관리가치)</h3>
+      <p><b>대장에 올리는 것</b> : 1년 넘게 쓰는 <b>비품·교재교구</b>. (책상·냉장고·노트북·CCTV·통학차량, 블록교구·악기 등 → 자산취득비/교재교구비로 구입)<br>
+      <b>안 올리는 것</b> : ① <b>소모품</b>(용지·물티슈·건전지 등), ② <b>식판·식기 같은 집기</b>(1년 넘게 써도 값싸고 다량이라 제외), ③ <b>소모되는 교재교구</b>(만들기 재료, 아이가 가져가는 완성품 등). → 모두 <b>수용비 및 수수료</b>로 사고 대장에는 안 올립니다.</p>
+      <p>※ <b>장난감 소독기·교구 거치대</b>는 교재교구가 아니라 내구성 비품 → <b>자산취득비</b>로 사고 구분은 <b>일반비품</b>으로 등록.<br>
+      ※ 1년 이상인지, 따로 관리할 값어치가 있는지는 <b>어린이집이 스스로 판단</b>하면 됩니다. 처음엔 과거에 어떤 항목으로 샀든 상관없이 <b>지금 1년 이상 쓰는 물품을 하나씩</b> 등록하면 됩니다.</p>
+      <blockquote>▷ 근거: 비품관리대장 비치 의무 = 「재무·회계 규칙」 제24조제1항 / 비품·소모품 구분(내구연한 1년) = 2025 어린이집 재무회계 매뉴얼 p.93~94</blockquote>
+
+      <h3>④ 물품 등록하기</h3>
+      <p>홈 <b>📋 물품대장 → 「＋ 물품등록」</b> → <b>구분(일반비품/교재교구)</b>·물품명·취득일자·취득단가·수량·위치 등 입력 → <b>「등록」</b>.</p>
+      <ul>
+        <li><b>구분</b>은 일반 비품이면 '일반비품', 1년 이상 쓰는 교재교구면 '교재교구'를 고릅니다. (인쇄가 각각 따로 나옵니다)</li>
+        <li>고유번호(예: 2026-001)는 <b>자동</b>으로 붙습니다. 수량을 2개 이상 넣으면 번호도 따로 매겨집니다.</li>
+        <li><b>📌 고유번호 스티커 붙이기(중요):</b> 등록 후 받은 고유번호를 인쇄해 <b>그 물품에 스티커로 붙이세요.</b> 대장 번호와 실제 물품이 1:1로 연결되어, 재물조사 때 바로 찾을 수 있습니다.</li>
+        <li>고치기: 표의 줄을 <b>더블클릭</b>. / 잘못 넣은 것 지우기: 수정 창의 <b>「삭제」</b>.</li>
+      </ul>
+
+      <h3>⑤ 물품대장 인쇄</h3>
+      <p><b>「물품대장 인쇄」</b>(일반비품) / <b>「교재교구대장 인쇄」</b>(교재교구) → 각각 A4 <b>가로</b>로 출력(결재란 자동).</p>
+
+      <h3>⑥ 못 쓰는 물품 처리(불용결정)</h3>
+      <p>물품 줄의 <b>「불용결정」</b> → 불용일·사유 입력. 서류는 <b>「불용결정서 출력」</b>(A4 세로).<br>
+      ※ "삭제"(잘못 입력 지우기)와 "불용결정"(실제 폐기 기록)은 다릅니다.</p>
+      <blockquote>▷ 근거: 「재무·회계 규칙」 제41조(불용품의 처리) — 사용 불가능·수리 불가 물품을 불용 결정.</blockquote>
+
+      <h3>⑦ 재물조사 — 대장과 실물 맞춰보기 (3단계)</h3>
+      <p>재물조사는 <b>물품대장에 적힌 물건이 실제로 있는지 하나씩 맞춰 보는 일</b>입니다. (연 1회 정기 실시 의무)<br>
+      홈 <b>🔍 재물조사 → 「🔍 재물조사 시작」</b></p>
+      <ol>
+        <li><b>① 개요 및 조사대상 확정</b> : 조사연도·구분(정기/수시)·기간 입력 → 등록 물품이 조사 대상으로 자동 표시 → <b>「조서 인쇄」</b>(빈칸 체크용) → <b>「조사 시작 →」</b></li>
+        <li><b>② 결과 입력</b> : 물품마다 실태(<b>정상/분실/파손/수리필요/기타</b>)·특이사항·사진 입력 → <b>「조사내용 저장」</b></li>
+        <li><b>③ 결과 확인</b> : 건수 요약 확인 → <b>「결과서 인쇄」</b>(A4 세로). 3단계로 넘어가면 <b>이력에 자동 저장</b>됩니다.</li>
+      </ol>
+      <p style="margin-top:8px;"><b>🔁 조사 뒤에는 결과를 물품대장에 반영(꼭!):</b> 파손·노후로 못 쓰는 물품은 <b>「불용결정」</b>, 분실은 사실 확인 후 조치하고 비고에 기록, 위치·정보가 바뀐 물품은 줄을 <b>더블클릭</b>해 수정합니다. 여기까지 해야 한 번의 재물조사가 끝납니다.</p>
+      <p>지난 조사: <b>「📜 조사이력 조회」</b>에서 다시 보기·인쇄.</p>
+      <blockquote>▷ 근거: 「재무·회계 규칙」 제40조의2(재물조사) — 연 1회 정기 재물조사 의무.</blockquote>
+
+      <h3>⑧ ⚠️ 꼭 기억할 것 (가장 중요)</h3>
+      <div class="manual-warn">
+        <ul style="margin:4px 0;">
+          <li>자료는 <b>이 컴퓨터의 브라우저 안에만</b> 저장됩니다.</li>
+          <li>그래서 가끔 <b>「백업 파일로 내보내기」</b>를 꼭 하세요. 되살릴 땐 <b>「백업 파일 가져오기」</b>.</li>
+          <li><b>「시스템 초기화」</b>는 모든 자료를 지우니 함부로 누르지 마세요.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 물품대장 ============ -->
+  <div id="screen-ledger" class="screen">
+    <div class="section-header no-print" style="width:1166px; max-width:100%; margin:0 auto 20px;">
+      <button class="btn-home" onclick="showScreen('home')">← 홈으로</button>
+      <h2>📋 물품대장</h2>
+    </div>
+
+    <div class="action-area" style="width:1166px; max-width:100%; margin:0 auto 10px;">
+      <button class="btn-blue" onclick="openItemModal()">＋ 물품등록</button>
+      <label class="no-print" style="font-size:13px; cursor:pointer; display:flex; align-items:center; gap:4px;">
+        <input type="checkbox" id="chk-show-disposed" onchange="renderLedger()">불용물품 표시
+      </label>
+      <label class="no-print" style="font-size:13px; cursor:pointer; display:flex; align-items:center; gap:4px; margin-right:auto;">
+        <input type="checkbox" id="chk-gov-only" onchange="renderLedger()">지자체 소유물품만 표시
+      </label>
+      <button class="btn-blue" onclick="printLedger('일반비품')">물품대장 인쇄</button>
+      <button class="btn-blue" onclick="printLedger('교재교구')">교재교구대장 인쇄</button>
+    </div>
+
+    <div class="print-meta print-datetime">출력일시: <span id="print-datetime"></span></div>
+    <div class="print-title" id="ledger-print-title">물품관리대장</div>
+    <div class="print-meta print-centername" id="print-centername"></div>
+
+    <div class="table-scroll">
+      <table class="ledger-table">
+        <thead>
+          <tr>
+            <th style="width:44px">연번</th>
+            <th style="width:78px" class="sortable" onclick="toggleSort('id')">고유번호<span id="si-id" class="sort-icon">↕</span></th>
+            <th style="width:72px" class="c-cat sortable" onclick="toggleSort('category')">구분<span id="si-category" class="sort-icon">↕</span></th>
+            <th style="width:130px" class="sortable" onclick="toggleSort('name')">물품명<span id="si-name" class="sort-icon">↕</span></th>
+            <th style="width:80px">규격</th>
+            <th style="width:88px" class="c-date sortable" onclick="toggleSort('date')">취득일자<span id="si-date" class="sort-icon">↕</span></th>
+            <th style="width:110px" class="sortable" onclick="toggleSort('total')">금액<br>(원)<span id="si-total" class="sort-icon">↕</span></th>
+            <th style="width:110px" class="sortable" onclick="toggleSort('location')">위치<span id="si-location" class="sort-icon">↕</span></th>
+            <th style="width:84px">사진</th>
+            <th style="width:107px">비고</th>
+            <th class="col-approval print-only">물품<br>출납원</th>
+            <th class="col-approval print-only">시설장</th>
+            <th style="width:88px" class="c-date sortable" onclick="toggleSort('disposalDate')">불용<br>결정일<span id="si-disposalDate" class="sort-icon">↕</span></th>
+            <th style="width:96px">불용<br>사유</th>
+            <th class="col-action no-print">처리</th>
+          </tr>
+        </thead>
+        <tbody id="ledger-list"></tbody>
+      </table>
+    </div>
+
+    <!-- 쪽 이동 + 표시 갯수 -->
+    <div class="pager no-print" style="width:1166px; max-width:100%; margin:16px auto 0;">
+      <div class="pager-side"></div>
+      <div class="pager-pages" id="pager-pages"></div>
+      <div class="pager-side pager-right">
+        표시 갯수
+        <select id="page-size" onchange="changePageSize(this.value)">
+          <option value="10">10개</option>
+          <option value="20">20개</option>
+          <option value="50">50개</option>
+          <option value="100">100개</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 재물조사 ============ -->
+  <div id="screen-survey" class="screen">
+    <div class="section-header no-print">
+      <button class="btn-home" onclick="showScreen('home')">← 홈으로</button>
+      <h2>🔍 재물조사</h2>
+    </div>
+
+    <!-- 단계 표시바 -->
+    <div class="step-bar no-print" id="survey-step-bar">
+      <div class="step-item" id="step-bar-1">① 개요 및 조사대상 확정</div>
+      <span class="step-arrow">→</span>
+      <div class="step-item" id="step-bar-2">② 결과 입력</div>
+      <span class="step-arrow">→</span>
+      <div class="step-item" id="step-bar-3">③ 결과 확인</div>
+    </div>
+
+    <!-- ===== 1단계: 재물조사 개요 및 조사대상 확정 ===== -->
+    <div id="survey-stage-1" class="survey-stage no-print">
+      <div class="input-area survey-overview">
+        <div>
+          <label>조사연도</label>
+          <input type="number" id="inp-survey-year" placeholder="예) 2026">
+        </div>
+        <div>
+          <label>조사구분</label><label for="rt-reg" style="display:inline!important;width:auto!important;font-weight:normal!important;cursor:pointer;margin-left:4px;color:#333;"><input type="radio" id="rt-reg" name="survey-type" value="정기" checked> 정기</label>&nbsp;&nbsp;&nbsp;&nbsp;<label for="rt-spot" style="display:inline!important;width:auto!important;font-weight:normal!important;cursor:pointer;color:#333;"><input type="radio" id="rt-spot" name="survey-type" value="수시"> 수시</label>
+        </div>
+        <div>
+          <label>조사 시작일</label>
+          <input type="text" id="inp-survey-start" placeholder="예) 20260624" maxlength="10" oninput="autoFormatDate(this)">
+        </div>
+        <div>
+          <label>조사 종료일</label>
+          <input type="text" id="inp-survey-end" placeholder="예) 20260624" maxlength="10" oninput="autoFormatDate(this)">
+        </div>
+        <p style="margin:12px 0 0; font-size:13px; color:#888;">
+          조사 개요를 입력하면 아래 조사 대상 물품 목록이 표시됩니다. 조서를 인쇄하거나 "조사 시작"을 눌러 실태 입력으로 이동하세요.
+        </p>
+      </div>
+      <!-- 조사 대상 물품 목록 (불용결정 제외) -->
+      <div style="margin:20px 0 8px; font-size:14px; font-weight:bold;">📋 조사 대상 물품 목록</div>
+      <div id="stage1-list-wrap"></div>
+      <!-- 버튼 -->
+      <div class="action-area" style="margin-top:16px;">
+        <button class="btn-add" onclick="printSurveyDocument()">조서 인쇄</button>
+        <button class="btn-add" onclick="startSurvey()">조사 시작 →</button>
+      </div>
+    </div>
+
+    <!-- ===== 2단계: 조사결과 입력 ===== -->
+    <div id="survey-stage-2" class="survey-stage no-print">
+      <div class="action-area">
+        <button class="btn-gray" style="margin-right:auto;" onclick="backToStage1()">← 1단계로 돌아가기</button>
+        <button class="btn-blue" onclick="saveSurvey()">조사내용 저장</button>
+        <button class="btn-blue" onclick="goStage3()">3단계(결과 확인)로 →</button>
+      </div>
+      <p style="font-size:13px; color:#888; margin:0 0 12px;">
+        물품대장에 등록된 물품이 모두 표시됩니다. 각 물품의 실태를 선택하고 특이사항·사진을 입력한 뒤 "조사내용 저장"을 누르세요.
+      </p>
+    </div>
+
+    <!-- ===== 3단계: 결과 확인 및 출력 ===== -->
+    <div id="survey-stage-3" class="survey-stage no-print">
+      <div class="action-area">
+        <button class="btn-gray" style="margin-right:auto;" onclick="goStage2()">← 2단계(결과 입력)로</button>
+        <button class="btn-blue" onclick="printSurveyResult()">결과서 인쇄</button>
+        <button class="btn-gray" onclick="resetSurvey()">새 재물조사 시작</button>
+      </div>
+      <div class="survey-summary" id="survey-summary"></div>
+    </div>
+
+    <!-- 인쇄 머리글: 조서/결과서에 따라 제목이 바뀜 -->
+    <div class="print-meta print-centername" id="survey-print-centername"></div>
+    <div class="print-title" id="survey-print-title">재 물 조 사 조 서</div>
+    <div id="survey-date-print" class="print-title" style="font-size:14px; font-weight:normal; margin-bottom:8px;"></div>
+    <div id="survey-result-summary-print" style="font-size:13px; margin-bottom:16px; line-height:2;"></div>
+
+    <!-- 물품 목록 표 (2·3단계 및 인쇄에서 공통 사용) -->
+    <div id="survey-table-wrap">
+      <table id="survey-table">
+        <thead>
+          <tr>
+            <th style="width:90px">고유번호</th>
+            <th style="width:200px">물품명</th>
+            <th style="width:110px">규격</th>
+            <th style="width:115px">실태</th>
+            <th style="width:240px">특이사항</th>
+            <th class="survey-photo-col" style="width:110px">사진</th>
+          </tr>
+        </thead>
+        <tbody id="survey-list"></tbody>
+      </table>
+    </div>
+
+    <!-- 결과서 인쇄용 결재란 (인쇄 시에만, 결과서 모드일 때만 표시) -->
+    <div class="survey-result-sign" id="survey-result-sign">
+      <table style="margin-top:24px; width:auto; margin-left:auto;">
+        <tr>
+          <th style="width:120px; height:70px;">물품출납원</th>
+          <th style="width:120px;">시설장</th>
+        </tr>
+        <tr><td style="height:50px;"></td><td></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ 재물조사 이력 조회 ============ -->
+  <div id="screen-survey-history" class="screen">
+    <div class="section-header no-print">
+      <button class="btn-home" onclick="showScreen('home')">← 홈으로</button>
+      <h2>📜 재물조사 이력</h2>
+    </div>
+    <div id="survey-history-wrap"></div>
+    <!-- 쪽 이동 -->
+    <div class="pager no-print">
+      <div class="pager-side"></div>
+      <div class="pager-pages" id="history-pager-pages"></div>
+      <div class="pager-side"></div>
+    </div>
+  </div>
+
+  <!-- ============ 물품등록 서브창(모달) ============ -->
+  <div id="item-modal" class="modal-overlay no-print">
+    <div class="modal-box" onkeydown="if(event.key==='Enter') addItem();">
+      <h3 class="modal-title" id="modal-title">물품 등록</h3>
+      <div class="modal-field">
+        <label>구분</label>
+        <select id="inp-category" style="width:250px; padding:7px 9px; border:1px solid #ccc; border-radius:4px; font-size:14px;">
+          <option value="일반비품">일반비품</option>
+          <option value="교재교구">교재교구</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label>물품명</label>
+        <input type="text" id="inp-name" placeholder="예) 노트북">
+      </div>
+      <div class="modal-field">
+        <label>규격</label>
+        <input type="text" id="inp-spec" placeholder="모델명 등">
+      </div>
+      <div class="modal-field">
+        <label>취득일자</label>
+        <input type="text" id="inp-date" placeholder="예) 20260306" maxlength="10" oninput="autoFormatDate(this)">
+      </div>
+      <div class="modal-field">
+        <label>취득단가</label>
+        <input type="text" id="inp-price" placeholder="예) 1,500,000" oninput="autoFormatPrice(this)">
+      </div>
+      <div id="qty-field-wrap">
+        <div class="modal-field">
+          <label>등록수량</label>
+          <input type="number" id="inp-qty" placeholder="예) 1" min="1">
+        </div>
+        <div id="qty-hint" style="font-size:12px; color:#888; margin:-8px 0 10px 74px; white-space:nowrap;">
+          2개 이상 입력하면 물품마다 고유번호를 따로 부여합니다.
+        </div>
+      </div>
+      <div class="modal-field">
+        <label>위치</label>
+        <input type="text" id="inp-location" placeholder="예) 2층 교사실">
+      </div>
+      <div class="modal-field">
+        <label>비고</label>
+        <input type="text" id="inp-note" placeholder="보조금 이름 등 필요정보 입력">
+      </div>
+      <div class="modal-field">
+        <label>사진</label>
+        <input type="file" id="inp-photo" accept="image/*" onchange="onPhotoSelected(this)">
+      </div>
+      <div id="photo-preview-wrap" style="display:none; text-align:center; margin-bottom:14px;">
+        <img id="photo-preview" alt="미리보기" style="max-width:250px; max-height:160px; border:1px solid #ccc; border-radius:4px;">
+        <div style="font-size:12px; color:#888; margin-top:4px;">등록 시 자동으로 용량을 줄여 저장합니다.</div>
+      </div>
+      <div style="border-top:1px solid #eee; margin-top:10px; padding-top:12px; margin-bottom:14px; display:flex; align-items:center;">
+        <span style="display:inline-block; width:70px; font-size:14px; font-weight:bold; color:#555; text-align:right; padding-right:8px; white-space:nowrap; flex-shrink:0;">속성</span>
+        <label style="display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-size:14px; font-weight:normal;">
+          <input type="checkbox" id="inp-gov-owned">지자체 소유물품
+          <span class="tip-wrap">
+            <span class="tip-icon">?</span>
+            <span class="tip-box">
+              지자체 재산목록에 등록된 물품으로 어린이집에 위치한 물품입니다.<br>
+              지자체 정기재물조사 시 조사 대상에 포함되며,<br>
+              지자체 요청 시 이 체크박스로 별도 필터링하여 관리할 수 있습니다.
+            </span>
+          </span>
+        </label>
+      </div>
+      <div class="modal-buttons">
+        <button class="btn-delete" id="modal-delete" style="display:none; float:left;" onclick="deleteItem()">삭제</button>
+        <button class="btn-gray" onclick="closeItemModal()">닫기</button>
+        <button class="btn-blue" id="modal-submit" onclick="addItem()">등록</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 불용결정 서브창(모달) ============ -->
+  <div id="disposal-modal" class="modal-overlay no-print">
+    <div class="modal-box" onkeydown="if(event.key==='Enter') confirmDisposal();">
+      <h3 class="modal-title">불용 결정</h3>
+      <div class="modal-field">
+        <label style="width:86px;">불용결정일</label>
+        <input type="text" id="inp-disposal-date" style="width:228px;" placeholder="예) 20260625" maxlength="10" oninput="autoFormatDate(this)">
+      </div>
+      <div class="modal-field">
+        <label style="width:86px;">사유</label>
+        <input type="text" id="inp-disposal-reason" style="width:228px;" placeholder="예) 노후, 파손 등">
+      </div>
+      <div class="modal-field">
+        <label style="width:86px;">사진</label>
+        <input type="file" id="inp-disposal-photo" accept="image/*" onchange="onDisposalPhotoSelected(this)">
+      </div>
+      <div id="disposal-photo-preview-wrap" style="display:none; text-align:center; margin-bottom:14px;">
+        <img id="disposal-photo-preview" alt="미리보기" style="max-width:250px; max-height:160px; border:1px solid #ccc; border-radius:4px;">
+      </div>
+      <div class="modal-buttons">
+        <button class="btn-gray" onclick="closeDisposalModal()">닫기</button>
+        <button class="btn-gray" id="btn-print-disposal-doc" onclick="printDisposalDoc(disposalIndex)" style="display:none;">불용결정서 출력</button>
+        <button class="btn-blue" onclick="confirmDisposal()">불용결정</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 조사이력 상세보기 서브창(모달) ============ -->
+  <div id="history-detail-modal" class="modal-overlay no-print">
+    <div class="modal-box" style="width:720px; max-width:92vw; max-height:86vh; overflow-y:auto;">
+      <h3 class="modal-title" id="history-detail-title">재물조사 결과 상세</h3>
+      <div id="history-detail-body" style="font-size:13px;"></div>
+    </div>
+  </div>
+
+  <!-- ============ 불용결정서 인쇄 영역 ============ -->
+  <div id="disposal-doc-area">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+      <div id="disp-doc-datetime" style="font-size:12px; color:#555;"></div>
+      <div id="disp-doc-centername" style="font-size:15px; font-weight:bold;"></div>
+    </div>
+    <h2 style="text-align:center; font-size:26px; letter-spacing:12px; margin:24px 0 28px;">불 용 결 정 서</h2>
+    <p style="font-size:14px; margin-bottom:16px;">아래 물품을 관련 규정에 의거하여 불용으로 결정합니다.</p>
+    <table id="disp-doc-table" style="width:100%; border-collapse:collapse; font-size:13px; margin-bottom:20px;">
+      <thead>
+        <tr style="background:#f0f0f0;">
+          <th style="border:1px solid #000; padding:7px 5px; text-align:center; width:75px;">고유번호</th>
+          <th style="border:1px solid #000; padding:7px 5px; text-align:center; width:110px;">물품명</th>
+          <th style="border:1px solid #000; padding:7px 5px; text-align:center; width:58px;">규격</th>
+          <th style="border:1px solid #000; padding:7px 5px; text-align:center; width:82px;">취득일자</th>
+          <th style="border:1px solid #000; padding:7px 5px; text-align:center; width:82px;">취득단가(원)</th>
+          <th style="border:1px solid #000; padding:7px 5px; text-align:center; width:82px;">불용결정일</th>
+          <th style="border:1px solid #000; padding:7px 5px; text-align:center;">불용<br>사유</th>
+          <th style="border:1px solid #000; padding:7px 5px; text-align:center; width:58px;">비고</th>
+        </tr>
+      </thead>
+      <tbody id="disp-doc-tbody"></tbody>
+    </table>
+    <div id="disp-doc-photo-area" style="text-align:center; margin-bottom:24px;">
+      <p style="font-size:13px; font-weight:bold; margin-bottom:8px;">[ 현황 사진 ]</p>
+      <img id="disp-doc-photo" alt="불용 사진" style="max-width:280px; max-height:210px; border:1px solid #ccc;">
+    </div>
+    <table style="width:320px; border-collapse:collapse; margin:50px auto 0; font-size:13px;">
+      <tr style="background:#f0f0f0;">
+        <th style="border:1px solid #000; padding:8px 24px; text-align:center;">물품출납원</th>
+        <th style="border:1px solid #000; padding:8px 24px; text-align:center;">시설장</th>
+      </tr>
+      <tr>
+        <td style="border:1px solid #000; padding:36px 24px;"></td>
+        <td style="border:1px solid #000; padding:36px 24px;"></td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- ============ 사진 크게 보기(팝업) ============ -->
+  <div id="photo-viewer" class="photo-viewer no-print" onclick="closePhotoViewer()">
+    <div class="photo-viewer-box" onclick="event.stopPropagation()">
+      <img id="photo-viewer-img" src="" alt="사진">
+      <div style="text-align:center; margin-top:12px;">
+        <button class="btn-gray" onclick="closePhotoViewer()">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ===================== 어린이집 이름 ===================== */
+
+    function getCenterName() {
+      return localStorage.getItem('centerName') || 'OO어린이집';
+    }
+
+    // 저장된 이름을 화면 상단과 설정칸에 반영
+    function applyCenterName() {
+      var name = getCenterName();
+      document.getElementById('center-name-display').textContent = name;
+      document.getElementById('inp-center-name').value = (name === 'OO어린이집') ? '' : name;
+    }
+
+    function saveCenterName() {
+      var name = document.getElementById('inp-center-name').value.trim();
+      if (!name) { alert('어린이집 이름을 입력해 주세요.'); return; }
+      localStorage.setItem('centerName', name);
+      applyCenterName();
+      alert('어린이집 이름이 저장되었습니다.');
+    }
+
+    function systemReset() {
+      if (!confirm('시스템을 초기화하면 물품대장 전체, 불용결정 내역, 재물조사 이력이 모두 삭제됩니다.\n\n먼저 "백업 파일로 내보내기"를 하셨나요?\n\n삭제된 자료는 복구할 수 없습니다.\n\n계속하시겠습니까?')) return;
+      if (!confirm('마지막 확인입니다.\n모든 자료를 삭제하고 초기 상태로 되돌립니다.\n정말 진행하시겠습니까?')) return;
+
+      // localStorage 데이터 삭제 (어린이집 이름·화면 설정은 유지)
+      localStorage.removeItem('items');
+      localStorage.removeItem('counters');
+      localStorage.removeItem('survey');
+      localStorage.removeItem('surveyHistory');
+
+      // IndexedDB 사진 전체 삭제
+      openPhotoDB(function(db) {
+        if (!db) {
+          alert('초기화가 완료되었습니다.\n(사진 데이터 삭제 중 오류가 발생했을 수 있습니다.)');
+          showScreen('home');
+          return;
+        }
+        var tx = db.transaction(['photos', 'surveyPhotos'], 'readwrite');
+        tx.objectStore('photos').clear();
+        tx.objectStore('surveyPhotos').clear();
+        tx.oncomplete = function() {
+          alert('초기화가 완료되었습니다.\n모든 물품·조사 자료가 삭제되었습니다.');
+          showScreen('home');
+        };
+        tx.onerror = function() {
+          alert('초기화가 완료되었습니다.\n(사진 데이터 삭제 중 오류가 발생했을 수 있습니다.)');
+          showScreen('home');
+        };
+      });
+    }
+
+    /* ===================== 물품 등록/수정 서브창 ===================== */
+
+    var editingIndex = null;   // null = 신규등록, 숫자 = 그 행을 수정
+
+    // 입력칸 비우기
+    function clearItemForm() {
+      document.getElementById('inp-name').value     = '';
+      document.getElementById('inp-spec').value     = '';
+      document.getElementById('inp-qty').value      = '';
+      document.getElementById('inp-date').value     = '';
+      document.getElementById('inp-price').value    = '';
+      document.getElementById('inp-location').value = '';
+      document.getElementById('inp-note').value     = '';
+      document.getElementById('inp-photo').value    = '';
+      document.getElementById('inp-category').value = '일반비품';
+      document.getElementById('inp-gov-owned').checked = false;
+      pendingPhotoBlob = null;
+      document.getElementById('photo-preview-wrap').style.display = 'none';
+    }
+
+    // [신규 등록] 서브창 열기
+    function openItemModal() {
+      editingIndex = null;
+      clearItemForm();
+      document.getElementById('modal-title').textContent = '물품 등록';
+      document.getElementById('modal-submit').textContent = '등록';
+      document.getElementById('modal-delete').style.display = 'none';
+      document.getElementById('qty-field-wrap').style.display = 'block';
+      document.getElementById('inp-qty').min = 1;
+      document.getElementById('item-modal').classList.add('active');
+      document.getElementById('inp-name').focus();
+    }
+
+    // [수정] 서브창 열기 (행을 더블클릭했을 때)
+    function openEditModal(index) {
+      var item = getItems()[index];
+      if (!item) return;
+      editingIndex = index;
+      clearItemForm();
+      document.getElementById('inp-name').value     = item.name || '';
+      document.getElementById('inp-spec').value     = item.spec || '';
+      document.getElementById('inp-qty').value      = item.qty || '';
+      document.getElementById('inp-date').value     = item.date || '';
+      document.getElementById('inp-price').value    = item.price ? Number(item.price).toLocaleString() : '';
+      document.getElementById('inp-location').value = item.location || '';
+      document.getElementById('inp-note').value     = item.note || '';
+      document.getElementById('inp-category').value = item.category || '일반비품';
+      document.getElementById('inp-gov-owned').checked = !!item.govOwned;
+      document.getElementById('modal-title').textContent = '물품 수정';
+      document.getElementById('modal-submit').textContent = '수정';
+      document.getElementById('modal-delete').style.display = 'inline-block';
+      document.getElementById('qty-field-wrap').style.display = 'none';
+      document.getElementById('item-modal').classList.add('active');
+
+      // 기존 사진이 있으면 미리보기에 표시(바꾸지 않으면 그대로 유지)
+      if (item.hasPhoto) {
+        loadPhoto(item.id, function (blob) {
+          if (!blob) return;
+          document.getElementById('photo-preview').src = URL.createObjectURL(blob);
+          document.getElementById('photo-preview-wrap').style.display = 'block';
+        });
+      }
+      document.getElementById('inp-name').focus();
+    }
+
+    // 서브창 닫기
+    function closeItemModal() {
+      document.getElementById('item-modal').classList.remove('active');
+    }
+
+    /* ===================== 공통 ===================== */
+
+    // 화면(대단원/소단원) 전환
+    function showScreen(name) {
+      document.querySelectorAll('.screen').forEach(function (s) {
+        s.classList.remove('active');
+      });
+      document.getElementById('screen-' + name).classList.add('active');
+      document.querySelector('.btn-settings').style.display = (name === 'home') ? '' : 'none';
+      if (name === 'ledger') renderLedger();
+      if (name === 'survey') renderSurvey();
+      if (name === 'survey-history') renderSurveyHistory();
+      window.scrollTo(0, 0);
+    }
+
+    // 사용설명서 인쇄 (현재 보고 있는 설명서 화면만 출력, A4 세로)
+    function printManual() {
+      document.body.classList.add('printing-manual');
+      requestAnimationFrame(function () {
+        window.print();
+        document.body.classList.remove('printing-manual');
+      });
+    }
+
+    // 홈에서 "재물조사 시작" 버튼: 진행 중이면 이어서/새로, 끝났거나 없으면 새로
+    function startSurveyFromHome() {
+      var s = getSurvey();
+      if (s.stage === 1 || s.stage === 2) {
+        if (confirm('진행 중인 재물조사가 있습니다. 이어서 계속할까요?\n\n(취소를 누르면 새로 시작합니다)')) {
+          showScreen('survey');
+          return;
+        }
+        // 취소 → 새로 시작
+        resetSurveySilently();
+      } else {
+        // 3단계(완료) 또는 데이터 없음 → 새로 시작
+        resetSurveySilently();
+      }
+      showScreen('survey');
+    }
+
+    // 확인창 없이 재물조사를 초기화(새 id 부여)
+    function resetSurveySilently() {
+      var s = getSurvey();
+      Object.keys(s.results || {}).forEach(function (id) {
+        if (s.results[id] && s.results[id].hasPhoto) deleteSurveyPhoto(id);
+      });
+      setSurvey({ id: Date.now(), year: '', type: '정기', startDate: '', endDate: '', stage: 1, results: {} });
+    }
+
+    // 취득일/조사일 자동 하이픈 (20260306 → 2026-03-06)
+    function autoFormatDate(input) {
+      var d = input.value.replace(/\D/g, '').slice(0, 8);
+      if (d.length <= 4) input.value = d;
+      else if (d.length <= 6) input.value = d.slice(0, 4) + '-' + d.slice(4);
+      else input.value = d.slice(0, 4) + '-' + d.slice(4, 6) + '-' + d.slice(6, 8);
+    }
+
+    // 금액 천 단위 쉼표
+    function autoFormatPrice(input) {
+      var d = input.value.replace(/[^\d]/g, '');
+      input.value = d ? Number(d).toLocaleString() : '';
+    }
+
+    /* ===================== 물품대장 ===================== */
+
+    function getItems() {
+      return JSON.parse(localStorage.getItem('items') || '[]');
+    }
+    function saveItems(items) {
+      localStorage.setItem('items', JSON.stringify(items));
+    }
+
+    /* ----- 사진 저장 (IndexedDB: 용량 큰 전용 저장소) ----- */
+    var photoDB = null;
+    function openPhotoDB(callback) {
+      if (photoDB) { callback(photoDB); return; }
+      try {
+        var req = indexedDB.open('mulpumPhotos', 2);
+        req.onupgradeneeded = function (e) {
+          var db = e.target.result;
+          // 기존 물품 사진 저장소(없으면 생성)
+          if (!db.objectStoreNames.contains('photos')) db.createObjectStore('photos');
+          // 재물조사 사진 저장소(버전 2에서 추가)
+          if (!db.objectStoreNames.contains('surveyPhotos')) db.createObjectStore('surveyPhotos');
+        };
+        req.onsuccess = function (e) { photoDB = e.target.result; callback(photoDB); };
+        req.onerror = function () { callback(null); };
+      } catch (e) { callback(null); }
+    }
+    function savePhoto(id, blob, cb) {
+      openPhotoDB(function (db) {
+        if (!db) { cb(false); return; }
+        try {
+          var tx = db.transaction('photos', 'readwrite');
+          tx.objectStore('photos').put(blob, id);
+          tx.oncomplete = function () { cb(true); };
+          tx.onerror = function () { cb(false); };
+        } catch (e) { cb(false); }
+      });
+    }
+    function loadPhoto(id, cb) {
+      openPhotoDB(function (db) {
+        if (!db) { cb(null); return; }
+        try {
+          var req = db.transaction('photos', 'readonly').objectStore('photos').get(id);
+          req.onsuccess = function () { cb(req.result || null); };
+          req.onerror = function () { cb(null); };
+        } catch (e) { cb(null); }
+      });
+    }
+    function deletePhoto(id) {
+      openPhotoDB(function (db) {
+        if (!db) return;
+        try { db.transaction('photos', 'readwrite').objectStore('photos').delete(id); } catch (e) {}
+      });
+    }
+
+    /* ----- 재물조사 사진 저장 (IndexedDB: surveyPhotos 스토어) ----- */
+    function saveSurveyPhoto(id, blob, cb) {
+      openPhotoDB(function (db) {
+        if (!db) { cb(false); return; }
+        try {
+          var tx = db.transaction('surveyPhotos', 'readwrite');
+          tx.objectStore('surveyPhotos').put(blob, id);
+          tx.oncomplete = function () { cb(true); };
+          tx.onerror = function () { cb(false); };
+        } catch (e) { cb(false); }
+      });
+    }
+    function loadSurveyPhoto(id, cb) {
+      openPhotoDB(function (db) {
+        if (!db) { cb(null); return; }
+        try {
+          var req = db.transaction('surveyPhotos', 'readonly').objectStore('surveyPhotos').get(id);
+          req.onsuccess = function () { cb(req.result || null); };
+          req.onerror = function () { cb(null); };
+        } catch (e) { cb(null); }
+      });
+    }
+    function deleteSurveyPhoto(id) {
+      openPhotoDB(function (db) {
+        if (!db) return;
+        try { db.transaction('surveyPhotos', 'readwrite').objectStore('surveyPhotos').delete(id); } catch (e) {}
+      });
+    }
+
+    /* ----- 사진 자동 축소(압축) ----- */
+    function compressImage(file, maxSize, quality, cb) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var img = new Image();
+        img.onload = function () {
+          var w = img.width, h = img.height;
+          if (w > h && w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; }
+          else if (h >= w && h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; }
+          var canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          canvas.toBlob(function (blob) { cb(blob); }, 'image/jpeg', quality);
+        };
+        img.onerror = function () { cb(null); };
+        img.src = e.target.result;
+      };
+      reader.onerror = function () { cb(null); };
+      reader.readAsDataURL(file);
+    }
+
+    // 등록 직전까지 들고 있을 압축된 사진
+    var pendingPhotoBlob = null;
+
+    // 사진 선택 시: 축소해서 미리보기 표시
+    function onPhotoSelected(input) {
+      var file = input.files[0];
+      var wrap = document.getElementById('photo-preview-wrap');
+      if (!file) { pendingPhotoBlob = null; wrap.style.display = 'none'; return; }
+      compressImage(file, 1000, 0.7, function (blob) {
+        if (!blob) { alert('사진을 처리하지 못했습니다. 다른 사진으로 시도해 주세요.'); return; }
+        pendingPhotoBlob = blob;
+        document.getElementById('photo-preview').src = URL.createObjectURL(blob);
+        wrap.style.display = 'block';
+      });
+    }
+
+    // 연도별 순번 카운터 → 관리번호(취득연도-순번) 자동 생성
+    function generateId(year) {
+      var counters = JSON.parse(localStorage.getItem('counters') || '{}');
+      var next = (counters[year] || 0) + 1;
+      counters[year] = next;
+      localStorage.setItem('counters', JSON.stringify(counters));
+      return year + '-' + String(next).padStart(3, '0');
+    }
+
+    /* ----- 쪽 나누기(페이지) 상태 ----- */
+    var pageSize    = parseInt(localStorage.getItem('ledgerPageSize') || '20', 10); // 기본 20개
+    var currentPage = 1;
+    var printingAll = false;   // 인쇄 중엔 전체를 한 번에 표시
+    var printCategory = null;  // 인쇄 시 구분 필터(일반비품/교재교구). null이면 전체(화면 표시용)
+    var sortCol = null;        // 정렬 기준 컬럼 (null=초기순서)
+    var sortDir = 0;           // 1=오름차순, -1=내림차순
+
+    function toggleSort(col) {
+      if (sortCol === col) {
+        if (sortDir === 1) sortDir = -1;
+        else { sortCol = null; sortDir = 0; }
+      } else {
+        sortCol = col;
+        sortDir = 1;
+      }
+      currentPage = 1;
+      renderLedger();
+    }
+
+    function updateSortIcons() {
+      ['id', 'category', 'name', 'date', 'total', 'location', 'disposalDate'].forEach(function(col) {
+        var el = document.getElementById('si-' + col);
+        if (!el) return;
+        el.textContent = (sortCol === col) ? (sortDir === 1 ? '▲' : '▼') : '↕';
+      });
+    }
+
+    function changePageSize(v) {
+      pageSize = parseInt(v, 10);
+      localStorage.setItem('ledgerPageSize', String(pageSize));
+      currentPage = 1;
+      renderLedger();
+    }
+    function goPage(p) {
+      currentPage = p;
+      renderLedger();
+      window.scrollTo(0, 0);
+    }
+
+    function renderLedger() {
+      var allItems = getItems();
+      var tbody   = document.getElementById('ledger-list');
+      var pager   = document.getElementById('pager-pages');
+      var sizeSel = document.getElementById('page-size');
+      tbody.innerHTML = '';
+      if (sizeSel) sizeSel.value = String(pageSize);
+      updateSortIcons();
+
+      // 필터 상태 읽기 (인쇄 중엔 모두 표시)
+      var chkDisposed = document.getElementById('chk-show-disposed');
+      var chkGovOnly  = document.getElementById('chk-gov-only');
+      var showDisposed = printingAll || (chkDisposed && chkDisposed.checked);
+      var govOnly      = !printingAll && (chkGovOnly && chkGovOnly.checked);
+
+      // 정렬 (초기상태 = 고유번호 오름차순, 사용자가 다른 열 선택 시 그 기준으로)
+      var sorted = allItems.map(function(item, i) { return { item: item, origIdx: i }; });
+      var effCol = sortCol || 'id';
+      var effDir = sortCol ? sortDir : 1;
+      sorted.sort(function(a, b) {
+        var av, bv;
+        switch (effCol) {
+          case 'id':           av = a.item.id || '';                                         bv = b.item.id || '';                                         break;
+          case 'category':     av = a.item.category || '일반비품';                            bv = b.item.category || '일반비품';                            break;
+          case 'name':         av = a.item.name || '';                                        bv = b.item.name || '';                                        break;
+          case 'date':         av = a.item.date || '';                                        bv = b.item.date || '';                                        break;
+          case 'total':        av = (Number(a.item.price)||0)*(Number(a.item.qty)||0);        bv = (Number(b.item.price)||0)*(Number(b.item.qty)||0);        break;
+          case 'location':     av = a.item.location || '';                                    bv = b.item.location || '';                                    break;
+          case 'disposalDate':
+            var aHas = !!a.item.disposalDate, bHas = !!b.item.disposalDate;
+            if (aHas && !bHas) return -1;
+            if (!aHas && bHas) return 1;
+            av = a.item.disposalDate || ''; bv = b.item.disposalDate || ''; break;
+        }
+        if (typeof av === 'string') return effDir * av.localeCompare(bv, 'ko');
+        return effDir * (av - bv);
+      });
+
+      // 필터 적용
+      var filtered = sorted.filter(function(entry) {
+        if (!showDisposed && entry.item.disposalDate) return false;
+        if (govOnly && !entry.item.govOwned) return false;
+        if (printCategory && (entry.item.category || '일반비품') !== printCategory) return false;
+        return true;
+      });
+
+      // 계 계산 (불용 항목 제외)
+      var sumCount = 0, sumPrice = 0;
+      filtered.forEach(function(entry) {
+        if (!entry.item.disposalDate) {
+          sumCount++;
+          sumPrice += (Number(entry.item.price) || 0) * (Number(entry.item.qty) || 0);
+        }
+      });
+
+      // 계 행 (항상 첫 번째 행)
+      var summaryRow = document.createElement('tr');
+      summaryRow.style.cssText = 'background:#eef2ff; font-weight:bold;';
+      summaryRow.innerHTML =
+        '<td colspan="2" style="text-align:left; padding-left:8px;">계&nbsp;&nbsp;' + sumCount + '건</td>' +
+        '<td></td>' +
+        '<td></td><td></td><td class="c-date"></td>' +
+        '<td>' + sumPrice.toLocaleString() + '원</td>' +
+        '<td></td><td></td><td></td>' +
+        '<td class="print-only"></td><td class="print-only"></td>' +
+        '<td class="c-date"></td><td></td>' +
+        '<td class="no-print"></td>';
+      tbody.appendChild(summaryRow);
+
+      if (filtered.length === 0) {
+        var emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = '<td colspan="15" style="color:#999;">' +
+          (allItems.length === 0
+            ? '등록된 물품이 없습니다. "＋ 물품등록" 버튼으로 물품을 추가하세요.'
+            : '조건에 맞는 물품이 없습니다.') + '</td>';
+        tbody.appendChild(emptyRow);
+        if (pager) pager.innerHTML = '';
+        return;
+      }
+
+      var totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+      var start = printingAll ? 0 : (currentPage - 1) * pageSize;
+      var end   = printingAll ? filtered.length : Math.min(start + pageSize, filtered.length);
+
+      for (var i = start; i < end; i++) {
+        var entry   = filtered[i];
+        var item    = entry.item;
+        var origIdx = entry.origIdx;
+        var unit  = Number(item.price) || 0;
+        var count = Number(item.qty) || 0;
+        var total = unit * count;
+
+        var photoCell = item.hasPhoto
+          ? '<span style="color:#aaa; font-size:12px;">불러오는 중…</span>'
+          : '';
+
+        var disposed = !!item.disposalDate;
+        var actionCell = disposed
+          ? '<button class="btn-undo" onclick="cancelDisposal(' + origIdx + ')">불용취소</button>'
+          : '<button class="btn-disposal" onclick="openDisposalModal(' + origIdx + ')">불용결정</button>';
+
+        var tr = document.createElement('tr');
+        if (disposed) tr.className = 'disposed';
+        tr.title = '더블클릭하면 수정할 수 있습니다';
+        tr.ondblclick = (function (idx) { return function () { openEditModal(idx); }; })(origIdx);
+        tr.innerHTML =
+          '<td>' + (i + 1) + '</td>' +
+          '<td>' + (item.id || '') + '</td>' +
+          '<td class="c-cat">' + (item.category || '일반비품') + '</td>' +
+          '<td>' + (item.name || '') + '</td>' +
+          '<td>' + (item.spec || '') + '</td>' +
+          '<td class="c-date">' + (item.date || '') + '</td>' +
+          '<td>' + total.toLocaleString() + '</td>' +
+          '<td>' + (item.location || '') + '</td>' +
+          '<td id="ph-' + item.id + '">' + photoCell + '</td>' +
+          '<td>' + (item.note || '') + '</td>' +
+          '<td class="print-only"></td>' +
+          '<td class="print-only"></td>' +
+          (disposed
+            ? '<td class="c-date" title="더블클릭: 불용결정 수정" style="cursor:pointer;" ondblclick="event.stopPropagation();openDisposalModal(' + origIdx + ')">' + (item.disposalDate || '') + '</td>' +
+              '<td title="더블클릭: 불용결정 수정" style="cursor:pointer;" ondblclick="event.stopPropagation();openDisposalModal(' + origIdx + ')">' + (item.disposalReason || '') + '</td>'
+            : '<td class="c-date"></td><td></td>'
+          ) +
+          '<td class="no-print">' + actionCell + '</td>';
+        tbody.appendChild(tr);
+      }
+
+      // 쪽 번호
+      if (pager) {
+        pager.innerHTML = '';
+        if (!printingAll && totalPages > 1) {
+          for (var p = 1; p <= totalPages; p++) {
+            var btn = document.createElement('button');
+            btn.textContent = p;
+            if (p === currentPage) btn.className = 'current';
+            (function (pageNum) { btn.onclick = function () { goPage(pageNum); }; })(p);
+            pager.appendChild(btn);
+          }
+        }
+      }
+
+      // 사진 로딩 (현재 페이지만)
+      for (var j = start; j < end; j++) {
+        (function (it) {
+          if (!it.hasPhoto) return;
+          loadPhoto(it.id, function (blob) {
+            var cell = document.getElementById('ph-' + it.id);
+            if (!cell) return;
+            if (!blob) { cell.textContent = '(사진 없음)'; return; }
+            var url = URL.createObjectURL(blob);
+            cell.innerHTML = '<img src="' + url + '" ' +
+              'style="max-width:74px; max-height:56px; border-radius:3px; cursor:pointer;" ' +
+              'onclick="openPhotoViewer(this.src)">';
+          });
+        })(filtered[j].item);
+      }
+    }
+
+    // 인쇄 머리글(출력일시·어린이집명) 채우기
+    function setPrintMeta() {
+      function p2(n){ return String(n).padStart(2, '0'); }
+      var d = new Date();
+      var s = d.getFullYear() + '-' + p2(d.getMonth()+1) + '-' + p2(d.getDate()) +
+              ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes());
+      var dt = document.getElementById('print-datetime');
+      if (dt) dt.textContent = s;
+      var cn = document.getElementById('print-centername');
+      if (cn) cn.textContent = getCenterName();
+    }
+
+    // 인쇄: 전체를 펼쳐 보여준 뒤(사진 로딩 잠깐 기다림) 인쇄, 끝나면 원래 쪽으로 복귀
+    function printLedger(cat) {
+      printCategory = (cat === '교재교구') ? '교재교구' : '일반비품';
+      printingAll = true;
+      setPrintMeta();
+      var titleEl = document.getElementById('ledger-print-title');
+      if (titleEl) titleEl.textContent = (printCategory === '교재교구') ? '교재교구관리대장' : '물품관리대장';
+      renderLedger();
+      var ls = document.createElement('style');
+      ls.id = 'ledger-landscape-style';
+      ls.textContent = '@page { size: A4 landscape; margin: 10mm; }';
+      document.head.appendChild(ls);
+      setTimeout(function () {
+        window.print();
+        printingAll = false;
+        printCategory = null;
+        if (titleEl) titleEl.textContent = '물품관리대장';
+        var s = document.getElementById('ledger-landscape-style');
+        if (s) s.parentNode.removeChild(s);
+        renderLedger();
+      }, 400);
+    }
+    // Ctrl+P 등 브라우저 인쇄도 전체가 나오도록 대비
+    window.addEventListener('beforeprint', function () {
+      setPrintMeta();
+      if (!printingAll) { printingAll = true; renderLedger(); }
+      // 물품대장 화면에서 Ctrl+P 시 가로 방향 주입
+      if (document.getElementById('screen-ledger').classList.contains('active') &&
+          !document.getElementById('ledger-landscape-style') &&
+          !document.body.classList.contains('printing-disposal')) {
+        var ls = document.createElement('style');
+        ls.id = 'ledger-landscape-style';
+        ls.textContent = '@page { size: A4 landscape; margin: 10mm; }';
+        document.head.appendChild(ls);
+      }
+    });
+    window.addEventListener('afterprint', function () {
+      printingAll = false; printCategory = null; renderLedger();
+      var s = document.getElementById('ledger-landscape-style');
+      if (s) s.parentNode.removeChild(s);
+    });
+
+    // [등록]/[수정] 버튼: editingIndex가 null이면 새로 추가, 아니면 그 행을 수정
+    function addItem() {
+      var name     = document.getElementById('inp-name').value.trim();
+      var spec     = document.getElementById('inp-spec').value.trim();
+      var qty      = document.getElementById('inp-qty').value.trim();
+      var date     = document.getElementById('inp-date').value.trim();
+      var price    = document.getElementById('inp-price').value.replace(/,/g, '');
+      var location = document.getElementById('inp-location').value.trim();
+      var note     = document.getElementById('inp-note').value.trim();
+      var category = document.getElementById('inp-category').value || '일반비품';
+      var govOwned = document.getElementById('inp-gov-owned').checked;
+
+      if (!name) {
+        alert('물품명을 입력해 주세요.');
+        return;
+      }
+
+      // ===== 수정 모드 =====
+      if (editingIndex !== null) {
+        var items = getItems();
+        var it = items[editingIndex];
+        if (!it) { closeItemModal(); return; }
+        it.name = name; it.spec = spec; it.qty = qty;
+        it.date = date; it.price = price; it.location = location; it.note = note;
+        it.category = category;
+        it.govOwned = govOwned;
+
+        function finishEdit() {
+          try { saveItems(items); }
+          catch (e) { alert('저장 중 오류가 발생했습니다.\n\n' + e.message); return; }
+          pendingPhotoBlob = null;
+          editingIndex = null;
+          renderLedger();
+          closeItemModal();
+        }
+        // 사진을 새로 골랐으면 교체, 아니면 기존 사진 유지
+        if (pendingPhotoBlob) {
+          savePhoto(it.id, pendingPhotoBlob, function (ok) {
+            if (ok) it.hasPhoto = true;
+            else alert('사진 저장 공간이 부족하거나 막혀 있어, 사진은 바뀌지 않습니다.');
+            finishEdit();
+          });
+        } else {
+          finishEdit();
+        }
+        return;
+      }
+
+      // ===== 신규 등록 모드 =====
+      var qtyNum = parseInt(qty, 10) || 1;
+      var year;
+      try {
+        year = date ? date.slice(0, 4) : String(new Date().getFullYear());
+      } catch (e) {
+        alert('저장 중 오류가 발생했습니다.\n\n' + e.message); return;
+      }
+
+      // 수량 1개: 기존 방식 그대로
+      if (qtyNum <= 1) {
+        var id;
+        try { id = generateId(year); }
+        catch (e) { alert('저장 중 오류가 발생했습니다.\n\n' + e.message + '\n\n(브라우저가 데이터 저장을 막고 있을 수 있습니다.)'); return; }
+
+        function finish(hasPhoto) {
+          try {
+            var items2 = getItems();
+            items2.push({ id: id, name: name, spec: spec, qty: '1',
+                          date: date, price: price, location: location,
+                          note: note, hasPhoto: !!hasPhoto, category: category, govOwned: govOwned });
+            saveItems(items2);
+          } catch (e) { alert('저장 중 오류가 발생했습니다.\n\n' + e.message + '\n\n(브라우저가 데이터 저장을 막고 있을 수 있습니다.)'); return; }
+          pendingPhotoBlob = null;
+          renderLedger();
+          closeItemModal();
+        }
+        if (pendingPhotoBlob) {
+          savePhoto(id, pendingPhotoBlob, function (ok) {
+            if (!ok) alert('사진 저장 공간이 부족하거나 막혀 있어, 사진 없이 등록합니다.');
+            finish(!!ok);
+          });
+        } else { finish(false); }
+        return;
+      }
+
+      // 수량 2개 이상: 물품마다 고유번호를 따로 부여
+      var ids = [];
+      try {
+        for (var k = 0; k < qtyNum; k++) ids.push(generateId(year));
+      } catch (e) { alert('저장 중 오류가 발생했습니다.\n\n' + e.message); return; }
+
+      function finishBulk(hasPhoto) {
+        try {
+          var items2 = getItems();
+          ids.forEach(function (bid) {
+            items2.push({ id: bid, name: name, spec: spec, qty: '1',
+                          date: date, price: price, location: location,
+                          note: note, hasPhoto: !!hasPhoto, category: category, govOwned: govOwned });
+          });
+          saveItems(items2);
+        } catch (e) { alert('저장 중 오류가 발생했습니다.\n\n' + e.message); return; }
+        pendingPhotoBlob = null;
+        renderLedger();
+        closeItemModal();
+        alert(qtyNum + '건 등록 완료!\n고유번호: ' + ids[0] + ' ~ ' + ids[ids.length - 1] + '\n\n개별 사진은 각 행을 더블클릭해서 추가할 수 있습니다.');
+      }
+
+      if (pendingPhotoBlob) {
+        // 같은 사진을 모든 항목에 저장
+        var remaining = ids.length;
+        var anyOk = false;
+        ids.forEach(function (bid) {
+          savePhoto(bid, pendingPhotoBlob, function (ok) {
+            if (ok) anyOk = true;
+            if (--remaining === 0) finishBulk(anyOk);
+          });
+        });
+      } else { finishBulk(false); }
+    }
+
+    /* ===================== 물품 완전삭제 ===================== */
+    function deleteItem() {
+      if (editingIndex === null) return;
+      var items = getItems();
+      var it = items[editingIndex];
+      if (!it) { closeItemModal(); return; }
+      if (!confirm(
+        '【삭제 확인】\n\n' +
+        '"' + it.name + '" 을(를) 목록에서 완전히 삭제합니다.\n\n' +
+        '※ 삭제는 착오 입력 등 처음부터 잘못 등록된 경우에만 사용하세요.\n' +
+        '   실제로 보유 중인 물품을 없애려면 "불용결정" 버튼을 이용하세요.\n\n' +
+        '삭제하면 되돌릴 수 없습니다. 계속할까요?'
+      )) return;
+      if (it.hasPhoto) deletePhoto(it.id);
+      items.splice(editingIndex, 1);
+      saveItems(items);
+      editingIndex = null;
+      closeItemModal();
+      renderLedger();
+    }
+
+    /* ===================== 사진 크게 보기 ===================== */
+    function openPhotoViewer(src) {
+      document.getElementById('photo-viewer-img').src = src;
+      document.getElementById('photo-viewer').classList.add('active');
+    }
+    function closePhotoViewer() {
+      document.getElementById('photo-viewer').classList.remove('active');
+    }
+
+    /* ===================== 불용 결정 ===================== */
+
+    var disposalIndex = null;
+    var disposalPendingPhotoBlob = null;
+
+    function openDisposalModal(index) {
+      var it = getItems()[index];
+      if (it && it.govOwned) {
+        alert('지자체 소유물품은 불용결정할 수 없습니다.\n지자체로 보고하신 다음 삭제처리하시기 바랍니다.');
+        return;
+      }
+      disposalIndex = index;
+      document.getElementById('inp-disposal-date').value   = (it && it.disposalDate) || '';
+      document.getElementById('inp-disposal-reason').value = (it && it.disposalReason) || '';
+      document.getElementById('disposal-photo-preview-wrap').style.display = 'none';
+      document.getElementById('inp-disposal-photo').value = '';
+      disposalPendingPhotoBlob = null;
+      if (it && it.hasDisposalPhoto) {
+        loadPhoto('disposal-' + it.id, function(blob) {
+          if (!blob) return;
+          document.getElementById('disposal-photo-preview').src = URL.createObjectURL(blob);
+          document.getElementById('disposal-photo-preview-wrap').style.display = 'block';
+        });
+      }
+      document.getElementById('btn-print-disposal-doc').style.display = (it && it.disposalDate) ? '' : 'none';
+      document.getElementById('disposal-modal').classList.add('active');
+      document.getElementById('inp-disposal-date').focus();
+    }
+    function closeDisposalModal() {
+      document.getElementById('disposal-modal').classList.remove('active');
+      disposalPendingPhotoBlob = null;
+    }
+    function onDisposalPhotoSelected(input) {
+      var file = input.files[0];
+      var wrap = document.getElementById('disposal-photo-preview-wrap');
+      if (!file) { disposalPendingPhotoBlob = null; wrap.style.display = 'none'; return; }
+      compressImage(file, 1000, 0.7, function(blob) {
+        disposalPendingPhotoBlob = blob;
+        var url = URL.createObjectURL(blob);
+        document.getElementById('disposal-photo-preview').src = url;
+        wrap.style.display = 'block';
+      });
+    }
+    function confirmDisposal() {
+      var date   = document.getElementById('inp-disposal-date').value.trim();
+      var reason = document.getElementById('inp-disposal-reason').value.trim();
+      if (!date) { alert('불용결정일을 입력해 주세요.'); return; }
+      var items = getItems();
+      if (!items[disposalIndex]) { closeDisposalModal(); return; }
+      items[disposalIndex].disposalDate   = date;
+      items[disposalIndex].disposalReason = reason;
+
+      function finish() {
+        saveItems(items);
+        renderLedger();
+        if (confirm('불용결정서를 출력하시겠습니까?')) {
+          printDisposalDoc(disposalIndex);
+        } else {
+          closeDisposalModal();
+        }
+      }
+      if (disposalPendingPhotoBlob) {
+        savePhoto('disposal-' + items[disposalIndex].id, disposalPendingPhotoBlob, function(ok) {
+          if (ok) items[disposalIndex].hasDisposalPhoto = true;
+          else alert('사진 저장에 실패했습니다. 불용결정은 저장됩니다.');
+          finish();
+        });
+      } else {
+        finish();
+      }
+    }
+    function printDisposalDoc(index) {
+      var items = getItems();
+      var item = items[index != null ? index : disposalIndex];
+      if (!item || !item.disposalDate) { alert('불용결정 정보가 없습니다.'); return; }
+
+      var now = new Date();
+      var pad = function(n){ return String(n).padStart(2,'0'); };
+      var nowStr = now.getFullYear() + '-' + pad(now.getMonth()+1) + '-' + pad(now.getDate()) +
+                   ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+
+      document.getElementById('disp-doc-datetime').textContent = '출력일시: ' + nowStr;
+      document.getElementById('disp-doc-centername').textContent = getCenterName();
+      document.getElementById('disp-doc-tbody').innerHTML =
+        '<tr>' +
+        '<td style="border:1px solid #000;padding:7px 5px;text-align:center;">' + (item.id||'') + '</td>' +
+        '<td style="border:1px solid #000;padding:7px 5px;text-align:center;">' + (item.name||'') + '</td>' +
+        '<td style="border:1px solid #000;padding:7px 5px;text-align:center;">' + (item.spec||'') + '</td>' +
+        '<td style="border:1px solid #000;padding:7px 5px;text-align:center;">' + (item.date||'') + '</td>' +
+        '<td style="border:1px solid #000;padding:7px 5px;text-align:right;">' + (Number(item.price)||0).toLocaleString() + '</td>' +
+        '<td style="border:1px solid #000;padding:7px 5px;text-align:center;">' + (item.disposalDate||'') + '</td>' +
+        '<td style="border:1px solid #000;padding:7px 5px;text-align:center;">' + (item.disposalReason||'') + '</td>' +
+        '<td style="border:1px solid #000;padding:7px 5px;text-align:center;">' + (item.note||'') + '</td>' +
+        '</tr>';
+
+      var photoArea = document.getElementById('disp-doc-photo-area');
+      var photoImg  = document.getElementById('disp-doc-photo');
+      photoArea.style.display = 'none';
+      photoImg.src = '';
+
+      function doPrint() {
+        closeDisposalModal();
+        var portraitStyle = document.createElement('style');
+        portraitStyle.id = 'disposal-portrait-style';
+        portraitStyle.textContent = '@media print { @page { size: A4 portrait; margin: 15mm; } }';
+        document.head.appendChild(portraitStyle);
+        document.body.classList.add('printing-disposal');
+        requestAnimationFrame(function() {
+          window.print();
+          document.body.classList.remove('printing-disposal');
+          var s = document.getElementById('disposal-portrait-style');
+          if (s) s.parentNode.removeChild(s);
+        });
+      }
+
+      if (item.hasDisposalPhoto) {
+        loadPhoto('disposal-' + item.id, function(blob) {
+          if (blob) {
+            blobToDataURL(blob, function(dataURL) {
+              if (dataURL) { photoImg.src = dataURL; photoArea.style.display = 'block'; }
+              doPrint();
+            });
+          } else { doPrint(); }
+        });
+      } else {
+        doPrint();
+      }
+    }
+
+    function cancelDisposal(index) {
+      if (!confirm('이 물품의 불용결정을 취소하시겠습니까?')) return;
+      var items = getItems();
+      if (items[index]) {
+        if (items[index].hasDisposalPhoto) {
+          deletePhoto('disposal-' + items[index].id);
+        }
+        delete items[index].disposalDate;
+        delete items[index].disposalReason;
+        delete items[index].hasDisposalPhoto;
+        saveItems(items);
+      }
+      renderLedger();
+    }
+
+    /* ===================== 재물조사 (3단계 마법사) ===================== */
+
+    // 조사 데이터 구조:
+    // { year:'2026', type:'정기', startDate:'...', endDate:'...', stage:1,
+    //   results:{ '2026-001':{status,note,hasPhoto}, ... } }
+    // 옛 데이터(date/results만 있는 형태)도 하위 호환으로 읽어들임.
+    function getSurvey() {
+      var s = JSON.parse(localStorage.getItem('survey') || '{}');
+      if (!s.results) s.results = {};
+      if (!s.stage)  s.stage  = 1;
+      if (!s.year)   s.year   = '';
+      if (!s.type)   s.type   = '정기';
+      if (!s.startDate) s.startDate = '';
+      if (!s.endDate)   s.endDate   = '';
+      if (!s.id)     s.id     = Date.now();
+      return s;
+    }
+    function setSurvey(s) {
+      localStorage.setItem('survey', JSON.stringify(s));
+    }
+
+    /* ----- 재물조사 단계 페이지 분할 상태 (1·2·3단계 공유) ----- */
+    var surveyPageSize = parseInt(localStorage.getItem('surveyPageSize') || '20', 10);
+    var surveyCurrentPage = 1;
+
+    function changeSurveyPageSize(v) {
+      surveyPageSize = parseInt(v, 10);
+      localStorage.setItem('surveyPageSize', String(surveyPageSize));
+      surveyCurrentPage = 1;
+      var s = getSurvey();
+      if (s.stage === 1) { renderStage1List(); } else { renderSurveyTable(); }
+    }
+    function goSurveyPage(p) {
+      surveyCurrentPage = p;
+      var s = getSurvey();
+      if (s.stage === 1) { renderStage1List(); } else { renderSurveyTable(); }
+      window.scrollTo(0, 0);
+    }
+
+    // 페이지 크기 버튼 + 쪽 번호 묶음 HTML 만들기 (물품대장과 동일한 .page-btn / .pager 스타일)
+    function surveyPagerHTML(totalItems) {
+      var sizes = [10, 20, 50, 100];
+      var opts = sizes.map(function(n) {
+        return '<option value="' + n + '"' + (n === surveyPageSize ? ' selected' : '') + '>' + n + '개</option>';
+      }).join('');
+      var sizeSelect = '<select onchange="changeSurveyPageSize(this.value)" style="padding:5px 8px; border:1px solid #ccc; border-radius:4px; font-size:14px; margin-left:4px;">' + opts + '</select>';
+
+      var totalPages = Math.max(1, Math.ceil(totalItems / surveyPageSize));
+      if (surveyCurrentPage > totalPages) surveyCurrentPage = totalPages;
+      var pageBtns = '';
+      if (totalPages > 1) {
+        for (var p = 1; p <= totalPages; p++) {
+          var cls2 = (p === surveyCurrentPage) ? 'pager-btn current' : 'pager-btn';
+          pageBtns += '<button class="' + cls2 + '" onclick="goSurveyPage(' + p + ')">' + p + '</button>';
+        }
+      }
+      return '<div class="survey-pager no-print">' +
+        '<div class="survey-pager-pages">' + pageBtns + '</div>' +
+        '<div class="survey-pager-size">표시 갯수' + sizeSelect + '</div>' +
+        '</div>';
+    }
+
+    // 인쇄 머리글에 들어갈 조사 개요 한 줄 문구
+    function surveyOverviewLine(s) {
+      if (!s.year && !s.startDate) return '';
+      var parts = [];
+      if (s.year)  parts.push(s.year + '년');
+      if (s.type)  parts.push(s.type + ' 재물조사');
+      var line = parts.join(' ');
+      if (s.startDate || s.endDate) {
+        line += '   (조사기간: ' + (s.startDate || '') +
+                (s.endDate ? ' ~ ' + s.endDate : '') + ')';
+      }
+      return line;
+    }
+
+    // 단계 표시바 갱신
+    function updateStepBar(stage) {
+      [1, 2, 3].forEach(function (n) {
+        var el = document.getElementById('step-bar-' + n);
+        el.classList.remove('current', 'done');
+        if (n < stage)      el.classList.add('done');
+        else if (n === stage) el.classList.add('current');
+      });
+    }
+
+    // 현재 단계에 맞춰 화면 영역 표시/숨김
+    function showSurveyStage(stage) {
+      surveyCurrentPage = 1;   // 단계 전환 시 첫 쪽으로
+      document.getElementById('survey-stage-1').style.display = (stage === 1) ? 'block' : 'none';
+      document.getElementById('survey-stage-2').style.display = (stage === 2) ? 'block' : 'none';
+      document.getElementById('survey-stage-3').style.display = (stage === 3) ? 'block' : 'none';
+      // 물품 표는 2·3단계에서만 보임
+      document.getElementById('survey-table-wrap').style.display = (stage === 1) ? 'none' : 'block';
+      // 1단계로 돌아올 때 표 아래 페이저 잔존 방지
+      if (stage === 1) {
+        var sp = document.getElementById('survey-table-pager');
+        if (sp) sp.parentNode.removeChild(sp);
+      }
+      updateStepBar(stage);
+      if (stage === 1) renderStage1List();
+    }
+
+    // 1단계: 조사 대상 물품 목록(불용결정 제외) 표시
+    function renderStage1List() {
+      var wrap = document.getElementById('stage1-list-wrap');
+      if (!wrap) return;
+      var items = getItems().filter(function(item) { return !item.disposalDate; });
+      if (items.length === 0) {
+        wrap.innerHTML = '<p style="color:#999; text-align:center; padding:16px 0;">물품대장에 등록된 물품이 없습니다. 물품대장에서 물품을 먼저 등록하세요.</p>';
+        return;
+      }
+      var totalPages = Math.max(1, Math.ceil(items.length / surveyPageSize));
+      if (surveyCurrentPage > totalPages) surveyCurrentPage = totalPages;
+      var start = (surveyCurrentPage - 1) * surveyPageSize;
+      var end = Math.min(start + surveyPageSize, items.length);
+
+      var rows = '';
+      for (var i = start; i < end; i++) {
+        var item = items[i];
+        rows += '<tr>' +
+          '<td style="text-align:center; color:#888;">' + (i + 1) + '</td>' +
+          '<td style="text-align:center;">' + (item.id || '-') + '</td>' +
+          '<td>' + item.name + '</td>' +
+          '<td>' + (item.spec || '') + '</td>' +
+          '<td>' + (item.location || '') + '</td>' +
+          '</tr>';
+      }
+      wrap.innerHTML =
+        '<p style="color:#555; font-size:13px; margin-bottom:8px;">총 <b>' + items.length + '개</b> 물품이 조사 대상입니다. (불용결정 물품 제외)</p>' +
+        '<table class="ledger-table" style="width:100%; table-layout:fixed;">' +
+        '<thead><tr>' +
+        '<th style="width:50px;">연번</th>' +
+        '<th style="width:110px;">고유번호</th>' +
+        '<th style="width:200px;">물품명</th>' +
+        '<th style="width:150px;">규격</th>' +
+        '<th style="width:160px;">위치</th>' +
+        '</tr></thead>' +
+        '<tbody>' + rows + '</tbody>' +
+        '</table>' +
+        surveyPagerHTML(items.length);
+    }
+
+    // 재물조사 화면 진입 시: 저장된 단계로 자동 표시
+    function renderSurvey() {
+      var s = getSurvey();
+      // 1단계 입력칸에 저장값 채우기(없으면 현재 연도)
+      document.getElementById('inp-survey-year').value = s.year || String(new Date().getFullYear());
+      document.getElementById('inp-survey-start').value = s.startDate || '';
+      document.getElementById('inp-survey-end').value   = s.endDate || '';
+      document.querySelectorAll('input[name="survey-type"]').forEach(function (r) {
+        r.checked = (r.value === (s.type || '정기'));
+      });
+      showSurveyStage(s.stage);
+      if (s.stage >= 2) renderSurveyTable();
+      if (s.stage === 3) renderSurveySummary();
+    }
+
+    // 1단계 → 2단계: 개요 저장 후 결과 입력으로
+    function startSurvey() {
+      var year  = document.getElementById('inp-survey-year').value.trim();
+      var start = document.getElementById('inp-survey-start').value.trim();
+      var end   = document.getElementById('inp-survey-end').value.trim();
+      var typeEl = document.querySelector('input[name="survey-type"]:checked');
+      if (!year) { alert('조사연도를 입력해 주세요.'); return; }
+      var s = getSurvey();
+      s.year = year;
+      s.type = typeEl ? typeEl.value : '정기';
+      s.startDate = start;
+      s.endDate   = end;
+      s.stage = 2;
+      setSurvey(s);
+      showSurveyStage(2);
+      renderSurveyTable();
+    }
+
+    // 2단계 → 1단계: 결과 지우고 개요로 돌아가기
+    function backToStage1() {
+      if (!confirm('입력한 조사결과가 지워집니다. 돌아가시겠습니까?')) return;
+      var s = getSurvey();
+      // 사진도 함께 정리
+      Object.keys(s.results).forEach(function (id) {
+        if (s.results[id] && s.results[id].hasPhoto) deleteSurveyPhoto(id);
+      });
+      s.results = {};
+      s.stage = 1;
+      setSurvey(s);
+      showSurveyStage(1);
+    }
+
+    // 2 ↔ 3단계 이동
+    function goStage3() {
+      saveSurvey(true);            // 저장하고
+      var s = getSurvey();
+      s.stage = 3;
+      setSurvey(s);
+      // 조사이력에 자동 저장 (조사 대상: 불용결정 제외 물품)
+      var items = getItems().filter(function (item) { return !item.disposalDate; });
+      addSurveyHistory(s, items);
+      showSurveyStage(3);
+      renderSurveyTable();         // 읽기전용으로 다시 그림
+      renderSurveySummary();
+    }
+
+    /* ===================== 재물조사 이력 ===================== */
+
+    function getSurveyHistory() {
+      return JSON.parse(localStorage.getItem('surveyHistory') || '[]');
+    }
+    function saveSurveyHistory(h) {
+      localStorage.setItem('surveyHistory', JSON.stringify(h));
+    }
+
+    // 오늘 날짜 YYYY-MM-DD
+    function todayStr() {
+      function p2(n){ return String(n).padStart(2, '0'); }
+      var d = new Date();
+      return d.getFullYear() + '-' + p2(d.getMonth()+1) + '-' + p2(d.getDate());
+    }
+
+    // 조사이력 추가/갱신 (goStage3에서 호출)
+    function addSurveyHistory(survey, items) {
+      var history = getSurveyHistory();
+      var statuses = ['정상', '분실', '파손', '수리필요', '기타'];
+      var summary = { '정상': 0, '분실': 0, '파손': 0, '수리필요': 0, '기타': 0 };
+      var snapItems = items.map(function (item) {
+        var r = survey.results[item.id] || {};
+        var st = r.status || '정상';
+        if (summary[st] === undefined) summary[st] = 0;
+        summary[st]++;
+        return {
+          id: item.id, name: item.name, spec: item.spec || '',
+          location: item.location || '', status: st, note: r.note || '',
+          hasPhoto: !!(r.hasPhoto)
+        };
+      });
+      var rec = {
+        id: survey.id,
+        year: survey.year || '',
+        type: survey.type || '정기',
+        startDate: survey.startDate || '',
+        endDate: survey.endDate || '',
+        savedAt: todayStr(),
+        totalCount: snapItems.length,
+        summary: summary,
+        items: snapItems
+      };
+      // 같은 id가 있으면 덮어쓰기(재진입 중복 방지), 없으면 맨 앞에 추가
+      var idx = -1;
+      for (var i = 0; i < history.length; i++) {
+        if (history[i].id === rec.id) { idx = i; break; }
+      }
+      if (idx >= 0) history[idx] = rec;
+      else history.unshift(rec);
+      saveSurveyHistory(history);
+
+      // 이력 전용 키(surveyId:itemId)로 사진 복사 저장 (처음 저장 시에만)
+      if (idx < 0) {
+        snapItems.filter(function (it) { return it.hasPhoto; }).forEach(function (it) {
+          loadSurveyPhoto(it.id, function (blob) {
+            if (blob) saveSurveyPhoto(survey.id + ':' + it.id, blob, function () {});
+          });
+        });
+      }
+    }
+
+    /* ----- 이력 목록 화면 ----- */
+    var historyCurrentPage = 1;
+    var historyPageSize = 20;
+
+    function renderSurveyHistory() {
+      historyCurrentPage = 1;
+      renderSurveyHistoryPage();
+    }
+    function goHistoryPage(p) {
+      historyCurrentPage = p;
+      renderSurveyHistoryPage();
+      window.scrollTo(0, 0);
+    }
+    function renderSurveyHistoryPage() {
+      var history = getSurveyHistory();
+      var wrap = document.getElementById('survey-history-wrap');
+      var pager = document.getElementById('history-pager-pages');
+      if (pager) pager.innerHTML = '';
+
+      if (history.length === 0) {
+        wrap.innerHTML = '<div class="empty-msg">저장된 재물조사 이력이 없습니다.<br>재물조사 3단계(결과 확인)로 이동하면 자동으로 이력에 저장됩니다.</div>';
+        return;
+      }
+
+      var totalPages = Math.max(1, Math.ceil(history.length / historyPageSize));
+      if (historyCurrentPage > totalPages) historyCurrentPage = totalPages;
+      var start = (historyCurrentPage - 1) * historyPageSize;
+      var end = Math.min(start + historyPageSize, history.length);
+
+      var rows = '';
+      for (var i = start; i < end; i++) {
+        var h = history[i];
+        var sm = h.summary || {};
+        var smText = ['정상','분실','파손','수리필요','기타'].map(function (k) {
+          return k + ' ' + (sm[k] || 0);
+        }).join(' / ');
+        var period = (h.startDate || '-') + (h.endDate ? ' ~ ' + h.endDate : '');
+        rows +=
+          '<tr>' +
+          '<td>' + (i + 1) + '</td>' +
+          '<td>' + (h.savedAt || '') + '</td>' +
+          '<td>' + (h.year || '-') + '</td>' +
+          '<td>' + (h.type || '-') + '</td>' +
+          '<td>' + period + '</td>' +
+          '<td>' + (h.totalCount || 0) + '건</td>' +
+          '<td style="font-size:12px;">' + smText + '</td>' +
+          '<td><button class="btn-blue" onclick="openHistoryDetail(' + h.id + ')">상세보기</button></td>' +
+          '<td><button class="btn-delete" onclick="deleteSurveyHistory(' + h.id + ')">삭제</button></td>' +
+          '</tr>';
+      }
+
+      wrap.innerHTML =
+        '<table>' +
+        '<thead><tr>' +
+        '<th style="width:50px;">연번</th>' +
+        '<th style="width:110px;">저장일시</th>' +
+        '<th style="width:80px;">조사연도</th>' +
+        '<th style="width:70px;">구분</th>' +
+        '<th style="width:180px;">조사기간</th>' +
+        '<th style="width:90px;">조사물품수</th>' +
+        '<th>실태요약</th>' +
+        '<th style="width:90px;">상세보기</th>' +
+        '<th style="width:70px;">삭제</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table>';
+
+      // 쪽 번호
+      if (pager && totalPages > 1) {
+        for (var p = 1; p <= totalPages; p++) {
+          var btn = document.createElement('button');
+          btn.textContent = p;
+          if (p === historyCurrentPage) btn.className = 'current';
+          (function (pageNum) { btn.onclick = function () { goHistoryPage(pageNum); }; })(p);
+          pager.appendChild(btn);
+        }
+      }
+    }
+
+    function deleteSurveyHistory(id) {
+      if (!confirm('이 조사이력을 삭제하시겠습니까?\n삭제하면 되돌릴 수 없습니다.')) return;
+      var allHistory = getSurveyHistory();
+      // 이력 전용 사진(surveyId:itemId) 삭제
+      var target = null;
+      for (var i = 0; i < allHistory.length; i++) {
+        if (allHistory[i].id === id) { target = allHistory[i]; break; }
+      }
+      if (target) {
+        (target.items || []).forEach(function (it) {
+          if (it.hasPhoto) deleteSurveyPhoto(id + ':' + it.id);
+        });
+      }
+      saveSurveyHistory(allHistory.filter(function (h) { return h.id !== id; }));
+      renderSurveyHistoryPage();
+    }
+
+    /* ----- 이력 상세보기 모달 ----- */
+    var historyDetailId = null;
+
+    function openHistoryDetail(id) {
+      var history = getSurveyHistory();
+      var h = null;
+      for (var i = 0; i < history.length; i++) {
+        if (history[i].id === id) { h = history[i]; break; }
+      }
+      if (!h) return;
+      historyDetailId = id;
+      var period = (h.startDate || '-') + (h.endDate ? ' ~ ' + h.endDate : '');
+      var rows = (h.items || []).map(function (it) {
+        return '<tr>' +
+          '<td>' + (it.id || '-') + '</td>' +
+          '<td>' + (it.name || '') + '</td>' +
+          '<td>' + (it.spec || '') + '</td>' +
+          '<td>' + (it.location || '') + '</td>' +
+          '<td>' + (it.status || '') + '</td>' +
+          '<td>' + (it.note || '') + '</td>' +
+          '</tr>';
+      }).join('');
+      document.getElementById('history-detail-title').textContent =
+        (h.year || '') + '년 ' + (h.type || '') + ' 재물조사 결과 (' + (h.savedAt || '') + ' 저장)';
+      var sm = h.summary || {};
+      var smLine = ['정상','분실','파손','수리필요','기타'].map(function(k){ return k + ' ' + (sm[k]||0) + '건'; }).join(' / ');
+      document.getElementById('history-detail-body').innerHTML =
+        '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:12px;">' +
+        '<div style="line-height:1.8;"><b>조사기간</b> : ' + period + ' &nbsp;&nbsp; <b>조사물품수</b> : ' + (h.totalCount || 0) + '건<br>' +
+        '<b>조사결과</b> : ' + smLine + '</div>' +
+        '<div style="display:flex; gap:8px; flex-shrink:0;">' +
+        '<button class="btn-blue" onclick="printHistoryResult()">결과서 인쇄</button>' +
+        '<button class="btn-gray" onclick="closeHistoryDetail()">닫기</button>' +
+        '</div></div>' +
+        '<table>' +
+        '<thead><tr>' +
+        '<th>고유번호</th><th>물품명</th><th>규격</th><th>위치</th><th>실태</th><th>특이사항</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table>';
+      document.getElementById('history-detail-modal').classList.add('active');
+    }
+    function closeHistoryDetail() {
+      document.getElementById('history-detail-modal').classList.remove('active');
+    }
+
+    // 이력 데이터를 survey-list에 임시 렌더링 후 결과서 인쇄
+    function printHistoryResult() {
+      var history = getSurveyHistory();
+      var h = null;
+      for (var i = 0; i < history.length; i++) {
+        if (history[i].id === historyDetailId) { h = history[i]; break; }
+      }
+      if (!h) return;
+
+      // 인쇄 머리글 채우기
+      document.getElementById('survey-print-centername').textContent = getCenterName();
+      document.getElementById('survey-print-title').textContent = '재 물 조 사 결 과 서';
+      document.getElementById('survey-date-print').textContent = '';
+      var hName = [(h.year ? h.year + '년' : ''), (h.type ? h.type + ' 재물조사' : '')].filter(Boolean).join(' ');
+      var hPeriod = (h.startDate || h.endDate)
+        ? (h.startDate || '') + (h.endDate ? ' ~ ' + h.endDate : '') : '-';
+      var hSm = h.summary || {};
+      var hCountText = ['정상','분실','파손','수리필요','기타'].map(function(k){ return k + ' ' + (hSm[k]||0) + '건'; }).join('  /  ');
+      document.getElementById('survey-result-summary-print').innerHTML =
+        '조사명 : ' + hName + '<br>' +
+        '조사기간 : ' + hPeriod + '<br>' +
+        '조사 물품 : 총 ' + (h.totalCount || 0) + '건<br>' + hCountText;
+
+      // survey-table에 이력 항목을 임시로 렌더 (인쇄용 사진 img 태그 포함)
+      var tbody = document.getElementById('survey-list');
+      var savedHTML = tbody.innerHTML;
+      tbody.innerHTML = (h.items || []).map(function (it) {
+        var photoHTML = it.hasPhoto
+          ? '<img id="sph-print-' + it.id + '" class="survey-print-photo" src="" alt="">'
+          : '<span style="color:#bbb;font-size:12px;">-</span>';
+        return '<tr>' +
+          '<td>' + (it.id || '-') + '</td>' +
+          '<td>' + (it.name || '') + '</td>' +
+          '<td>' + (it.spec || '') + '</td>' +
+          '<td><span class="survey-status-text">' + (it.status || '') + '</span></td>' +
+          '<td>' + (it.note || '') + '</td>' +
+          '<td class="survey-photo-col survey-photo-cell">' + photoHTML + '</td>' +
+          '</tr>';
+      }).join('');
+
+      // 재물조사 화면을 잠깐 활성화해야 인쇄 영역이 보임
+      var surveyScreen = document.getElementById('screen-survey');
+      var historyScreen = document.getElementById('screen-survey-history');
+      var modal = document.getElementById('history-detail-modal');
+      modal.classList.remove('active');
+      historyScreen.classList.remove('active');
+      surveyScreen.classList.add('active');
+
+      // survey-table-wrap이 숨겨져 있으면 임시로 표시
+      var wrap = document.getElementById('survey-table-wrap');
+      var wrapWasHidden = (wrap.style.display === 'none');
+      if (wrapWasHidden) wrap.style.display = 'block';
+
+      var sp = document.getElementById('survey-table-pager');
+      if (sp) sp.style.display = 'none';
+
+      function restore() {
+        document.body.classList.remove('printing-survey-result');
+        var ps = document.getElementById('hist-portrait-style');
+        if (ps) ps.parentNode.removeChild(ps);
+        if (wrapWasHidden) wrap.style.display = 'none';
+        if (sp) sp.style.display = '';
+        surveyScreen.classList.remove('active');
+        historyScreen.classList.add('active');
+        tbody.innerHTML = savedHTML;
+        modal.classList.add('active');
+      }
+      function waitAndPrint() {
+        // img.src 세팅 후 실제 디코딩 완료까지 대기 후 인쇄
+        var pimgs = [].slice.call(document.querySelectorAll('#survey-list .survey-print-photo'))
+                      .filter(function (img) { return img.src && img.src !== window.location.href; });
+        var rem = pimgs.length;
+        function actuallyPrint() {
+          var ps = document.createElement('style');
+          ps.id = 'hist-portrait-style';
+          ps.textContent = '@page { size: A4 portrait; margin: 10mm; }';
+          document.head.appendChild(ps);
+          requestAnimationFrame(function () { window.print(); restore(); });
+        }
+        if (rem === 0) { actuallyPrint(); return; }
+        pimgs.forEach(function (img) {
+          if (img.complete && img.naturalWidth > 0) {
+            if (--rem === 0) actuallyPrint();
+          } else {
+            img.onload  = function () { if (--rem === 0) actuallyPrint(); };
+            img.onerror = function () { if (--rem === 0) actuallyPrint(); };
+          }
+        });
+      }
+
+      // 먼저 클래스 추가 → img가 display:block 상태에서 src 세팅 및 디코딩
+      document.body.classList.add('printing-survey-result');
+
+      // 사진이 있는 항목은 IndexedDB에서 로드 후 인쇄 (새 조사로 초기화됐으면 사진 없이 인쇄)
+      var photoItems = (h.items || []).filter(function (it) { return it.hasPhoto; });
+      var remaining = photoItems.length;
+      if (remaining === 0) {
+        waitAndPrint();
+      } else {
+        photoItems.forEach(function (it) {
+          // 이력 전용 키(surveyId:itemId)로 먼저 로드, 없으면 단순 키로 폴백
+          loadSurveyPhoto(h.id + ':' + it.id, function (blob) {
+            if (!blob) { loadSurveyPhoto(it.id, function (b) { useBlob(b); }); return; }
+            useBlob(blob);
+            function useBlob(b) {
+              if (b) {
+                var pimg = document.getElementById('sph-print-' + it.id);
+                if (pimg) {
+                  blobToDataURL(b, function (dataURL) {
+                    if (dataURL) pimg.src = dataURL;
+                    if (--remaining === 0) waitAndPrint();
+                  });
+                  return;
+                }
+              }
+              if (--remaining === 0) waitAndPrint();
+            }
+          });
+        });
+      }
+    }
+    function goStage2() {
+      var s = getSurvey();
+      s.stage = 2;
+      setSurvey(s);
+      showSurveyStage(2);
+      renderSurveyTable();
+    }
+
+    // 새 재물조사 시작: 전부 초기화 → 1단계
+    function resetSurvey() {
+      if (!confirm('지금까지의 재물조사 내용을 모두 지우고 새로 시작합니다.\n계속할까요?')) return;
+      var s = getSurvey();
+      Object.keys(s.results).forEach(function (id) {
+        if (s.results[id] && s.results[id].hasPhoto) deleteSurveyPhoto(id);
+      });
+      setSurvey({ id: Date.now(), year: '', type: '정기', startDate: '', endDate: '', stage: 1, results: {} });
+      renderSurvey();
+    }
+
+    var surveyPrintingAll = false;   // 인쇄 중엔 전체를 한 번에 표시
+
+    // 물품 목록 표 그리기 (2단계: 입력가능 / 3단계: 읽기전용, forceReadonly: 1단계 조서인쇄용)
+    // onPhotosReady: 사진이 모두 로드된 뒤 호출할 콜백(인쇄 타이밍 제어용, 생략 가능)
+    function renderSurveyTable(forceReadonly, onPhotosReady) {
+      var allItems = getItems().filter(function(item) { return !item.disposalDate; });
+      var survey = getSurvey();
+      var readonly = !!forceReadonly || (survey.stage === 3);
+      var tbody = document.getElementById('survey-list');
+      var wrapEl = document.getElementById('survey-table-wrap');
+      tbody.innerHTML = '';
+
+      document.getElementById('survey-date-print').textContent = surveyOverviewLine(survey);
+
+      // 기존 페이지 버튼 제거 후 다시 그림
+      var oldPager = document.getElementById('survey-table-pager');
+      if (oldPager) oldPager.parentNode.removeChild(oldPager);
+
+      if (allItems.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="color:#999;">물품대장에 등록된 물품이 없습니다. 먼저 물품대장에서 물품을 등록하세요.</td></tr>';
+        return;
+      }
+
+      // 인쇄 중이면 전체, 평소엔 현재 쪽만 표시
+      var totalPages = Math.max(1, Math.ceil(allItems.length / surveyPageSize));
+      if (surveyCurrentPage > totalPages) surveyCurrentPage = totalPages;
+      var start = surveyPrintingAll ? 0 : (surveyCurrentPage - 1) * surveyPageSize;
+      var end = surveyPrintingAll ? allItems.length : Math.min(start + surveyPageSize, allItems.length);
+      var items = allItems.slice(start, end);
+
+      var statuses = ['정상', '분실', '파손', '수리필요', '기타'];
+
+      items.forEach(function (item) {
+        var saved = survey.results[item.id] || { status: '정상', note: '', hasPhoto: false };
+
+        var statusCell;
+        var noteCell;
+        if (readonly) {
+          // 3단계: 값만 글자로 표시 (조서 인쇄 때는 실태 글자를 숨겨 빈칸으로 출력)
+          statusCell = '<td><span class="survey-status-text">' + (saved.status || '정상') + '</span></td>';
+          noteCell   = '<td>' + (saved.note || '') + '</td>';
+        } else {
+          var options = statuses.map(function (s) {
+            var sel = (s === saved.status) ? ' selected' : '';
+            return '<option' + sel + '>' + s + '</option>';
+          }).join('');
+          statusCell = '<td><select class="survey-select" data-id="' + item.id + '">' + options + '</select></td>';
+          noteCell   = '<td><input type="text" class="survey-note" data-id="' + item.id + '" value="' + (saved.note || '') + '"></td>';
+        }
+
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + (item.id || '-') + '</td>' +
+          '<td>' + item.name + '</td>' +
+          '<td>' + item.spec + '</td>' +
+          statusCell +
+          noteCell +
+          '<td class="survey-photo-col survey-photo-cell" id="sph-' + item.id + '">' +
+            surveyPhotoCellHTML(item.id, saved.hasPhoto, readonly) +
+          '</td>';
+        tbody.appendChild(tr);
+      });
+
+      // 저장된 재물조사 사진을 저장소에서 불러와 썸네일·인쇄용 이미지 채우기
+      // 인쇄용(pimg)은 dataURL로 변환: blob: URL은 인쇄 미리보기 렌더러에서 로드 실패할 수 있음
+      var photoItems = items.filter(function (item) {
+        var saved = survey.results[item.id];
+        return saved && saved.hasPhoto;
+      });
+      var photoRemaining = photoItems.length;
+      function onOnePhotoLoaded() {
+        if (--photoRemaining === 0 && onPhotosReady) onPhotosReady();
+      }
+      if (photoRemaining === 0) {
+        if (onPhotosReady) onPhotosReady();
+      } else {
+        photoItems.forEach(function (item) {
+          loadSurveyPhoto(item.id, function (blob) {
+            if (!blob) { onOnePhotoLoaded(); return; }
+            var thumbEl = document.getElementById('sph-thumb-' + item.id);
+            var printEl = document.getElementById('sph-print-' + item.id);
+            var blobUrl = URL.createObjectURL(blob);
+            if (thumbEl) thumbEl.src = blobUrl;   // 썸네일은 blob URL (빠름)
+            if (printEl) {
+              if (onPhotosReady) {
+                // 인쇄용: dataURL 변환 후 세팅 (인쇄 미리보기에서 안정적으로 표시)
+                blobToDataURL(blob, function (dataURL) {
+                  if (dataURL) printEl.src = dataURL;
+                  onOnePhotoLoaded();
+                });
+              } else {
+                printEl.src = blobUrl;
+                onOnePhotoLoaded();
+              }
+            } else {
+              onOnePhotoLoaded();
+            }
+          });
+        });
+      }
+
+      // 페이지 분할 버튼 (기존 것 먼저 제거 후 새로 삽입)
+      var oldSurveyPager = document.getElementById('survey-table-pager');
+      if (oldSurveyPager) oldSurveyPager.parentNode.removeChild(oldSurveyPager);
+      if (!surveyPrintingAll && wrapEl) {
+        var pagerDiv = document.createElement('div');
+        pagerDiv.id = 'survey-table-pager';
+        pagerDiv.innerHTML = surveyPagerHTML(allItems.length);
+        wrapEl.parentNode.insertBefore(pagerDiv, wrapEl.nextSibling);
+      }
+    }
+
+    // 재물조사 사진칸 HTML (첨부 버튼 / 썸네일+삭제 / 인쇄용 이미지)
+    // readonly=true(3단계)이면 썸네일만 보이고 첨부·삭제 버튼은 빼고 보여줌
+    function surveyPhotoCellHTML(id, hasPhoto, readonly) {
+      // 숨겨진 파일 선택칸 (각 행마다)
+      var fileInput =
+        '<input type="file" accept="image/*" style="display:none" ' +
+        'id="sph-file-' + id + '" onchange="onSurveyPhotoSelected(this, \'' + id + '\')">';
+      if (hasPhoto) {
+        var delBtn = readonly ? '' :
+          '<button class="survey-photo-del" onclick="removeSurveyPhoto(\'' + id + '\')">×</button>';
+        return fileInput +
+          '<img id="sph-thumb-' + id + '" class="survey-thumb" src="" alt="사진" ' +
+            'onclick="openPhotoViewer(this.src)">' +
+          delBtn +
+          '<img id="sph-print-' + id + '" class="survey-print-photo" src="" alt="">';
+      }
+      if (readonly) {
+        return fileInput +
+          '<span style="color:#bbb; font-size:12px;">-</span>' +
+          '<img id="sph-print-' + id + '" class="survey-print-photo" src="" alt="">';
+      }
+      return fileInput +
+        '<button class="survey-photo-btn" onclick="document.getElementById(\'sph-file-' + id + '\').click()">📷 사진</button>' +
+        '<img id="sph-print-' + id + '" class="survey-print-photo" src="" alt="">';
+    }
+
+    // 재물조사 사진 선택 → 압축(최대 800px) → 저장소 보관 → 데이터에 hasPhoto 기록
+    function onSurveyPhotoSelected(input, id) {
+      var file = input.files[0];
+      if (!file) return;
+      compressImage(file, 800, 0.7, function (blob) {
+        if (!blob) { alert('사진을 처리하지 못했습니다. 다른 사진으로 시도해 주세요.'); return; }
+        saveSurveyPhoto(id, blob, function (ok) {
+          if (!ok) { alert('사진 저장 공간이 부족하거나 막혀 있어, 사진을 저장하지 못했습니다.'); return; }
+          saveSurvey(true);
+          var survey = getSurvey();
+          if (!survey.results[id]) survey.results[id] = { status: '정상', note: '' };
+          survey.results[id].hasPhoto = true;
+          setSurvey(survey);
+          renderSurveyTable();
+        });
+      });
+    }
+
+    // 재물조사 사진 삭제
+    function removeSurveyPhoto(id) {
+      if (!confirm('이 재물조사 사진을 삭제하시겠습니까?')) return;
+      deleteSurveyPhoto(id);
+      var survey = getSurvey();
+      if (survey.results[id]) {
+        survey.results[id].hasPhoto = false;
+        setSurvey(survey);
+      }
+      renderSurveyTable();
+    }
+
+    // 조사내용 저장 (개요 정보는 그대로 두고 results만 갱신)
+    // silent=true면 완료 알림창을 띄우지 않음(3단계 이동 시 사용)
+    function saveSurvey(silent) {
+      var survey = getSurvey();   // 개요·기존 사진 정보 유지용
+      var prevResults = survey.results || {};
+      var results = {};
+
+      document.querySelectorAll('.survey-select').forEach(function (sel) {
+        var id = sel.getAttribute('data-id');
+        if (!results[id]) results[id] = {};
+        results[id].status = sel.value;
+      });
+      document.querySelectorAll('.survey-note').forEach(function (inp) {
+        var id = inp.getAttribute('data-id');
+        if (!results[id]) results[id] = {};
+        results[id].note = inp.value.trim();
+      });
+      // 사진 첨부 여부(hasPhoto)는 기존 값 그대로 유지
+      Object.keys(results).forEach(function (id) {
+        results[id].hasPhoto = !!(prevResults[id] && prevResults[id].hasPhoto);
+      });
+
+      survey.results = results;
+      setSurvey(survey);
+      document.getElementById('survey-date-print').textContent = surveyOverviewLine(survey);
+      if (!silent) alert('조사내용이 저장되었습니다.');
+    }
+
+    // 3단계: 조사 개요 + 실태별 건수 요약 표시
+    function renderSurveySummary() {
+      var s = getSurvey();
+      var items = getItems().filter(function(item) { return !item.disposalDate; });
+      var statuses = ['정상', '분실', '파손', '수리필요', '기타'];
+      var count = { '정상': 0, '분실': 0, '파손': 0, '수리필요': 0, '기타': 0 };
+      items.forEach(function (item) {
+        var r = s.results[item.id];
+        var st = (r && r.status) ? r.status : '정상';
+        if (count[st] === undefined) count[st] = 0;
+        count[st]++;
+      });
+      var countHtml = statuses.map(function (st) {
+        return '<span>' + st + ' ' + (count[st] || 0) + '건</span>';
+      }).join('');
+
+      document.getElementById('survey-summary').innerHTML =
+        '<div><b>조사연도</b> : ' + (s.year || '-') + '년 &nbsp;&nbsp; ' +
+        '<b>조사구분</b> : ' + (s.type || '-') + ' &nbsp;&nbsp; ' +
+        '<b>조사기간</b> : ' + (s.startDate || '-') +
+        (s.endDate ? ' ~ ' + s.endDate : '') + '</div>' +
+        '<div><b>조사 물품</b> : 총 ' + items.length + '건</div>' +
+        '<div class="survey-count">' + countHtml + '</div>';
+    }
+
+    /* ----- 재물조사 조서 인쇄 (조사 전: 실태칸 빈칸, 사진칸 숨김) ----- */
+    function printSurveyDocument() {
+      var survey = getSurvey();
+      document.getElementById('survey-print-centername').textContent = getCenterName();
+      document.getElementById('survey-print-title').textContent = '재 물 조 사 조 서';
+      document.getElementById('survey-date-print').textContent = '';
+      var docItems = getItems().filter(function(item) { return !item.disposalDate; });
+      var docName = [(survey.year ? survey.year + '년' : ''), (survey.type ? survey.type + ' 재물조사' : '')].filter(Boolean).join(' ');
+      var docPeriod = (survey.startDate || survey.endDate)
+        ? (survey.startDate || '') + (survey.endDate ? ' ~ ' + survey.endDate : '')
+        : '-';
+      document.getElementById('survey-result-summary-print').innerHTML =
+        '조사명 : ' + docName + '<br>' +
+        '조사기간 : ' + docPeriod + '<br>' +
+        '조사 물품 : 총 ' + docItems.length + '건';
+
+      // 1단계에서 호출 시: 테이블이 숨겨져 있으므로 임시로 표시 후 인쇄
+      var wrap = document.getElementById('survey-table-wrap');
+      var wasHidden = (wrap.style.display === 'none');
+      surveyPrintingAll = true;     // 인쇄는 전체 목록을 한 번에
+      if (wasHidden) wrap.style.display = 'block';
+      renderSurveyTable(true);      // 읽기전용(실태 텍스트 표시, CSS로 숨겨짐) + 전체 렌더링
+
+      document.body.classList.add('printing-survey-doc');
+      window.print();
+      document.body.classList.remove('printing-survey-doc');
+
+      surveyPrintingAll = false;
+      if (wasHidden) {
+        wrap.style.display = 'none';
+        document.getElementById('survey-list').innerHTML = '';
+        var sp = document.getElementById('survey-table-pager');
+        if (sp) sp.parentNode.removeChild(sp);
+      } else {
+        renderSurveyTable();        // 화면용 페이지 분할 복구
+      }
+    }
+
+    /* ----- 재물조사 결과서 인쇄 (조사 후: 실태·사진 함께 출력) ----- */
+    function printSurveyResult() {
+      var survey = getSurvey();
+      document.getElementById('survey-print-centername').textContent = getCenterName();
+      document.getElementById('survey-print-title').textContent = '재 물 조 사 결 과 서';
+      document.getElementById('survey-date-print').textContent = '';  // 결과서는 아래 요약 블록에 통합
+
+      // 결과서 인쇄용 요약 블록 채우기
+      var allItems = getItems().filter(function(item) { return !item.disposalDate; });
+      var statuses = ['정상', '분실', '파손', '수리필요', '기타'];
+      var cnt = {};
+      statuses.forEach(function(st) { cnt[st] = 0; });
+      allItems.forEach(function(item) {
+        var r = survey.results[item.id];
+        var st = (r && r.status) ? r.status : '정상';
+        if (cnt[st] !== undefined) cnt[st]++;
+      });
+      var countText = statuses.map(function(st) { return st + ' ' + (cnt[st] || 0) + '건'; }).join('  /  ');
+      var surveyName = [(survey.year ? survey.year + '년' : ''), (survey.type ? survey.type + ' 재물조사' : '')].filter(Boolean).join(' ');
+      var periodText = (survey.startDate || survey.endDate)
+        ? (survey.startDate || '') + (survey.endDate ? ' ~ ' + survey.endDate : '')
+        : '-';
+      document.getElementById('survey-result-summary-print').innerHTML =
+        '조사명 : ' + surveyName + '<br>' +
+        '조사기간 : ' + periodText + '<br>' +
+        '조사 물품 : 총 ' + allItems.length + '건<br>' + countText;
+      surveyPrintingAll = true;
+      document.body.classList.add('printing-survey-result');  // 먼저 추가 → img가 visible 상태에서 디코딩 시작
+      renderSurveyTable(false, function () {
+        // img.src 세팅 후 실제 디코딩 완료까지 대기 후 인쇄
+        var pimgs = [].slice.call(document.querySelectorAll('#survey-list .survey-print-photo'))
+                      .filter(function (img) { return img.src && img.src !== window.location.href; });
+        var rem = pimgs.length;
+        function doPrint() {
+          var ps = document.createElement('style');
+          ps.id = 'survey-result-portrait-style';
+          ps.textContent = '@media print { @page { size: A4 portrait; margin: 10mm; } }';
+          document.head.appendChild(ps);
+          requestAnimationFrame(function () {
+            window.print();
+            document.body.classList.remove('printing-survey-result');
+            surveyPrintingAll = false;
+            var s = document.getElementById('survey-result-portrait-style');
+            if (s) s.parentNode.removeChild(s);
+            renderSurveyTable();
+          });
+        }
+        if (rem === 0) { doPrint(); return; }
+        pimgs.forEach(function (img) {
+          if (img.complete && img.naturalWidth > 0) {
+            if (--rem === 0) doPrint();
+          } else {
+            img.onload  = function () { if (--rem === 0) doPrint(); };
+            img.onerror = function () { if (--rem === 0) doPrint(); };
+          }
+        });
+      });
+    }
+
+    /* ===================== 백업 (내보내기 / 가져오기) ===================== */
+
+    // 사진(Blob) → 글자(dataURL) 변환
+    function blobToDataURL(blob, cb) {
+      var r = new FileReader();
+      r.onload = function () { cb(r.result); };
+      r.onerror = function () { cb(null); };
+      r.readAsDataURL(blob);
+    }
+    // 글자(dataURL) → 사진(Blob) 변환
+    function dataURLToBlob(durl, cb) {
+      fetch(durl).then(function (r) { return r.blob(); })
+                 .then(function (b) { cb(b); })
+                 .catch(function () { cb(null); });
+    }
+
+    // 모든 자료 + 사진을 백업 파일 하나로 만들어 내려받기
+    // namePrefix: 파일이름 앞부분, onDone: 다 끝나면 호출(생략 가능), showAlert: 완료 안내창 표시 여부
+    function buildAndDownloadBackup(namePrefix, onDone, showAlert) {
+      var items = getItems();
+      var survey = getSurvey();
+      var surveyHistory = getSurveyHistory();
+      var backup = {
+        type: '물품관리백업',
+        version: 3,
+        savedAt: new Date().toISOString(),
+        data: {
+          items: items,
+          counters: JSON.parse(localStorage.getItem('counters') || '{}'),
+          centerName: localStorage.getItem('centerName') || '',
+          survey: survey,
+          surveyHistory: surveyHistory
+        },
+        photos: {},        // 물품 사진 + 불용결정 사진 (키: 고유번호 또는 'disposal-고유번호')
+        surveyPhotos: {}   // 재물조사 사진 (키: 고유번호 또는 'surveyId:itemId')
+      };
+
+      // 물품 사진 키 목록
+      var withPhoto = items.filter(function (it) { return it.hasPhoto; });
+      // 불용결정 사진 키 목록
+      var withDisposalPhoto = items.filter(function (it) { return it.hasDisposalPhoto; });
+      // 현재 재물조사 사진 키 목록
+      var surveyPhotoIds = Object.keys(survey.results || {}).filter(function (id) {
+        return survey.results[id] && survey.results[id].hasPhoto;
+      });
+      // 이력 전용 사진 키 목록 (surveyId:itemId)
+      var historyPhotoKeys = [];
+      surveyHistory.forEach(function (h) {
+        (h.items || []).forEach(function (it) {
+          if (it.hasPhoto) historyPhotoKeys.push(h.id + ':' + it.id);
+        });
+      });
+      var remaining = withPhoto.length + withDisposalPhoto.length + surveyPhotoIds.length + historyPhotoKeys.length;
+
+      function finishExport() {
+        var blob = new Blob([JSON.stringify(backup)], { type: 'application/json' });
+        var d = new Date();
+        var name = namePrefix + d.getFullYear() + '-' +
+                   String(d.getMonth() + 1).padStart(2, '0') + '-' +
+                   String(d.getDate()).padStart(2, '0') + '.json';
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        a.click();
+        if (showAlert) {
+          alert('백업 파일을 내려받았습니다.\n파일 이름: ' + name +
+                '\n\n이 파일을 이 프로그램 폴더나 USB 등 안전한 곳에 보관하세요.');
+        }
+        if (onDone) onDone();
+      }
+
+      if (remaining === 0) { finishExport(); return; }
+
+      // 물품 사진
+      withPhoto.forEach(function (it) {
+        loadPhoto(it.id, function (blob) {
+          if (blob) {
+            blobToDataURL(blob, function (durl) {
+              if (durl) backup.photos[it.id] = durl;
+              if (--remaining === 0) finishExport();
+            });
+          } else { if (--remaining === 0) finishExport(); }
+        });
+      });
+      // 불용결정 사진 ('disposal-고유번호' 키)
+      withDisposalPhoto.forEach(function (it) {
+        loadPhoto('disposal-' + it.id, function (blob) {
+          if (blob) {
+            blobToDataURL(blob, function (durl) {
+              if (durl) backup.photos['disposal-' + it.id] = durl;
+              if (--remaining === 0) finishExport();
+            });
+          } else { if (--remaining === 0) finishExport(); }
+        });
+      });
+      // 현재 재물조사 사진
+      surveyPhotoIds.forEach(function (id) {
+        loadSurveyPhoto(id, function (blob) {
+          if (blob) {
+            blobToDataURL(blob, function (durl) {
+              if (durl) backup.surveyPhotos[id] = durl;
+              if (--remaining === 0) finishExport();
+            });
+          } else { if (--remaining === 0) finishExport(); }
+        });
+      });
+      // 이력 전용 사진 (surveyId:itemId 키)
+      historyPhotoKeys.forEach(function (key) {
+        loadSurveyPhoto(key, function (blob) {
+          if (blob) {
+            blobToDataURL(blob, function (durl) {
+              if (durl) backup.surveyPhotos[key] = durl;
+              if (--remaining === 0) finishExport();
+            });
+          } else { if (--remaining === 0) finishExport(); }
+        });
+      });
+    }
+
+    // [내보내기] 버튼
+    function exportBackup() {
+      buildAndDownloadBackup('물품관리_백업_', null, true);
+    }
+
+    // 백업 파일 가져와서 복원
+    function importBackupFile(input) {
+      var file = input.files[0];
+      if (!file) return;
+
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var backup;
+        try { backup = JSON.parse(e.target.result); }
+        catch (err) { alert('백업 파일을 읽을 수 없습니다. 올바른 백업 파일인지 확인해 주세요.'); input.value = ''; return; }
+
+        if (!backup || backup.type !== '물품관리백업') {
+          alert('이 파일은 물품관리 백업 파일이 아닙니다.');
+          input.value = '';
+          return;
+        }
+
+        var currentCount = getItems().length;
+        var msg;
+        if (currentCount > 0) {
+          msg = '백업을 불러오면 지금 입력된 자료(' + currentCount + '건)는\n' +
+                '백업 내용으로 바뀝니다.\n\n' +
+                '안전을 위해, 바뀌기 전에 지금 자료를 백업 파일로\n' +
+                '먼저 내려받은 뒤 진행합니다.\n\n계속할까요?';
+        } else {
+          msg = '백업 파일을 불러옵니다. 계속할까요?';
+        }
+        if (!confirm(msg)) { input.value = ''; return; }
+
+        // 실제 복원 작업
+        function doRestore() {
+          try {
+            localStorage.setItem('items', JSON.stringify(backup.data.items || []));
+            localStorage.setItem('counters', JSON.stringify(backup.data.counters || {}));
+            if (backup.data.centerName) localStorage.setItem('centerName', backup.data.centerName);
+            localStorage.setItem('survey', JSON.stringify(backup.data.survey || { id: Date.now(), year: '', type: '정기', startDate: '', endDate: '', stage: 1, results: {} }));
+            localStorage.setItem('surveyHistory', JSON.stringify(backup.data.surveyHistory || []));
+          } catch (err) {
+            alert('자료 복원 중 오류가 발생했습니다.\n\n' + err.message);
+            input.value = '';
+            return;
+          }
+          restorePhotos();
+        }
+
+        // 현재 자료가 있으면 → 먼저 안전 백업하고 나서 복원
+        if (currentCount > 0) {
+          buildAndDownloadBackup('교체전_현재자료_백업_', doRestore, false);
+        } else {
+          doRestore();
+        }
+        return;
+
+        // (아래 사진 복원은 doRestore에서 호출)
+        function restorePhotos() {
+        var photos = backup.photos || {};
+        var surveyPhotos = backup.surveyPhotos || {};
+        var ids = Object.keys(photos);
+        var surveyIds = Object.keys(surveyPhotos);
+        var remaining = ids.length + surveyIds.length;
+
+        function finishImport() {
+          input.value = '';
+          applyCenterName();
+          alert('백업을 불러왔습니다. 자료가 복원되었습니다.');
+          showScreen('ledger');
+        }
+
+        if (remaining === 0) { finishImport(); return; }
+        ids.forEach(function (id) {
+          dataURLToBlob(photos[id], function (blob) {
+            if (blob) { savePhoto(id, blob, function () { if (--remaining === 0) finishImport(); }); }
+            else { if (--remaining === 0) finishImport(); }
+          });
+        });
+        surveyIds.forEach(function (id) {
+          dataURLToBlob(surveyPhotos[id], function (blob) {
+            if (blob) { saveSurveyPhoto(id, blob, function () { if (--remaining === 0) finishImport(); }); }
+            else { if (--remaining === 0) finishImport(); }
+          });
+        });
+        } // restorePhotos 끝
+      };
+      reader.readAsText(file);
+    }
+
+    /* ===================== 시작 ===================== */
+    window.onload = function () {
+      applyCenterName();
+      showScreen('home');
+    };
+  </script>
+
+</body>
+</html>
