@@ -1722,18 +1722,13 @@ function openTargetListModal(expenseId, focusChildId){
 
 function renderChild(root){
   if (!S.children.length) { root.innerHTML = `<div class="empty">원아가 없습니다.</div>`; return; }
-  const list = sortedChildren();
-  const v = view.child = Object.assign({ childId: list[0].id }, view.child || {});
-  if (!childById(v.childId)) v.childId = list[0].id;
-
+  const v = view.child = Object.assign({ classId: "", childId: null }, view.child || {});
   const fy = S.fiscalYear, from = fyStart(fy), to = fyEnd(fy);
 
   root.innerHTML = `
     <h2>원아별 현황</h2>
     <div class="row" style="margin:10px 0">
-      <label class="f">원아<select id="c_pick" style="width:220px">
-        ${list.map(c => `<option value="${c.id}" ${c.id === v.childId ? "selected" : ""}>${esc(c.name)}${c.leaveDate ? " (퇴소)" : ""}</option>`).join("")}
-      </select></label>
+      <span id="c_sel" style="display:flex;gap:10px;align-items:flex-end"></span>
       <span class="grow"></span>
       <button class="b no-print" id="c_csv">CSV 저장</button>
       <button class="b no-print" id="c_print">인쇄</button>
@@ -1744,10 +1739,13 @@ function renderChild(root){
     <div class="hint no-print">금액을 누르면 그 지출건의 내용과 참여원아 명단이 뜹니다.</div>
     <div id="c_use"></div>`;
 
-  $("#c_pick", root).onchange = e => { v.childId = e.target.value; render(); };
   $("#c_print", root).onclick = () => window.print();
-
-  const c = childById(v.childId);
+  const pick = childSelect($("#c_sel", root), v, {
+    classId: "c_class", childId: "c_pick", width: 190,
+    suffix: k => k.leaveDate ? " (퇴소)" : "",
+  });
+  const c = pick.child;
+  if (!c) { $("#c_info", root).innerHTML = `<div class="empty">이 반에 원아가 없습니다.</div>`; return; }
   const cps = consignPeriodsOf(c);
   $("#c_info", root).innerHTML = `
     <table style="max-width:760px"><tbody>
@@ -1872,6 +1870,53 @@ function monthPicker(id, value, months){
   </select>`;
 }
 
+/** 자주 쓰는 기간 버튼. 지금 고른 기간과 맞는 버튼만 눌린 것으로 보인다. */
+function periodButtons(spec, months){
+  const on = (a, b) => spec.fromM === months[a].key && spec.toM === months[b].key ? "pri" : "";
+  return `<div class="f" style="gap:4px">
+    <span style="font-size:12px;color:var(--dim)">자주 쓰는 기간</span>
+    <span style="display:flex;gap:4px">
+      <button class="b ${on(0, 5)}"  data-p="H1" style="padding:5px 9px">상반기</button>
+      <button class="b ${on(6, 11)}" data-p="H2" style="padding:5px 9px">하반기</button>
+      <button class="b ${on(0, 11)}" data-p="Y"  style="padding:5px 9px">연간</button>
+    </span></div>`;
+}
+function wirePeriodButtons(host, v, months){
+  $('[data-p="H1"]', host).onclick = () => { v.fromMonth = months[0].key;  v.toMonth = months[5].key;  render(); };
+  $('[data-p="H2"]', host).onclick = () => { v.fromMonth = months[6].key;  v.toMonth = months[11].key; render(); };
+  $('[data-p="Y"]',  host).onclick = () => { v.fromMonth = months[0].key;  v.toMonth = months[11].key; render(); };
+}
+
+/**
+ * 반 → 원아 2단 선택. 원아가 많아지면 한 줄짜리 목록에서 이름을 찾기 어려우므로
+ * 반으로 먼저 좁힌다. state의 { classId, childId }를 고쳐 쓰고 고른 원아를 돌려준다.
+ */
+function childSelect(host, state, opts){
+  opts = opts || {};
+  const asOf = opts.asOf || todayISO();
+  const all = sortedChildren().filter(opts.filter || (() => true));
+  const pool = all.filter(c => {
+    if (!state.classId) return true;
+    const cl = classAt(c, asOf) || currentClass(c);
+    return cl && cl.id === state.classId;
+  });
+  if (!pool.some(c => c.id === state.childId)) state.childId = pool.length ? pool[0].id : null;
+
+  host.innerHTML = `
+    <label class="f">반<select id="${opts.classId}" style="width:120px">
+      <option value="">전체</option>
+      ${S.classes.map(cl => `<option value="${cl.id}" ${cl.id === state.classId ? "selected" : ""}>${esc(cl.name)}</option>`).join("")}
+    </select></label>
+    <label class="f">원아<select id="${opts.childId}" style="width:${opts.width || 170}px">
+      ${pool.length
+        ? pool.map(c => `<option value="${c.id}" ${c.id === state.childId ? "selected" : ""}>${esc(c.name)}${opts.suffix ? opts.suffix(c) : ""}</option>`).join("")
+        : `<option value="">— 이 반에 원아가 없습니다 —</option>`}
+    </select></label>`;
+  $("#" + opts.classId, host).onchange = e => { state.classId = e.target.value; state.childId = null; render(); };
+  $("#" + opts.childId, host).onchange = e => { state.childId = e.target.value; (opts.onPick || render)(); };
+  return { pool, child: childById(state.childId) };
+}
+
 function printHead(title, sub){
   const name = centerName();
   return `<div class="printhead">
@@ -1915,14 +1960,7 @@ function settleBack(host){
         <span style="display:flex;align-items:center;gap:6px">
           ${monthPicker("bk_from", spec.fromM, months)} ~ ${monthPicker("bk_to", spec.toM, months)}
         </span></label>
-      <div class="f" style="gap:4px">
-        <span style="font-size:12px;color:var(--dim)">자주 쓰는 기간</span>
-        <span style="display:flex;gap:4px">
-          <button class="b" data-p="H1" style="padding:5px 9px">상반기</button>
-          <button class="b" data-p="H2" style="padding:5px 9px">하반기</button>
-          <button class="b pri" data-p="Y" style="padding:5px 9px">연간 (3월~익년 2월)</button>
-        </span>
-      </div>
+      ${periodButtons(spec, months)}
       <label class="f" style="flex-direction:row;align-items:center;gap:6px;font-size:13px;color:var(--ink)">
         <input type="checkbox" id="bk_zero" ${v.bkZero ? "checked" : ""}> 반환할 금액이 없는 원아도 표시
       </label>
@@ -1938,9 +1976,7 @@ function settleBack(host){
   $("#bk_from", host).onchange = e => { v.fromMonth = e.target.value; render(); };
   $("#bk_to", host).onchange   = e => { v.toMonth = e.target.value; render(); };
   $("#bk_zero", host).onchange = e => { v.bkZero = e.target.checked; render(); };
-  $('[data-p="H1"]', host).onclick = () => { v.fromMonth = months[0].key;  v.toMonth = months[5].key;  render(); };
-  $('[data-p="H2"]', host).onclick = () => { v.fromMonth = months[6].key;  v.toMonth = months[11].key; render(); };
-  $('[data-p="Y"]',  host).onclick = () => { v.fromMonth = months[0].key;  v.toMonth = months[11].key; render(); };
+  wirePeriodButtons(host, v, months);
   $("#bk_print", host).onclick = () => window.print();
 
   const body = $("#bk_body", host);
@@ -2026,27 +2062,23 @@ function settleBack(host){
 
 function settleExit(host){
   const v = view.settle;
-  const list = sortedChildren();
-  if (!v.childId || !childById(v.childId)) {
-    const leaving = list.find(c => c.leaveDate) || list[0];
-    v.childId = leaving.id;
-    v.asOf = leaving.leaveDate || todayISO();
-    v.reason = "중간퇴소";
+  if (!v.exitInit) {
+    const leaving = sortedChildren().find(k => k.leaveDate);
+    if (leaving) { v.exitClassId = ""; v.exitChildId = leaving.id; v.asOf = leaving.leaveDate; }
+    v.reason = v.reason || "중간퇴소";
+    v.exitInit = true;
   }
-  const c = childById(v.childId);
-  if (!v.asOf) v.asOf = c.leaveDate || todayISO();
+  if (!v.asOf) v.asOf = todayISO();
+  const sel = { classId: v.exitClassId || "", childId: v.exitChildId || null };
 
   const fy = S.fiscalYear;
   const from = fyStart(fy);
   /* 중간전환은 전환일 전날까지의 보호자 수납분을 정산한다 */
   const to = v.reason === "중간전환" ? addDays(v.asOf, -1) : v.asOf;
-  const consign = isConsign(c, v.asOf);
 
   host.innerHTML = `
     <div class="row no-print" style="margin-bottom:10px">
-      <label class="f">원아<select id="st_child" style="width:200px">
-        ${list.map(x => `<option value="${x.id}" ${x.id === v.childId ? "selected" : ""}>${esc(x.name)}${x.leaveDate ? " · 퇴소 " + x.leaveDate : ""}</option>`).join("")}
-      </select></label>
+      <span id="st_sel" style="display:flex;gap:10px;align-items:flex-end"></span>
       <label class="f">사유<select id="st_reason" style="width:140px">
         <option value="중간퇴소" ${v.reason === "중간퇴소" ? "selected" : ""}>중간퇴소</option>
         <option value="중간전환" ${v.reason === "중간전환" ? "selected" : ""}>중간전환(위탁 전환)</option>
@@ -2061,11 +2093,19 @@ function settleExit(host){
     <div id="st_month" class="no-print"></div>
     <div id="st_sheet"></div>`;
 
-  $("#st_child", host).onchange  = e => { const k = childById(e.target.value);
-    Object.assign(v, { childId: e.target.value, asOf: k.leaveDate || v.asOf }); render(); };
+  const pick = childSelect($("#st_sel", host), sel, {
+    classId: "st_class", childId: "st_child", width: 180,
+    suffix: k => k.leaveDate ? " · 퇴소 " + k.leaveDate : "",
+    onPick: () => { const k = childById(sel.childId); if (k && k.leaveDate) v.asOf = k.leaveDate; render(); },
+  });
+  v.exitClassId = sel.classId; v.exitChildId = sel.childId;
   $("#st_reason", host).onchange = e => { v.reason = e.target.value; render(); };
   $("#st_asof", host).onchange   = e => { v.asOf = e.target.value; render(); };
   $("#st_print", host).onclick   = () => window.print();
+
+  const c = pick.child;
+  if (!c) { $("#st_sheet", host).innerHTML = `<div class="empty">이 반에 원아가 없습니다.</div>`; return; }
+  const consign = isConsign(c, v.asOf);
 
   /* 기준일이 속한 달까지는, 사유를 달아 포함시킨 지출건도 사용액으로 잡는다 */
   const forcedTo = monthBounds(v.asOf).to;
@@ -2306,14 +2346,7 @@ function settleHalf(host){
         <span style="display:flex;align-items:center;gap:6px">
           ${monthPicker("hp_from", spec.fromM, months)} ~ ${monthPicker("hp_to", spec.toM, months)}
         </span></label>
-      <div class="f" style="gap:4px">
-        <span style="font-size:12px;color:var(--dim)">자주 쓰는 기간</span>
-        <span style="display:flex;gap:4px">
-          <button class="b" data-p="H1" style="padding:5px 9px">상반기</button>
-          <button class="b" data-p="H2" style="padding:5px 9px">하반기</button>
-          <button class="b" data-p="Y"  style="padding:5px 9px">연간</button>
-        </span>
-      </div>
+      ${periodButtons(spec, months)}
       <label class="f" style="flex-direction:row;align-items:center;gap:6px;font-size:13px;color:var(--ink)">
         <input type="checkbox" id="hp_detail" ${v.hpDetail !== false ? "checked" : ""}> 지출 내역 함께 넣기
       </label>
@@ -2328,9 +2361,7 @@ function settleHalf(host){
   $("#hp_from", host).onchange   = e => { v.fromMonth = e.target.value; render(); };
   $("#hp_to", host).onchange     = e => { v.toMonth = e.target.value; render(); };
   $("#hp_detail", host).onchange = e => { v.hpDetail = e.target.checked; render(); };
-  $('[data-p="H1"]', host).onclick = () => { v.fromMonth = months[0].key;  v.toMonth = months[5].key;  render(); };
-  $('[data-p="H2"]', host).onclick = () => { v.fromMonth = months[6].key;  v.toMonth = months[11].key; render(); };
-  $('[data-p="Y"]',  host).onclick = () => { v.fromMonth = months[0].key;  v.toMonth = months[11].key; render(); };
+  wirePeriodButtons(host, v, months);
   $("#hp_print", host).onclick = () => window.print();
 
   const body = $("#hp_body", host);
@@ -2463,19 +2494,8 @@ function settleNotice(host){
         <span style="display:flex;align-items:center;gap:6px">
           ${monthPicker("nt_from", spec.fromM, months)} ~ ${monthPicker("nt_to", spec.toM, months)}
         </span></label>
-      <div class="f" style="gap:4px">
-        <span style="font-size:12px;color:var(--dim)">자주 쓰는 기간</span>
-        <span style="display:flex;gap:4px">
-          <button class="b" data-p="H1" style="padding:5px 9px">상반기</button>
-          <button class="b" data-p="H2" style="padding:5px 9px">하반기</button>
-          <button class="b" data-p="Y"  style="padding:5px 9px">연간</button>
-        </span>
-      </div>
-      <label class="f">반<select id="nt_class" style="width:130px">
-        <option value="">전체</option>
-        ${S.classes.map(cl => `<option value="${cl.id}" ${cl.id === v.noticeClass ? "selected" : ""}>${esc(cl.name)}</option>`).join("")}
-      </select></label>
-      <label class="f">원아<select id="nt_child" style="width:150px"></select></label>
+      ${periodButtons(spec, months)}
+      <span id="nt_sel" style="display:flex;gap:10px;align-items:flex-end"></span>
       <label class="f" style="flex-direction:row;align-items:center;gap:6px;font-size:13px;color:var(--ink)">
         <input type="checkbox" id="nt_all" ${v.noticeAll ? "checked" : ""}> 고른 반 전체를 한 장씩
       </label>
@@ -2487,23 +2507,15 @@ function settleNotice(host){
     </div>
     <div id="nt_body"></div>`;
 
-  $('[data-p="H1"]', host).onclick = () => { v.fromMonth = months[0].key;  v.toMonth = months[5].key;  render(); };
-  $('[data-p="H2"]', host).onclick = () => { v.fromMonth = months[6].key;  v.toMonth = months[11].key; render(); };
-  $('[data-p="Y"]',  host).onclick = () => { v.fromMonth = months[0].key;  v.toMonth = months[11].key; render(); };
+  wirePeriodButtons(host, v, months);
   $("#nt_from", host).onchange   = e => { v.fromMonth = e.target.value; render(); };
   $("#nt_to", host).onchange     = e => { v.toMonth = e.target.value; render(); };
-  const pool = sortedChildren().filter(c => {
-    if (!v.noticeClass) return true;
-    const cl = classAt(c, spec.to) || currentClass(c);
-    return cl && cl.id === v.noticeClass;
+  const sel = { classId: v.noticeClass || "", childId: v.noticeChild || null };
+  const pick = childSelect($("#nt_sel", host), sel, {
+    classId: "nt_class", childId: "nt_child", width: 160, asOf: spec.to,
   });
-  if (!pool.some(c => c.id === v.noticeChild)) v.noticeChild = pool.length ? pool[0].id : null;
-  $("#nt_class", host).onchange  = e => { v.noticeClass = e.target.value; v.noticeChild = null; render(); };
-  const childSel = $("#nt_child", host);
-  childSel.innerHTML = pool.length
-    ? pool.map(c => `<option value="${c.id}" ${c.id === v.noticeChild ? "selected" : ""}>${esc(c.name)}</option>`).join("")
-    : `<option value="">— 이 반에 원아가 없습니다 —</option>`;
-  childSel.onchange = e => { v.noticeChild = e.target.value; render(); };
+  v.noticeClass = sel.classId; v.noticeChild = sel.childId;
+  const pool = pick.pool;
   $("#nt_all", host).onchange    = e => { v.noticeAll = e.target.checked; render(); };
   $("#nt_detail", host).onchange = e => { v.noticeDetail = e.target.checked; render(); };
   $("#nt_print", host).onclick   = () => window.print();
