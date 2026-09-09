@@ -8,7 +8,7 @@
  * index.html의 경로가 다르면 아래 path 상수를 고치세요.
  */
 const { chromium } = require("playwright");
-const path = "file:///home/user/my-first-project/index.html";
+const path = "file:///home/user/my-first-project/기타필요경비정산.html";
 
 const errs = [];
 const ok = [];
