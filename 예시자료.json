@@ -1,0 +1,6460 @@
+{
+ "version": 1,
+ "fiscalYear": 2026,
+ "classes": [
+  {
+   "id": "cl_h0a",
+   "name": "햇살반"
+  },
+  {
+   "id": "cl_h0b",
+   "name": "별빛반"
+  },
+  {
+   "id": "cl_h1a",
+   "name": "새싹반"
+  },
+  {
+   "id": "cl_h1b",
+   "name": "나무반"
+  },
+  {
+   "id": "cl_h2a",
+   "name": "한빛1반"
+  },
+  {
+   "id": "cl_h2b",
+   "name": "한빛2반"
+  },
+  {
+   "id": "cl_h2c",
+   "name": "풀잎반"
+  }
+ ],
+ "children": [
+  {
+   "id": "ch01",
+   "name": "김하린",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "9월 반 편성 변경 (햇살반 → 별빛반)",
+   "classHistory": [
+    {
+     "classId": "cl_h0a",
+     "startDate": "2026-03-02"
+    },
+    {
+     "classId": "cl_h0b",
+     "startDate": "2026-09-01"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch02",
+   "name": "장하율",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h0a",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch03",
+   "name": "김도윤",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h0a",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch04",
+   "name": "김보현",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h0b",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch05",
+   "name": "이하진",
+   "admitDate": "2026-03-02",
+   "leaveDate": "2026-06-15",
+   "memo": "6월 중간퇴소",
+   "classHistory": [
+    {
+     "classId": "cl_h0b",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch06",
+   "name": "윤지완",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h0b",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch07",
+   "name": "이시은",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h1a",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch08",
+   "name": "김찬하",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h1a",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch09",
+   "name": "박이담",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h1a",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch10",
+   "name": "정우진",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h1a",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch11",
+   "name": "조은별",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h1a",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch12",
+   "name": "이서아",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h1b",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch13",
+   "name": "정채원",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h1b",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch14",
+   "name": "김찬영",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h1b",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch15",
+   "name": "김도현",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h1b",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch16",
+   "name": "이이현",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h1b",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch17",
+   "name": "한서준",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2a",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch18",
+   "name": "서이슬",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2a",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch19",
+   "name": "고한빛",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "입소 때부터 위탁보육",
+   "classHistory": [
+    {
+     "classId": "cl_h2a",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": [
+    {
+     "id": "cp1",
+     "startMonth": "2026-03",
+     "endMonth": null,
+     "employer": "여수시청"
+    }
+   ]
+  },
+  {
+   "id": "ch20",
+   "name": "박결하",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2a",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch21",
+   "name": "차연우",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2a",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch22",
+   "name": "이서율",
+   "admitDate": "2026-08-03",
+   "leaveDate": "",
+   "memo": "8월 중간입소 — 남은 개월수만큼 비례 수납",
+   "classHistory": [
+    {
+     "classId": "cl_h2a",
+     "startDate": "2026-08-03"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch23",
+   "name": "김시원",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "10월 위탁 전환 (보호자 취직)",
+   "classHistory": [
+    {
+     "classId": "cl_h2a",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": [
+    {
+     "id": "cp2",
+     "startMonth": "2026-10",
+     "endMonth": null,
+     "employer": "○○병원"
+    }
+   ]
+  },
+  {
+   "id": "ch24",
+   "name": "박채우",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2b",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch25",
+   "name": "전소윤",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2b",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch26",
+   "name": "고윤우",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2b",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch27",
+   "name": "이수호",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2b",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch28",
+   "name": "최이현",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2b",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch29",
+   "name": "박준의",
+   "admitDate": "2026-03-02",
+   "leaveDate": "2026-11-20",
+   "memo": "11월 중간퇴소",
+   "classHistory": [
+    {
+     "classId": "cl_h2b",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch30",
+   "name": "황윤서",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2b",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch31",
+   "name": "김리안",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2c",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch32",
+   "name": "전수호",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2c",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch33",
+   "name": "김아윤",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2c",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch34",
+   "name": "최서은",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2c",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch35",
+   "name": "명채원",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2c",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch36",
+   "name": "신유리",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2c",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  },
+  {
+   "id": "ch37",
+   "name": "조유안",
+   "admitDate": "2026-03-02",
+   "leaveDate": "",
+   "memo": "",
+   "classHistory": [
+    {
+     "classId": "cl_h2c",
+     "startDate": "2026-03-02"
+    }
+   ],
+   "consignPeriods": []
+  }
+ ],
+ "items": [
+  {
+   "id": "it_prep",
+   "name": "입학준비금",
+   "group": "기타필요경비",
+   "targetMode": "fixed",
+   "enabled": true,
+   "special": "prep",
+   "stdAmount": 0,
+   "note": "원복 60,000 / 가방 30,000 / 전자출결 2,500 — 부모가 신청한 항목만 수납"
+  },
+  {
+   "id": "it_sa",
+   "name": "특별활동비",
+   "group": "특별활동비",
+   "targetMode": "fixed",
+   "enabled": true,
+   "stdAmount": 36997,
+   "note": "만2세반만 해당. 교구스토리 25,000 + 체육 12,000 (오감 파티쏭은 여수시 지원금)"
+  },
+  {
+   "id": "it_field",
+   "name": "현장학습비",
+   "group": "기타필요경비",
+   "targetMode": "event",
+   "enabled": true,
+   "stdAmount": 29997,
+   "note": "분기 30,000 × 4회. 만1~2세 대상"
+  },
+  {
+   "id": "it_event",
+   "name": "행사비",
+   "group": "기타필요경비",
+   "targetMode": "event",
+   "enabled": true,
+   "stdAmount": 49995,
+   "note": "연 50,000 전체 납부"
+  },
+  {
+   "id": "it_bus",
+   "name": "차량운행비",
+   "group": "기타필요경비",
+   "targetMode": "fixed",
+   "enabled": false,
+   "stdAmount": 0,
+   "note": "통학차량 미운영"
+  },
+  {
+   "id": "it_album",
+   "name": "앨범비",
+   "group": "기타필요경비",
+   "targetMode": "fixed",
+   "enabled": false,
+   "stdAmount": 0,
+   "note": "만2세까지라 졸업 앨범 없음"
+  },
+  {
+   "id": "it_meal",
+   "name": "급식비",
+   "group": "기타필요경비",
+   "targetMode": "fixed",
+   "enabled": false,
+   "stdAmount": 0,
+   "note": ""
+  },
+  {
+   "id": "it_local",
+   "name": "기타 시·도 특성화비용",
+   "group": "기타필요경비",
+   "targetMode": "fixed",
+   "enabled": true,
+   "stdAmount": 0,
+   "note": "어린이집 지원 — 보호자 수납 없음"
+  }
+ ],
+ "rosters": [
+  {
+   "id": "rs1",
+   "name": "만2세반 특별활동 참여 원아",
+   "itemId": "it_sa",
+   "childIds": [
+    "ch17",
+    "ch18",
+    "ch19",
+    "ch20",
+    "ch21",
+    "ch22",
+    "ch23",
+    "ch24",
+    "ch25",
+    "ch26",
+    "ch27",
+    "ch28",
+    "ch29",
+    "ch30",
+    "ch31",
+    "ch32",
+    "ch33",
+    "ch34",
+    "ch35",
+    "ch36",
+    "ch37"
+   ]
+  },
+  {
+   "id": "rs2",
+   "name": "현장학습 대상 (만1~2세)",
+   "itemId": "it_field",
+   "childIds": [
+    "ch07",
+    "ch08",
+    "ch09",
+    "ch10",
+    "ch11",
+    "ch12",
+    "ch13",
+    "ch14",
+    "ch15",
+    "ch16",
+    "ch17",
+    "ch18",
+    "ch19",
+    "ch20",
+    "ch21",
+    "ch22",
+    "ch23",
+    "ch24",
+    "ch25",
+    "ch26",
+    "ch27",
+    "ch28",
+    "ch29",
+    "ch30",
+    "ch31",
+    "ch32",
+    "ch33",
+    "ch34",
+    "ch35",
+    "ch36",
+    "ch37"
+   ]
+  },
+  {
+   "id": "rs3",
+   "name": "원복 신청 원아",
+   "itemId": "it_prep",
+   "childIds": [
+    "ch01",
+    "ch02",
+    "ch03",
+    "ch04",
+    "ch05",
+    "ch06",
+    "ch07",
+    "ch08",
+    "ch09",
+    "ch10",
+    "ch11",
+    "ch12",
+    "ch13",
+    "ch14",
+    "ch15",
+    "ch16",
+    "ch17",
+    "ch19",
+    "ch20",
+    "ch21",
+    "ch23",
+    "ch24",
+    "ch25",
+    "ch26",
+    "ch27",
+    "ch28",
+    "ch29",
+    "ch30",
+    "ch31",
+    "ch32",
+    "ch33",
+    "ch34",
+    "ch36"
+   ]
+  },
+  {
+   "id": "rs4",
+   "name": "가방 신청 원아",
+   "itemId": "it_prep",
+   "childIds": [
+    "ch02",
+    "ch05",
+    "ch08",
+    "ch11",
+    "ch14",
+    "ch17",
+    "ch20",
+    "ch23",
+    "ch26",
+    "ch29",
+    "ch32"
+   ]
+  }
+ ],
+ "vouchers": [
+  {
+   "id": "vc001",
+   "date": "2026-03-20",
+   "voucherNo": "3",
+   "itemId": "it_prep",
+   "summary": "기타필요경비-입학준비금 (신청 항목별)",
+   "perAmount": 59995,
+   "lines": [
+    {
+     "childId": "ch01",
+     "amount": 59995,
+     "memo": "원복"
+    },
+    {
+     "childId": "ch02",
+     "amount": 89993,
+     "memo": "원복+가방"
+    },
+    {
+     "childId": "ch03",
+     "amount": 62495,
+     "memo": "원복+전자출결"
+    },
+    {
+     "childId": "ch04",
+     "amount": 59995,
+     "memo": "원복"
+    },
+    {
+     "childId": "ch05",
+     "amount": 89993,
+     "memo": "원복+가방"
+    },
+    {
+     "childId": "ch06",
+     "amount": 62495,
+     "memo": "원복+전자출결"
+    },
+    {
+     "childId": "ch07",
+     "amount": 59995,
+     "memo": "원복"
+    },
+    {
+     "childId": "ch08",
+     "amount": 89993,
+     "memo": "원복+가방"
+    },
+    {
+     "childId": "ch09",
+     "amount": 62495,
+     "memo": "원복+전자출결"
+    },
+    {
+     "childId": "ch10",
+     "amount": 59995,
+     "memo": "원복"
+    },
+    {
+     "childId": "ch11",
+     "amount": 89993,
+     "memo": "원복+가방"
+    },
+    {
+     "childId": "ch12",
+     "amount": 62495,
+     "memo": "원복+전자출결"
+    },
+    {
+     "childId": "ch13",
+     "amount": 59995,
+     "memo": "원복"
+    },
+    {
+     "childId": "ch14",
+     "amount": 89993,
+     "memo": "원복+가방"
+    },
+    {
+     "childId": "ch15",
+     "amount": 62495,
+     "memo": "원복+전자출결"
+    },
+    {
+     "childId": "ch16",
+     "amount": 59995,
+     "memo": "원복"
+    },
+    {
+     "childId": "ch17",
+     "amount": 89993,
+     "memo": "원복+가방"
+    },
+    {
+     "childId": "ch19",
+     "amount": 59995,
+     "memo": "원복"
+    },
+    {
+     "childId": "ch20",
+     "amount": 89993,
+     "memo": "원복+가방"
+    },
+    {
+     "childId": "ch21",
+     "amount": 62495,
+     "memo": "원복+전자출결"
+    },
+    {
+     "childId": "ch23",
+     "amount": 89993,
+     "memo": "원복+가방"
+    },
+    {
+     "childId": "ch24",
+     "amount": 62495,
+     "memo": "원복+전자출결"
+    },
+    {
+     "childId": "ch25",
+     "amount": 59995,
+     "memo": "원복"
+    },
+    {
+     "childId": "ch26",
+     "amount": 89993,
+     "memo": "원복+가방"
+    },
+    {
+     "childId": "ch27",
+     "amount": 62495,
+     "memo": "원복+전자출결"
+    },
+    {
+     "childId": "ch28",
+     "amount": 59995,
+     "memo": "원복"
+    },
+    {
+     "childId": "ch29",
+     "amount": 89993,
+     "memo": "원복+가방"
+    },
+    {
+     "childId": "ch30",
+     "amount": 62495,
+     "memo": "원복+전자출결"
+    },
+    {
+     "childId": "ch31",
+     "amount": 59995,
+     "memo": "원복"
+    },
+    {
+     "childId": "ch32",
+     "amount": 89993,
+     "memo": "원복+가방"
+    },
+    {
+     "childId": "ch33",
+     "amount": 62495,
+     "memo": "원복+전자출결"
+    },
+    {
+     "childId": "ch34",
+     "amount": 59995,
+     "memo": "원복"
+    },
+    {
+     "childId": "ch36",
+     "amount": 62495,
+     "memo": "원복+전자출결"
+    }
+   ],
+   "total": 2337313
+  },
+  {
+   "id": "vc002",
+   "date": "2026-03-20",
+   "voucherNo": "4",
+   "itemId": "it_event",
+   "summary": "기타필요경비-행사비 (연납) : 햇살반",
+   "perAmount": 49995,
+   "lines": [
+    {
+     "childId": "ch01",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch02",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch03",
+     "amount": 49995,
+     "memo": ""
+    }
+   ],
+   "total": 149985
+  },
+  {
+   "id": "vc003",
+   "date": "2026-03-20",
+   "voucherNo": "5",
+   "itemId": "it_event",
+   "summary": "기타필요경비-행사비 (연납) : 별빛반",
+   "perAmount": 49995,
+   "lines": [
+    {
+     "childId": "ch04",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch05",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch06",
+     "amount": 49995,
+     "memo": ""
+    }
+   ],
+   "total": 149985
+  },
+  {
+   "id": "vc004",
+   "date": "2026-03-20",
+   "voucherNo": "6",
+   "itemId": "it_event",
+   "summary": "기타필요경비-행사비 (연납) : 새싹반",
+   "perAmount": 49995,
+   "lines": [
+    {
+     "childId": "ch07",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch08",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch09",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch10",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch11",
+     "amount": 49995,
+     "memo": ""
+    }
+   ],
+   "total": 249975
+  },
+  {
+   "id": "vc005",
+   "date": "2026-03-20",
+   "voucherNo": "7",
+   "itemId": "it_field",
+   "summary": "기타필요경비-현장학습비 1분기 : 새싹반",
+   "perAmount": 29997,
+   "lines": [
+    {
+     "childId": "ch07",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch08",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch09",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch10",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch11",
+     "amount": 29997,
+     "memo": ""
+    }
+   ],
+   "total": 149985
+  },
+  {
+   "id": "vc006",
+   "date": "2026-03-20",
+   "voucherNo": "8",
+   "itemId": "it_event",
+   "summary": "기타필요경비-행사비 (연납) : 나무반",
+   "perAmount": 49995,
+   "lines": [
+    {
+     "childId": "ch12",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch13",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch14",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch15",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch16",
+     "amount": 49995,
+     "memo": ""
+    }
+   ],
+   "total": 249975
+  },
+  {
+   "id": "vc007",
+   "date": "2026-03-20",
+   "voucherNo": "9",
+   "itemId": "it_field",
+   "summary": "기타필요경비-현장학습비 1분기 : 나무반",
+   "perAmount": 29997,
+   "lines": [
+    {
+     "childId": "ch12",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch13",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch14",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch15",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch16",
+     "amount": 29997,
+     "memo": ""
+    }
+   ],
+   "total": 149985
+  },
+  {
+   "id": "vc008",
+   "date": "2026-03-21",
+   "voucherNo": "10",
+   "itemId": "it_event",
+   "summary": "기타필요경비-행사비 (연납) : 한빛1반",
+   "perAmount": 49995,
+   "lines": [
+    {
+     "childId": "ch17",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 49995,
+     "memo": ""
+    }
+   ],
+   "total": 299970
+  },
+  {
+   "id": "vc009",
+   "date": "2026-03-21",
+   "voucherNo": "11",
+   "itemId": "it_field",
+   "summary": "기타필요경비-현장학습비 1분기 : 한빛1반",
+   "perAmount": 29997,
+   "lines": [
+    {
+     "childId": "ch17",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 29997,
+     "memo": ""
+    }
+   ],
+   "total": 179982
+  },
+  {
+   "id": "vc010",
+   "date": "2026-03-21",
+   "voucherNo": "12",
+   "itemId": "it_event",
+   "summary": "기타필요경비-행사비 (연납) : 한빛2반",
+   "perAmount": 49995,
+   "lines": [
+    {
+     "childId": "ch24",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch29",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 49995,
+     "memo": ""
+    }
+   ],
+   "total": 349965
+  },
+  {
+   "id": "vc011",
+   "date": "2026-03-21",
+   "voucherNo": "13",
+   "itemId": "it_field",
+   "summary": "기타필요경비-현장학습비 1분기 : 한빛2반",
+   "perAmount": 29997,
+   "lines": [
+    {
+     "childId": "ch24",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch29",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 29997,
+     "memo": ""
+    }
+   ],
+   "total": 209979
+  },
+  {
+   "id": "vc012",
+   "date": "2026-03-21",
+   "voucherNo": "14",
+   "itemId": "it_event",
+   "summary": "기타필요경비-행사비 (연납) : 풀잎반",
+   "perAmount": 49995,
+   "lines": [
+    {
+     "childId": "ch31",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 49995,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 49995,
+     "memo": ""
+    }
+   ],
+   "total": 349965
+  },
+  {
+   "id": "vc013",
+   "date": "2026-03-21",
+   "voucherNo": "15",
+   "itemId": "it_field",
+   "summary": "기타필요경비-현장학습비 1분기 : 풀잎반",
+   "perAmount": 29997,
+   "lines": [
+    {
+     "childId": "ch31",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 29997,
+     "memo": ""
+    }
+   ],
+   "total": 209979
+  },
+  {
+   "id": "vc014",
+   "date": "2026-06-22",
+   "voucherNo": "16",
+   "itemId": "it_field",
+   "summary": "기타필요경비-현장학습비 2분기",
+   "perAmount": 29997,
+   "lines": [
+    {
+     "childId": "ch07",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch08",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch09",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch10",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch11",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch12",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch13",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch14",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch15",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch16",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch17",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch24",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch29",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch31",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 29997,
+     "memo": ""
+    }
+   ],
+   "total": 899910
+  },
+  {
+   "id": "vc015",
+   "date": "2026-09-21",
+   "voucherNo": "17",
+   "itemId": "it_field",
+   "summary": "기타필요경비-현장학습비 3분기",
+   "perAmount": 29997,
+   "lines": [
+    {
+     "childId": "ch07",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch08",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch09",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch10",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch11",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch12",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch13",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch14",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch15",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch16",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch17",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch22",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch24",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch29",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch31",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 29997,
+     "memo": ""
+    }
+   ],
+   "total": 929907
+  },
+  {
+   "id": "vc016",
+   "date": "2026-12-21",
+   "voucherNo": "18",
+   "itemId": "it_field",
+   "summary": "기타필요경비-현장학습비 4분기",
+   "perAmount": 29997,
+   "lines": [
+    {
+     "childId": "ch07",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch08",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch09",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch10",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch11",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch12",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch13",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch14",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch15",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch16",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch17",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch22",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch24",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch31",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 29997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 29997,
+     "memo": ""
+    }
+   ],
+   "total": 899910
+  },
+  {
+   "id": "vc017",
+   "date": "2026-03-21",
+   "voucherNo": "19",
+   "itemId": "it_sa",
+   "summary": "3월 기타필요경비(특별활동비)",
+   "perAmount": 36997,
+   "lines": [
+    {
+     "childId": "ch17",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch24",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch29",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch31",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 36997,
+     "memo": ""
+    }
+   ],
+   "total": 739940
+  },
+  {
+   "id": "vc018",
+   "date": "2026-04-21",
+   "voucherNo": "20",
+   "itemId": "it_sa",
+   "summary": "4월 기타필요경비(특별활동비)",
+   "perAmount": 36997,
+   "lines": [
+    {
+     "childId": "ch17",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch24",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch29",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch31",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 36997,
+     "memo": ""
+    }
+   ],
+   "total": 739940
+  },
+  {
+   "id": "vc019",
+   "date": "2026-05-21",
+   "voucherNo": "21",
+   "itemId": "it_sa",
+   "summary": "5월 기타필요경비(특별활동비)",
+   "perAmount": 36997,
+   "lines": [
+    {
+     "childId": "ch17",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch24",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch29",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch31",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 36997,
+     "memo": ""
+    }
+   ],
+   "total": 739940
+  },
+  {
+   "id": "vc020",
+   "date": "2026-06-21",
+   "voucherNo": "22",
+   "itemId": "it_sa",
+   "summary": "6월 기타필요경비(특별활동비)",
+   "perAmount": 36997,
+   "lines": [
+    {
+     "childId": "ch17",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch24",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch29",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch31",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 36997,
+     "memo": ""
+    }
+   ],
+   "total": 739940
+  },
+  {
+   "id": "vc021",
+   "date": "2026-07-21",
+   "voucherNo": "23",
+   "itemId": "it_sa",
+   "summary": "7월 기타필요경비(특별활동비)",
+   "perAmount": 36997,
+   "lines": [
+    {
+     "childId": "ch17",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch24",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch29",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch31",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 36997,
+     "memo": ""
+    }
+   ],
+   "total": 739940
+  },
+  {
+   "id": "vc022",
+   "date": "2026-08-21",
+   "voucherNo": "24",
+   "itemId": "it_sa",
+   "summary": "8월 기타필요경비(특별활동비)",
+   "perAmount": 36997,
+   "lines": [
+    {
+     "childId": "ch17",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch22",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch24",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch29",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch31",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 36997,
+     "memo": ""
+    }
+   ],
+   "total": 776937
+  },
+  {
+   "id": "vc023",
+   "date": "2026-09-21",
+   "voucherNo": "25",
+   "itemId": "it_sa",
+   "summary": "9월 기타필요경비(특별활동비)",
+   "perAmount": 36997,
+   "lines": [
+    {
+     "childId": "ch17",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch22",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch24",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch29",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch31",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 36997,
+     "memo": ""
+    }
+   ],
+   "total": 776937
+  },
+  {
+   "id": "vc024",
+   "date": "2026-10-21",
+   "voucherNo": "26",
+   "itemId": "it_sa",
+   "summary": "10월 기타필요경비(특별활동비)",
+   "perAmount": 36997,
+   "lines": [
+    {
+     "childId": "ch17",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch22",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch24",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch29",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch31",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 36997,
+     "memo": ""
+    }
+   ],
+   "total": 776937
+  },
+  {
+   "id": "vc025",
+   "date": "2026-11-21",
+   "voucherNo": "27",
+   "itemId": "it_sa",
+   "summary": "11월 기타필요경비(특별활동비)",
+   "perAmount": 36997,
+   "lines": [
+    {
+     "childId": "ch17",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch22",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch24",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch31",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 36997,
+     "memo": ""
+    }
+   ],
+   "total": 739940
+  },
+  {
+   "id": "vc026",
+   "date": "2026-12-21",
+   "voucherNo": "28",
+   "itemId": "it_sa",
+   "summary": "12월 기타필요경비(특별활동비)",
+   "perAmount": 36997,
+   "lines": [
+    {
+     "childId": "ch17",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch22",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch24",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch31",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 36997,
+     "memo": ""
+    }
+   ],
+   "total": 739940
+  },
+  {
+   "id": "vc027",
+   "date": "2027-01-21",
+   "voucherNo": "29",
+   "itemId": "it_sa",
+   "summary": "1월 기타필요경비(특별활동비)",
+   "perAmount": 36997,
+   "lines": [
+    {
+     "childId": "ch17",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch22",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch24",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch31",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 36997,
+     "memo": ""
+    }
+   ],
+   "total": 739940
+  },
+  {
+   "id": "vc028",
+   "date": "2027-02-21",
+   "voucherNo": "30",
+   "itemId": "it_sa",
+   "summary": "2월 기타필요경비(특별활동비)",
+   "perAmount": 36997,
+   "lines": [
+    {
+     "childId": "ch17",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch18",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch19",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch20",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch21",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch22",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch23",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch24",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch25",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch26",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch27",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch28",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch30",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch31",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch32",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch33",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch34",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch35",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch36",
+     "amount": 36997,
+     "memo": ""
+    },
+    {
+     "childId": "ch37",
+     "amount": 36997,
+     "memo": ""
+    }
+   ],
+   "total": 739940
+  },
+  {
+   "id": "vc029",
+   "date": "2026-08-05",
+   "voucherNo": "31",
+   "itemId": "it_event",
+   "summary": "기타필요경비-행사비 (8월 중간입소 비례)",
+   "perAmount": 29163,
+   "lines": [
+    {
+     "childId": "ch22",
+     "amount": 29163,
+     "memo": "7/12개월분"
+    }
+   ],
+   "total": 29163
+  },
+  {
+   "id": "vc030",
+   "date": "2026-08-05",
+   "voucherNo": "32",
+   "itemId": "it_field",
+   "summary": "기타필요경비-현장학습비 (8월 중간입소)",
+   "perAmount": 59994,
+   "lines": [
+    {
+     "childId": "ch22",
+     "amount": 59994,
+     "memo": "3·4분기분"
+    }
+   ],
+   "total": 59994
+  }
+ ],
+ "receipts": [],
+ "expenses": [
+  {
+   "id": "ex001",
+   "date": "2026-03-27",
+   "voucherNo": "64",
+   "itemId": "it_prep",
+   "summary": "원복 일괄구입 (곰돌이 상하세트)",
+   "total": 1914000,
+   "needAmount": 1914000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch01",
+     "amount": 58000
+    },
+    {
+     "childId": "ch02",
+     "amount": 58000
+    },
+    {
+     "childId": "ch03",
+     "amount": 58000
+    },
+    {
+     "childId": "ch04",
+     "amount": 58000
+    },
+    {
+     "childId": "ch05",
+     "amount": 58000
+    },
+    {
+     "childId": "ch06",
+     "amount": 58000
+    },
+    {
+     "childId": "ch07",
+     "amount": 58000
+    },
+    {
+     "childId": "ch08",
+     "amount": 58000
+    },
+    {
+     "childId": "ch09",
+     "amount": 58000
+    },
+    {
+     "childId": "ch10",
+     "amount": 58000
+    },
+    {
+     "childId": "ch11",
+     "amount": 58000
+    },
+    {
+     "childId": "ch12",
+     "amount": 58000
+    },
+    {
+     "childId": "ch13",
+     "amount": 58000
+    },
+    {
+     "childId": "ch14",
+     "amount": 58000
+    },
+    {
+     "childId": "ch15",
+     "amount": 58000
+    },
+    {
+     "childId": "ch16",
+     "amount": 58000
+    },
+    {
+     "childId": "ch17",
+     "amount": 58000
+    },
+    {
+     "childId": "ch19",
+     "amount": 58000
+    },
+    {
+     "childId": "ch20",
+     "amount": 58000
+    },
+    {
+     "childId": "ch21",
+     "amount": 58000
+    },
+    {
+     "childId": "ch23",
+     "amount": 58000
+    },
+    {
+     "childId": "ch24",
+     "amount": 58000
+    },
+    {
+     "childId": "ch25",
+     "amount": 58000
+    },
+    {
+     "childId": "ch26",
+     "amount": 58000
+    },
+    {
+     "childId": "ch27",
+     "amount": 58000
+    },
+    {
+     "childId": "ch28",
+     "amount": 58000
+    },
+    {
+     "childId": "ch29",
+     "amount": 58000
+    },
+    {
+     "childId": "ch30",
+     "amount": 58000
+    },
+    {
+     "childId": "ch31",
+     "amount": 58000
+    },
+    {
+     "childId": "ch32",
+     "amount": 58000
+    },
+    {
+     "childId": "ch33",
+     "amount": 58000
+    },
+    {
+     "childId": "ch34",
+     "amount": 58000
+    },
+    {
+     "childId": "ch36",
+     "amount": 58000
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex002",
+   "date": "2026-03-27",
+   "voucherNo": "65",
+   "itemId": "it_prep",
+   "summary": "가방 일괄구입",
+   "total": 308000,
+   "needAmount": 308000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch02",
+     "amount": 28000
+    },
+    {
+     "childId": "ch05",
+     "amount": 28000
+    },
+    {
+     "childId": "ch08",
+     "amount": 28000
+    },
+    {
+     "childId": "ch11",
+     "amount": 28000
+    },
+    {
+     "childId": "ch14",
+     "amount": 28000
+    },
+    {
+     "childId": "ch17",
+     "amount": 28000
+    },
+    {
+     "childId": "ch20",
+     "amount": 28000
+    },
+    {
+     "childId": "ch23",
+     "amount": 28000
+    },
+    {
+     "childId": "ch26",
+     "amount": 28000
+    },
+    {
+     "childId": "ch29",
+     "amount": 28000
+    },
+    {
+     "childId": "ch32",
+     "amount": 28000
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex003",
+   "date": "2026-03-30",
+   "voucherNo": "71",
+   "itemId": "it_prep",
+   "summary": "전자출결 태그 구입",
+   "total": 26400,
+   "needAmount": 26400,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch03",
+     "amount": 2400
+    },
+    {
+     "childId": "ch06",
+     "amount": 2400
+    },
+    {
+     "childId": "ch09",
+     "amount": 2400
+    },
+    {
+     "childId": "ch12",
+     "amount": 2400
+    },
+    {
+     "childId": "ch15",
+     "amount": 2400
+    },
+    {
+     "childId": "ch21",
+     "amount": 2400
+    },
+    {
+     "childId": "ch24",
+     "amount": 2400
+    },
+    {
+     "childId": "ch27",
+     "amount": 2400
+    },
+    {
+     "childId": "ch30",
+     "amount": 2400
+    },
+    {
+     "childId": "ch33",
+     "amount": 2400
+    },
+    {
+     "childId": "ch36",
+     "amount": 2400
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex004",
+   "date": "2026-03-27",
+   "voucherNo": "62",
+   "itemId": "it_event",
+   "summary": "입학식 기념품·다과",
+   "total": 240000,
+   "needAmount": 240000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch01",
+     "amount": 6667
+    },
+    {
+     "childId": "ch02",
+     "amount": 6667
+    },
+    {
+     "childId": "ch03",
+     "amount": 6667
+    },
+    {
+     "childId": "ch04",
+     "amount": 6667
+    },
+    {
+     "childId": "ch05",
+     "amount": 6667
+    },
+    {
+     "childId": "ch06",
+     "amount": 6667
+    },
+    {
+     "childId": "ch07",
+     "amount": 6667
+    },
+    {
+     "childId": "ch08",
+     "amount": 6667
+    },
+    {
+     "childId": "ch09",
+     "amount": 6667
+    },
+    {
+     "childId": "ch10",
+     "amount": 6667
+    },
+    {
+     "childId": "ch11",
+     "amount": 6667
+    },
+    {
+     "childId": "ch12",
+     "amount": 6667
+    },
+    {
+     "childId": "ch13",
+     "amount": 6667
+    },
+    {
+     "childId": "ch14",
+     "amount": 6667
+    },
+    {
+     "childId": "ch15",
+     "amount": 6667
+    },
+    {
+     "childId": "ch16",
+     "amount": 6667
+    },
+    {
+     "childId": "ch17",
+     "amount": 6667
+    },
+    {
+     "childId": "ch18",
+     "amount": 6667
+    },
+    {
+     "childId": "ch19",
+     "amount": 6667
+    },
+    {
+     "childId": "ch20",
+     "amount": 6667
+    },
+    {
+     "childId": "ch21",
+     "amount": 6667
+    },
+    {
+     "childId": "ch23",
+     "amount": 6667
+    },
+    {
+     "childId": "ch24",
+     "amount": 6667
+    },
+    {
+     "childId": "ch25",
+     "amount": 6667
+    },
+    {
+     "childId": "ch26",
+     "amount": 6666
+    },
+    {
+     "childId": "ch27",
+     "amount": 6666
+    },
+    {
+     "childId": "ch28",
+     "amount": 6666
+    },
+    {
+     "childId": "ch29",
+     "amount": 6666
+    },
+    {
+     "childId": "ch30",
+     "amount": 6666
+    },
+    {
+     "childId": "ch31",
+     "amount": 6666
+    },
+    {
+     "childId": "ch32",
+     "amount": 6666
+    },
+    {
+     "childId": "ch33",
+     "amount": 6666
+    },
+    {
+     "childId": "ch34",
+     "amount": 6666
+    },
+    {
+     "childId": "ch35",
+     "amount": 6666
+    },
+    {
+     "childId": "ch36",
+     "amount": 6666
+    },
+    {
+     "childId": "ch37",
+     "amount": 6666
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex005",
+   "date": "2026-05-04",
+   "voucherNo": "112",
+   "itemId": "it_event",
+   "summary": "어린이날 선물비",
+   "total": 373000,
+   "needAmount": 370000,
+   "cardFee": 3000,
+   "operAmount": 0,
+   "memo": "카드 결제 수수료 3,000원은 어린이집 부담",
+   "allocations": [
+    {
+     "childId": "ch01",
+     "amount": 10278
+    },
+    {
+     "childId": "ch02",
+     "amount": 10278
+    },
+    {
+     "childId": "ch03",
+     "amount": 10278
+    },
+    {
+     "childId": "ch04",
+     "amount": 10278
+    },
+    {
+     "childId": "ch05",
+     "amount": 10278
+    },
+    {
+     "childId": "ch06",
+     "amount": 10278
+    },
+    {
+     "childId": "ch07",
+     "amount": 10278
+    },
+    {
+     "childId": "ch08",
+     "amount": 10278
+    },
+    {
+     "childId": "ch09",
+     "amount": 10278
+    },
+    {
+     "childId": "ch10",
+     "amount": 10278
+    },
+    {
+     "childId": "ch11",
+     "amount": 10278
+    },
+    {
+     "childId": "ch12",
+     "amount": 10278
+    },
+    {
+     "childId": "ch13",
+     "amount": 10278
+    },
+    {
+     "childId": "ch14",
+     "amount": 10278
+    },
+    {
+     "childId": "ch15",
+     "amount": 10278
+    },
+    {
+     "childId": "ch16",
+     "amount": 10278
+    },
+    {
+     "childId": "ch17",
+     "amount": 10278
+    },
+    {
+     "childId": "ch18",
+     "amount": 10278
+    },
+    {
+     "childId": "ch19",
+     "amount": 10278
+    },
+    {
+     "childId": "ch20",
+     "amount": 10278
+    },
+    {
+     "childId": "ch21",
+     "amount": 10278
+    },
+    {
+     "childId": "ch23",
+     "amount": 10278
+    },
+    {
+     "childId": "ch24",
+     "amount": 10278
+    },
+    {
+     "childId": "ch25",
+     "amount": 10278
+    },
+    {
+     "childId": "ch26",
+     "amount": 10278
+    },
+    {
+     "childId": "ch27",
+     "amount": 10278
+    },
+    {
+     "childId": "ch28",
+     "amount": 10278
+    },
+    {
+     "childId": "ch29",
+     "amount": 10278
+    },
+    {
+     "childId": "ch30",
+     "amount": 10277
+    },
+    {
+     "childId": "ch31",
+     "amount": 10277
+    },
+    {
+     "childId": "ch32",
+     "amount": 10277
+    },
+    {
+     "childId": "ch33",
+     "amount": 10277
+    },
+    {
+     "childId": "ch34",
+     "amount": 10277
+    },
+    {
+     "childId": "ch35",
+     "amount": 10277
+    },
+    {
+     "childId": "ch36",
+     "amount": 10277
+    },
+    {
+     "childId": "ch37",
+     "amount": 10277
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex006",
+   "date": "2026-07-15",
+   "voucherNo": "149",
+   "itemId": "it_event",
+   "summary": "여름 물놀이 용품",
+   "total": 180000,
+   "needAmount": 180000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch01",
+     "amount": 5143
+    },
+    {
+     "childId": "ch02",
+     "amount": 5143
+    },
+    {
+     "childId": "ch03",
+     "amount": 5143
+    },
+    {
+     "childId": "ch04",
+     "amount": 5143
+    },
+    {
+     "childId": "ch06",
+     "amount": 5143
+    },
+    {
+     "childId": "ch07",
+     "amount": 5143
+    },
+    {
+     "childId": "ch08",
+     "amount": 5143
+    },
+    {
+     "childId": "ch09",
+     "amount": 5143
+    },
+    {
+     "childId": "ch10",
+     "amount": 5143
+    },
+    {
+     "childId": "ch11",
+     "amount": 5143
+    },
+    {
+     "childId": "ch12",
+     "amount": 5143
+    },
+    {
+     "childId": "ch13",
+     "amount": 5143
+    },
+    {
+     "childId": "ch14",
+     "amount": 5143
+    },
+    {
+     "childId": "ch15",
+     "amount": 5143
+    },
+    {
+     "childId": "ch16",
+     "amount": 5143
+    },
+    {
+     "childId": "ch17",
+     "amount": 5143
+    },
+    {
+     "childId": "ch18",
+     "amount": 5143
+    },
+    {
+     "childId": "ch19",
+     "amount": 5143
+    },
+    {
+     "childId": "ch20",
+     "amount": 5143
+    },
+    {
+     "childId": "ch21",
+     "amount": 5143
+    },
+    {
+     "childId": "ch23",
+     "amount": 5143
+    },
+    {
+     "childId": "ch24",
+     "amount": 5143
+    },
+    {
+     "childId": "ch25",
+     "amount": 5143
+    },
+    {
+     "childId": "ch26",
+     "amount": 5143
+    },
+    {
+     "childId": "ch27",
+     "amount": 5143
+    },
+    {
+     "childId": "ch28",
+     "amount": 5143
+    },
+    {
+     "childId": "ch29",
+     "amount": 5143
+    },
+    {
+     "childId": "ch30",
+     "amount": 5143
+    },
+    {
+     "childId": "ch31",
+     "amount": 5143
+    },
+    {
+     "childId": "ch32",
+     "amount": 5143
+    },
+    {
+     "childId": "ch33",
+     "amount": 5142
+    },
+    {
+     "childId": "ch34",
+     "amount": 5142
+    },
+    {
+     "childId": "ch35",
+     "amount": 5142
+    },
+    {
+     "childId": "ch36",
+     "amount": 5142
+    },
+    {
+     "childId": "ch37",
+     "amount": 5142
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex007",
+   "date": "2026-11-13",
+   "voucherNo": "214",
+   "itemId": "it_event",
+   "summary": "11월 생일잔치 용품",
+   "total": 300000,
+   "needAmount": 300000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch01",
+     "amount": 8334
+    },
+    {
+     "childId": "ch02",
+     "amount": 8334
+    },
+    {
+     "childId": "ch03",
+     "amount": 8334
+    },
+    {
+     "childId": "ch04",
+     "amount": 8334
+    },
+    {
+     "childId": "ch06",
+     "amount": 8334
+    },
+    {
+     "childId": "ch07",
+     "amount": 8334
+    },
+    {
+     "childId": "ch08",
+     "amount": 8334
+    },
+    {
+     "childId": "ch09",
+     "amount": 8334
+    },
+    {
+     "childId": "ch10",
+     "amount": 8334
+    },
+    {
+     "childId": "ch11",
+     "amount": 8334
+    },
+    {
+     "childId": "ch12",
+     "amount": 8334
+    },
+    {
+     "childId": "ch13",
+     "amount": 8334
+    },
+    {
+     "childId": "ch14",
+     "amount": 8333
+    },
+    {
+     "childId": "ch15",
+     "amount": 8333
+    },
+    {
+     "childId": "ch16",
+     "amount": 8333
+    },
+    {
+     "childId": "ch17",
+     "amount": 8333
+    },
+    {
+     "childId": "ch18",
+     "amount": 8333
+    },
+    {
+     "childId": "ch19",
+     "amount": 8333
+    },
+    {
+     "childId": "ch20",
+     "amount": 8333
+    },
+    {
+     "childId": "ch21",
+     "amount": 8333
+    },
+    {
+     "childId": "ch22",
+     "amount": 8333
+    },
+    {
+     "childId": "ch23",
+     "amount": 8333
+    },
+    {
+     "childId": "ch24",
+     "amount": 8333
+    },
+    {
+     "childId": "ch25",
+     "amount": 8333
+    },
+    {
+     "childId": "ch26",
+     "amount": 8333
+    },
+    {
+     "childId": "ch27",
+     "amount": 8333
+    },
+    {
+     "childId": "ch28",
+     "amount": 8333
+    },
+    {
+     "childId": "ch29",
+     "amount": 8333
+    },
+    {
+     "childId": "ch30",
+     "amount": 8333
+    },
+    {
+     "childId": "ch31",
+     "amount": 8333
+    },
+    {
+     "childId": "ch32",
+     "amount": 8333
+    },
+    {
+     "childId": "ch33",
+     "amount": 8333
+    },
+    {
+     "childId": "ch34",
+     "amount": 8333
+    },
+    {
+     "childId": "ch35",
+     "amount": 8333
+    },
+    {
+     "childId": "ch36",
+     "amount": 8333
+    },
+    {
+     "childId": "ch37",
+     "amount": 8333
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex008",
+   "date": "2026-12-18",
+   "voucherNo": "231",
+   "itemId": "it_event",
+   "summary": "재롱잔치 의상·무대",
+   "total": 620000,
+   "needAmount": 480000,
+   "cardFee": 0,
+   "operAmount": 140000,
+   "memo": "무대 설치비 140,000원은 어린이집 운영비 부담",
+   "allocations": [
+    {
+     "childId": "ch01",
+     "amount": 13715
+    },
+    {
+     "childId": "ch02",
+     "amount": 13715
+    },
+    {
+     "childId": "ch03",
+     "amount": 13715
+    },
+    {
+     "childId": "ch04",
+     "amount": 13715
+    },
+    {
+     "childId": "ch06",
+     "amount": 13715
+    },
+    {
+     "childId": "ch07",
+     "amount": 13715
+    },
+    {
+     "childId": "ch08",
+     "amount": 13715
+    },
+    {
+     "childId": "ch09",
+     "amount": 13715
+    },
+    {
+     "childId": "ch10",
+     "amount": 13715
+    },
+    {
+     "childId": "ch11",
+     "amount": 13715
+    },
+    {
+     "childId": "ch12",
+     "amount": 13714
+    },
+    {
+     "childId": "ch13",
+     "amount": 13714
+    },
+    {
+     "childId": "ch14",
+     "amount": 13714
+    },
+    {
+     "childId": "ch15",
+     "amount": 13714
+    },
+    {
+     "childId": "ch16",
+     "amount": 13714
+    },
+    {
+     "childId": "ch17",
+     "amount": 13714
+    },
+    {
+     "childId": "ch18",
+     "amount": 13714
+    },
+    {
+     "childId": "ch19",
+     "amount": 13714
+    },
+    {
+     "childId": "ch20",
+     "amount": 13714
+    },
+    {
+     "childId": "ch21",
+     "amount": 13714
+    },
+    {
+     "childId": "ch22",
+     "amount": 13714
+    },
+    {
+     "childId": "ch23",
+     "amount": 13714
+    },
+    {
+     "childId": "ch24",
+     "amount": 13714
+    },
+    {
+     "childId": "ch25",
+     "amount": 13714
+    },
+    {
+     "childId": "ch26",
+     "amount": 13714
+    },
+    {
+     "childId": "ch27",
+     "amount": 13714
+    },
+    {
+     "childId": "ch28",
+     "amount": 13714
+    },
+    {
+     "childId": "ch30",
+     "amount": 13714
+    },
+    {
+     "childId": "ch31",
+     "amount": 13714
+    },
+    {
+     "childId": "ch32",
+     "amount": 13714
+    },
+    {
+     "childId": "ch33",
+     "amount": 13714
+    },
+    {
+     "childId": "ch34",
+     "amount": 13714
+    },
+    {
+     "childId": "ch35",
+     "amount": 13714
+    },
+    {
+     "childId": "ch36",
+     "amount": 13714
+    },
+    {
+     "childId": "ch37",
+     "amount": 13714
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex009",
+   "date": "2027-02-13",
+   "voucherNo": "259",
+   "itemId": "it_event",
+   "summary": "졸업식 기념품·꽃다발",
+   "total": 150000,
+   "needAmount": 150000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch01",
+     "amount": 4286
+    },
+    {
+     "childId": "ch02",
+     "amount": 4286
+    },
+    {
+     "childId": "ch03",
+     "amount": 4286
+    },
+    {
+     "childId": "ch04",
+     "amount": 4286
+    },
+    {
+     "childId": "ch06",
+     "amount": 4286
+    },
+    {
+     "childId": "ch07",
+     "amount": 4286
+    },
+    {
+     "childId": "ch08",
+     "amount": 4286
+    },
+    {
+     "childId": "ch09",
+     "amount": 4286
+    },
+    {
+     "childId": "ch10",
+     "amount": 4286
+    },
+    {
+     "childId": "ch11",
+     "amount": 4286
+    },
+    {
+     "childId": "ch12",
+     "amount": 4286
+    },
+    {
+     "childId": "ch13",
+     "amount": 4286
+    },
+    {
+     "childId": "ch14",
+     "amount": 4286
+    },
+    {
+     "childId": "ch15",
+     "amount": 4286
+    },
+    {
+     "childId": "ch16",
+     "amount": 4286
+    },
+    {
+     "childId": "ch17",
+     "amount": 4286
+    },
+    {
+     "childId": "ch18",
+     "amount": 4286
+    },
+    {
+     "childId": "ch19",
+     "amount": 4286
+    },
+    {
+     "childId": "ch20",
+     "amount": 4286
+    },
+    {
+     "childId": "ch21",
+     "amount": 4286
+    },
+    {
+     "childId": "ch22",
+     "amount": 4286
+    },
+    {
+     "childId": "ch23",
+     "amount": 4286
+    },
+    {
+     "childId": "ch24",
+     "amount": 4286
+    },
+    {
+     "childId": "ch25",
+     "amount": 4286
+    },
+    {
+     "childId": "ch26",
+     "amount": 4286
+    },
+    {
+     "childId": "ch27",
+     "amount": 4285
+    },
+    {
+     "childId": "ch28",
+     "amount": 4285
+    },
+    {
+     "childId": "ch30",
+     "amount": 4285
+    },
+    {
+     "childId": "ch31",
+     "amount": 4285
+    },
+    {
+     "childId": "ch32",
+     "amount": 4285
+    },
+    {
+     "childId": "ch33",
+     "amount": 4285
+    },
+    {
+     "childId": "ch34",
+     "amount": 4285
+    },
+    {
+     "childId": "ch35",
+     "amount": 4285
+    },
+    {
+     "childId": "ch36",
+     "amount": 4285
+    },
+    {
+     "childId": "ch37",
+     "amount": 4285
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex010",
+   "date": "2026-04-18",
+   "voucherNo": "88",
+   "itemId": "it_field",
+   "summary": "아기동물농장 입장료",
+   "total": 400000,
+   "needAmount": 400000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch07",
+     "amount": 13334
+    },
+    {
+     "childId": "ch08",
+     "amount": 13334
+    },
+    {
+     "childId": "ch09",
+     "amount": 13334
+    },
+    {
+     "childId": "ch10",
+     "amount": 13334
+    },
+    {
+     "childId": "ch11",
+     "amount": 13334
+    },
+    {
+     "childId": "ch12",
+     "amount": 13334
+    },
+    {
+     "childId": "ch13",
+     "amount": 13334
+    },
+    {
+     "childId": "ch14",
+     "amount": 13334
+    },
+    {
+     "childId": "ch15",
+     "amount": 13334
+    },
+    {
+     "childId": "ch16",
+     "amount": 13334
+    },
+    {
+     "childId": "ch17",
+     "amount": 13333
+    },
+    {
+     "childId": "ch18",
+     "amount": 13333
+    },
+    {
+     "childId": "ch19",
+     "amount": 13333
+    },
+    {
+     "childId": "ch20",
+     "amount": 13333
+    },
+    {
+     "childId": "ch21",
+     "amount": 13333
+    },
+    {
+     "childId": "ch23",
+     "amount": 13333
+    },
+    {
+     "childId": "ch24",
+     "amount": 13333
+    },
+    {
+     "childId": "ch25",
+     "amount": 13333
+    },
+    {
+     "childId": "ch26",
+     "amount": 13333
+    },
+    {
+     "childId": "ch27",
+     "amount": 13333
+    },
+    {
+     "childId": "ch28",
+     "amount": 13333
+    },
+    {
+     "childId": "ch29",
+     "amount": 13333
+    },
+    {
+     "childId": "ch30",
+     "amount": 13333
+    },
+    {
+     "childId": "ch31",
+     "amount": 13333
+    },
+    {
+     "childId": "ch32",
+     "amount": 13333
+    },
+    {
+     "childId": "ch33",
+     "amount": 13333
+    },
+    {
+     "childId": "ch34",
+     "amount": 13333
+    },
+    {
+     "childId": "ch35",
+     "amount": 13333
+    },
+    {
+     "childId": "ch36",
+     "amount": 13333
+    },
+    {
+     "childId": "ch37",
+     "amount": 13333
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex011",
+   "date": "2026-06-12",
+   "voucherNo": "131",
+   "itemId": "it_field",
+   "summary": "여수해양공원 전세버스 2대",
+   "total": 1120000,
+   "needAmount": 900000,
+   "cardFee": 0,
+   "operAmount": 220000,
+   "memo": "버스 2대 중 220,000원은 어린이집 운영비 부담",
+   "allocations": [
+    {
+     "childId": "ch07",
+     "amount": 30000
+    },
+    {
+     "childId": "ch08",
+     "amount": 30000
+    },
+    {
+     "childId": "ch09",
+     "amount": 30000
+    },
+    {
+     "childId": "ch10",
+     "amount": 30000
+    },
+    {
+     "childId": "ch11",
+     "amount": 30000
+    },
+    {
+     "childId": "ch12",
+     "amount": 30000
+    },
+    {
+     "childId": "ch13",
+     "amount": 30000
+    },
+    {
+     "childId": "ch14",
+     "amount": 30000
+    },
+    {
+     "childId": "ch15",
+     "amount": 30000
+    },
+    {
+     "childId": "ch16",
+     "amount": 30000
+    },
+    {
+     "childId": "ch17",
+     "amount": 30000
+    },
+    {
+     "childId": "ch18",
+     "amount": 30000
+    },
+    {
+     "childId": "ch19",
+     "amount": 30000
+    },
+    {
+     "childId": "ch20",
+     "amount": 30000
+    },
+    {
+     "childId": "ch21",
+     "amount": 30000
+    },
+    {
+     "childId": "ch23",
+     "amount": 30000
+    },
+    {
+     "childId": "ch24",
+     "amount": 30000
+    },
+    {
+     "childId": "ch25",
+     "amount": 30000
+    },
+    {
+     "childId": "ch26",
+     "amount": 30000
+    },
+    {
+     "childId": "ch27",
+     "amount": 30000
+    },
+    {
+     "childId": "ch28",
+     "amount": 30000
+    },
+    {
+     "childId": "ch29",
+     "amount": 30000
+    },
+    {
+     "childId": "ch30",
+     "amount": 30000
+    },
+    {
+     "childId": "ch31",
+     "amount": 30000
+    },
+    {
+     "childId": "ch32",
+     "amount": 30000
+    },
+    {
+     "childId": "ch33",
+     "amount": 30000
+    },
+    {
+     "childId": "ch34",
+     "amount": 30000
+    },
+    {
+     "childId": "ch35",
+     "amount": 30000
+    },
+    {
+     "childId": "ch36",
+     "amount": 30000
+    },
+    {
+     "childId": "ch37",
+     "amount": 30000
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex012",
+   "date": "2026-06-25",
+   "voucherNo": "138",
+   "itemId": "it_field",
+   "summary": "6월 현장학습 준비물·간식",
+   "total": 200000,
+   "needAmount": 200000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch07",
+     "amount": 6667
+    },
+    {
+     "childId": "ch08",
+     "amount": 6667
+    },
+    {
+     "childId": "ch09",
+     "amount": 6667
+    },
+    {
+     "childId": "ch10",
+     "amount": 6667
+    },
+    {
+     "childId": "ch11",
+     "amount": 6667
+    },
+    {
+     "childId": "ch12",
+     "amount": 6667
+    },
+    {
+     "childId": "ch13",
+     "amount": 6667
+    },
+    {
+     "childId": "ch14",
+     "amount": 6667
+    },
+    {
+     "childId": "ch15",
+     "amount": 6667
+    },
+    {
+     "childId": "ch16",
+     "amount": 6667
+    },
+    {
+     "childId": "ch17",
+     "amount": 6667
+    },
+    {
+     "childId": "ch18",
+     "amount": 6667
+    },
+    {
+     "childId": "ch19",
+     "amount": 6667
+    },
+    {
+     "childId": "ch20",
+     "amount": 6667
+    },
+    {
+     "childId": "ch21",
+     "amount": 6667
+    },
+    {
+     "childId": "ch23",
+     "amount": 6667
+    },
+    {
+     "childId": "ch24",
+     "amount": 6667
+    },
+    {
+     "childId": "ch25",
+     "amount": 6667
+    },
+    {
+     "childId": "ch26",
+     "amount": 6667
+    },
+    {
+     "childId": "ch27",
+     "amount": 6667
+    },
+    {
+     "childId": "ch28",
+     "amount": 6666
+    },
+    {
+     "childId": "ch29",
+     "amount": 6666
+    },
+    {
+     "childId": "ch30",
+     "amount": 6666
+    },
+    {
+     "childId": "ch31",
+     "amount": 6666
+    },
+    {
+     "childId": "ch32",
+     "amount": 6666
+    },
+    {
+     "childId": "ch33",
+     "amount": 6666
+    },
+    {
+     "childId": "ch34",
+     "amount": 6666
+    },
+    {
+     "childId": "ch35",
+     "amount": 6666
+    },
+    {
+     "childId": "ch36",
+     "amount": 6666
+    },
+    {
+     "childId": "ch37",
+     "amount": 6666
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex013",
+   "date": "2026-09-18",
+   "voucherNo": "190",
+   "itemId": "it_field",
+   "summary": "가을 소풍 입장료·간식",
+   "total": 600000,
+   "needAmount": 600000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch07",
+     "amount": 19355
+    },
+    {
+     "childId": "ch08",
+     "amount": 19355
+    },
+    {
+     "childId": "ch09",
+     "amount": 19355
+    },
+    {
+     "childId": "ch10",
+     "amount": 19355
+    },
+    {
+     "childId": "ch11",
+     "amount": 19355
+    },
+    {
+     "childId": "ch12",
+     "amount": 19355
+    },
+    {
+     "childId": "ch13",
+     "amount": 19355
+    },
+    {
+     "childId": "ch14",
+     "amount": 19355
+    },
+    {
+     "childId": "ch15",
+     "amount": 19355
+    },
+    {
+     "childId": "ch16",
+     "amount": 19355
+    },
+    {
+     "childId": "ch17",
+     "amount": 19355
+    },
+    {
+     "childId": "ch18",
+     "amount": 19355
+    },
+    {
+     "childId": "ch19",
+     "amount": 19355
+    },
+    {
+     "childId": "ch20",
+     "amount": 19355
+    },
+    {
+     "childId": "ch21",
+     "amount": 19355
+    },
+    {
+     "childId": "ch22",
+     "amount": 19355
+    },
+    {
+     "childId": "ch23",
+     "amount": 19355
+    },
+    {
+     "childId": "ch24",
+     "amount": 19355
+    },
+    {
+     "childId": "ch25",
+     "amount": 19355
+    },
+    {
+     "childId": "ch26",
+     "amount": 19355
+    },
+    {
+     "childId": "ch27",
+     "amount": 19355
+    },
+    {
+     "childId": "ch28",
+     "amount": 19355
+    },
+    {
+     "childId": "ch29",
+     "amount": 19355
+    },
+    {
+     "childId": "ch30",
+     "amount": 19355
+    },
+    {
+     "childId": "ch31",
+     "amount": 19355
+    },
+    {
+     "childId": "ch32",
+     "amount": 19355
+    },
+    {
+     "childId": "ch33",
+     "amount": 19354
+    },
+    {
+     "childId": "ch34",
+     "amount": 19354
+    },
+    {
+     "childId": "ch35",
+     "amount": 19354
+    },
+    {
+     "childId": "ch36",
+     "amount": 19354
+    },
+    {
+     "childId": "ch37",
+     "amount": 19354
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex014",
+   "date": "2026-10-16",
+   "voucherNo": "205",
+   "itemId": "it_field",
+   "summary": "국화축제 관람 전세버스",
+   "total": 800000,
+   "needAmount": 800000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch07",
+     "amount": 25807
+    },
+    {
+     "childId": "ch08",
+     "amount": 25807
+    },
+    {
+     "childId": "ch09",
+     "amount": 25807
+    },
+    {
+     "childId": "ch10",
+     "amount": 25807
+    },
+    {
+     "childId": "ch11",
+     "amount": 25807
+    },
+    {
+     "childId": "ch12",
+     "amount": 25807
+    },
+    {
+     "childId": "ch13",
+     "amount": 25807
+    },
+    {
+     "childId": "ch14",
+     "amount": 25807
+    },
+    {
+     "childId": "ch15",
+     "amount": 25807
+    },
+    {
+     "childId": "ch16",
+     "amount": 25807
+    },
+    {
+     "childId": "ch17",
+     "amount": 25807
+    },
+    {
+     "childId": "ch18",
+     "amount": 25807
+    },
+    {
+     "childId": "ch19",
+     "amount": 25807
+    },
+    {
+     "childId": "ch20",
+     "amount": 25807
+    },
+    {
+     "childId": "ch21",
+     "amount": 25806
+    },
+    {
+     "childId": "ch22",
+     "amount": 25806
+    },
+    {
+     "childId": "ch23",
+     "amount": 25806
+    },
+    {
+     "childId": "ch24",
+     "amount": 25806
+    },
+    {
+     "childId": "ch25",
+     "amount": 25806
+    },
+    {
+     "childId": "ch26",
+     "amount": 25806
+    },
+    {
+     "childId": "ch27",
+     "amount": 25806
+    },
+    {
+     "childId": "ch28",
+     "amount": 25806
+    },
+    {
+     "childId": "ch29",
+     "amount": 25806
+    },
+    {
+     "childId": "ch30",
+     "amount": 25806
+    },
+    {
+     "childId": "ch31",
+     "amount": 25806
+    },
+    {
+     "childId": "ch32",
+     "amount": 25806
+    },
+    {
+     "childId": "ch33",
+     "amount": 25806
+    },
+    {
+     "childId": "ch34",
+     "amount": 25806
+    },
+    {
+     "childId": "ch35",
+     "amount": 25806
+    },
+    {
+     "childId": "ch36",
+     "amount": 25806
+    },
+    {
+     "childId": "ch37",
+     "amount": 25806
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex015",
+   "date": "2027-01-22",
+   "voucherNo": "248",
+   "itemId": "it_field",
+   "summary": "겨울 실내체험관 입장료",
+   "total": 500000,
+   "needAmount": 500000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch07",
+     "amount": 16667
+    },
+    {
+     "childId": "ch08",
+     "amount": 16667
+    },
+    {
+     "childId": "ch09",
+     "amount": 16667
+    },
+    {
+     "childId": "ch10",
+     "amount": 16667
+    },
+    {
+     "childId": "ch11",
+     "amount": 16667
+    },
+    {
+     "childId": "ch12",
+     "amount": 16667
+    },
+    {
+     "childId": "ch13",
+     "amount": 16667
+    },
+    {
+     "childId": "ch14",
+     "amount": 16667
+    },
+    {
+     "childId": "ch15",
+     "amount": 16667
+    },
+    {
+     "childId": "ch16",
+     "amount": 16667
+    },
+    {
+     "childId": "ch17",
+     "amount": 16667
+    },
+    {
+     "childId": "ch18",
+     "amount": 16667
+    },
+    {
+     "childId": "ch19",
+     "amount": 16667
+    },
+    {
+     "childId": "ch20",
+     "amount": 16667
+    },
+    {
+     "childId": "ch21",
+     "amount": 16667
+    },
+    {
+     "childId": "ch22",
+     "amount": 16667
+    },
+    {
+     "childId": "ch23",
+     "amount": 16667
+    },
+    {
+     "childId": "ch24",
+     "amount": 16667
+    },
+    {
+     "childId": "ch25",
+     "amount": 16667
+    },
+    {
+     "childId": "ch26",
+     "amount": 16667
+    },
+    {
+     "childId": "ch27",
+     "amount": 16666
+    },
+    {
+     "childId": "ch28",
+     "amount": 16666
+    },
+    {
+     "childId": "ch30",
+     "amount": 16666
+    },
+    {
+     "childId": "ch31",
+     "amount": 16666
+    },
+    {
+     "childId": "ch32",
+     "amount": 16666
+    },
+    {
+     "childId": "ch33",
+     "amount": 16666
+    },
+    {
+     "childId": "ch34",
+     "amount": 16666
+    },
+    {
+     "childId": "ch35",
+     "amount": 16666
+    },
+    {
+     "childId": "ch36",
+     "amount": 16666
+    },
+    {
+     "childId": "ch37",
+     "amount": 16666
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex016",
+   "date": "2026-03-25",
+   "voucherNo": "121",
+   "itemId": "it_sa",
+   "summary": "3월 특별활동비 업체 지급 (교구스토리·체육)",
+   "total": 740000,
+   "needAmount": 740000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch17",
+     "amount": 37000
+    },
+    {
+     "childId": "ch18",
+     "amount": 37000
+    },
+    {
+     "childId": "ch19",
+     "amount": 37000
+    },
+    {
+     "childId": "ch20",
+     "amount": 37000
+    },
+    {
+     "childId": "ch21",
+     "amount": 37000
+    },
+    {
+     "childId": "ch23",
+     "amount": 37000
+    },
+    {
+     "childId": "ch24",
+     "amount": 37000
+    },
+    {
+     "childId": "ch25",
+     "amount": 37000
+    },
+    {
+     "childId": "ch26",
+     "amount": 37000
+    },
+    {
+     "childId": "ch27",
+     "amount": 37000
+    },
+    {
+     "childId": "ch28",
+     "amount": 37000
+    },
+    {
+     "childId": "ch29",
+     "amount": 37000
+    },
+    {
+     "childId": "ch30",
+     "amount": 37000
+    },
+    {
+     "childId": "ch31",
+     "amount": 37000
+    },
+    {
+     "childId": "ch32",
+     "amount": 37000
+    },
+    {
+     "childId": "ch33",
+     "amount": 37000
+    },
+    {
+     "childId": "ch34",
+     "amount": 37000
+    },
+    {
+     "childId": "ch35",
+     "amount": 37000
+    },
+    {
+     "childId": "ch36",
+     "amount": 37000
+    },
+    {
+     "childId": "ch37",
+     "amount": 37000
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex017",
+   "date": "2026-04-25",
+   "voucherNo": "128",
+   "itemId": "it_sa",
+   "summary": "4월 특별활동비 업체 지급 (교구스토리·체육)",
+   "total": 740000,
+   "needAmount": 740000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch17",
+     "amount": 37000
+    },
+    {
+     "childId": "ch18",
+     "amount": 37000
+    },
+    {
+     "childId": "ch19",
+     "amount": 37000
+    },
+    {
+     "childId": "ch20",
+     "amount": 37000
+    },
+    {
+     "childId": "ch21",
+     "amount": 37000
+    },
+    {
+     "childId": "ch23",
+     "amount": 37000
+    },
+    {
+     "childId": "ch24",
+     "amount": 37000
+    },
+    {
+     "childId": "ch25",
+     "amount": 37000
+    },
+    {
+     "childId": "ch26",
+     "amount": 37000
+    },
+    {
+     "childId": "ch27",
+     "amount": 37000
+    },
+    {
+     "childId": "ch28",
+     "amount": 37000
+    },
+    {
+     "childId": "ch29",
+     "amount": 37000
+    },
+    {
+     "childId": "ch30",
+     "amount": 37000
+    },
+    {
+     "childId": "ch31",
+     "amount": 37000
+    },
+    {
+     "childId": "ch32",
+     "amount": 37000
+    },
+    {
+     "childId": "ch33",
+     "amount": 37000
+    },
+    {
+     "childId": "ch34",
+     "amount": 37000
+    },
+    {
+     "childId": "ch35",
+     "amount": 37000
+    },
+    {
+     "childId": "ch36",
+     "amount": 37000
+    },
+    {
+     "childId": "ch37",
+     "amount": 37000
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex018",
+   "date": "2026-05-25",
+   "voucherNo": "135",
+   "itemId": "it_sa",
+   "summary": "5월 특별활동비 업체 지급 (교구스토리·체육)",
+   "total": 740000,
+   "needAmount": 740000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch17",
+     "amount": 37000
+    },
+    {
+     "childId": "ch18",
+     "amount": 37000
+    },
+    {
+     "childId": "ch19",
+     "amount": 37000
+    },
+    {
+     "childId": "ch20",
+     "amount": 37000
+    },
+    {
+     "childId": "ch21",
+     "amount": 37000
+    },
+    {
+     "childId": "ch23",
+     "amount": 37000
+    },
+    {
+     "childId": "ch24",
+     "amount": 37000
+    },
+    {
+     "childId": "ch25",
+     "amount": 37000
+    },
+    {
+     "childId": "ch26",
+     "amount": 37000
+    },
+    {
+     "childId": "ch27",
+     "amount": 37000
+    },
+    {
+     "childId": "ch28",
+     "amount": 37000
+    },
+    {
+     "childId": "ch29",
+     "amount": 37000
+    },
+    {
+     "childId": "ch30",
+     "amount": 37000
+    },
+    {
+     "childId": "ch31",
+     "amount": 37000
+    },
+    {
+     "childId": "ch32",
+     "amount": 37000
+    },
+    {
+     "childId": "ch33",
+     "amount": 37000
+    },
+    {
+     "childId": "ch34",
+     "amount": 37000
+    },
+    {
+     "childId": "ch35",
+     "amount": 37000
+    },
+    {
+     "childId": "ch36",
+     "amount": 37000
+    },
+    {
+     "childId": "ch37",
+     "amount": 37000
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex019",
+   "date": "2026-06-25",
+   "voucherNo": "142",
+   "itemId": "it_sa",
+   "summary": "6월 특별활동비 업체 지급 (교구스토리·체육)",
+   "total": 740000,
+   "needAmount": 740000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch17",
+     "amount": 37000
+    },
+    {
+     "childId": "ch18",
+     "amount": 37000
+    },
+    {
+     "childId": "ch19",
+     "amount": 37000
+    },
+    {
+     "childId": "ch20",
+     "amount": 37000
+    },
+    {
+     "childId": "ch21",
+     "amount": 37000
+    },
+    {
+     "childId": "ch23",
+     "amount": 37000
+    },
+    {
+     "childId": "ch24",
+     "amount": 37000
+    },
+    {
+     "childId": "ch25",
+     "amount": 37000
+    },
+    {
+     "childId": "ch26",
+     "amount": 37000
+    },
+    {
+     "childId": "ch27",
+     "amount": 37000
+    },
+    {
+     "childId": "ch28",
+     "amount": 37000
+    },
+    {
+     "childId": "ch29",
+     "amount": 37000
+    },
+    {
+     "childId": "ch30",
+     "amount": 37000
+    },
+    {
+     "childId": "ch31",
+     "amount": 37000
+    },
+    {
+     "childId": "ch32",
+     "amount": 37000
+    },
+    {
+     "childId": "ch33",
+     "amount": 37000
+    },
+    {
+     "childId": "ch34",
+     "amount": 37000
+    },
+    {
+     "childId": "ch35",
+     "amount": 37000
+    },
+    {
+     "childId": "ch36",
+     "amount": 37000
+    },
+    {
+     "childId": "ch37",
+     "amount": 37000
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex020",
+   "date": "2026-07-25",
+   "voucherNo": "149",
+   "itemId": "it_sa",
+   "summary": "7월 특별활동비 업체 지급 (교구스토리·체육)",
+   "total": 740000,
+   "needAmount": 740000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch17",
+     "amount": 37000
+    },
+    {
+     "childId": "ch18",
+     "amount": 37000
+    },
+    {
+     "childId": "ch19",
+     "amount": 37000
+    },
+    {
+     "childId": "ch20",
+     "amount": 37000
+    },
+    {
+     "childId": "ch21",
+     "amount": 37000
+    },
+    {
+     "childId": "ch23",
+     "amount": 37000
+    },
+    {
+     "childId": "ch24",
+     "amount": 37000
+    },
+    {
+     "childId": "ch25",
+     "amount": 37000
+    },
+    {
+     "childId": "ch26",
+     "amount": 37000
+    },
+    {
+     "childId": "ch27",
+     "amount": 37000
+    },
+    {
+     "childId": "ch28",
+     "amount": 37000
+    },
+    {
+     "childId": "ch29",
+     "amount": 37000
+    },
+    {
+     "childId": "ch30",
+     "amount": 37000
+    },
+    {
+     "childId": "ch31",
+     "amount": 37000
+    },
+    {
+     "childId": "ch32",
+     "amount": 37000
+    },
+    {
+     "childId": "ch33",
+     "amount": 37000
+    },
+    {
+     "childId": "ch34",
+     "amount": 37000
+    },
+    {
+     "childId": "ch35",
+     "amount": 37000
+    },
+    {
+     "childId": "ch36",
+     "amount": 37000
+    },
+    {
+     "childId": "ch37",
+     "amount": 37000
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex021",
+   "date": "2026-08-25",
+   "voucherNo": "156",
+   "itemId": "it_sa",
+   "summary": "8월 특별활동비 업체 지급 (교구스토리·체육)",
+   "total": 777000,
+   "needAmount": 777000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch17",
+     "amount": 37000
+    },
+    {
+     "childId": "ch18",
+     "amount": 37000
+    },
+    {
+     "childId": "ch19",
+     "amount": 37000
+    },
+    {
+     "childId": "ch20",
+     "amount": 37000
+    },
+    {
+     "childId": "ch21",
+     "amount": 37000
+    },
+    {
+     "childId": "ch22",
+     "amount": 37000
+    },
+    {
+     "childId": "ch23",
+     "amount": 37000
+    },
+    {
+     "childId": "ch24",
+     "amount": 37000
+    },
+    {
+     "childId": "ch25",
+     "amount": 37000
+    },
+    {
+     "childId": "ch26",
+     "amount": 37000
+    },
+    {
+     "childId": "ch27",
+     "amount": 37000
+    },
+    {
+     "childId": "ch28",
+     "amount": 37000
+    },
+    {
+     "childId": "ch29",
+     "amount": 37000
+    },
+    {
+     "childId": "ch30",
+     "amount": 37000
+    },
+    {
+     "childId": "ch31",
+     "amount": 37000
+    },
+    {
+     "childId": "ch32",
+     "amount": 37000
+    },
+    {
+     "childId": "ch33",
+     "amount": 37000
+    },
+    {
+     "childId": "ch34",
+     "amount": 37000
+    },
+    {
+     "childId": "ch35",
+     "amount": 37000
+    },
+    {
+     "childId": "ch36",
+     "amount": 37000
+    },
+    {
+     "childId": "ch37",
+     "amount": 37000
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex022",
+   "date": "2026-09-25",
+   "voucherNo": "163",
+   "itemId": "it_sa",
+   "summary": "9월 특별활동비 업체 지급 (교구스토리·체육)",
+   "total": 777000,
+   "needAmount": 777000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch17",
+     "amount": 37000
+    },
+    {
+     "childId": "ch18",
+     "amount": 37000
+    },
+    {
+     "childId": "ch19",
+     "amount": 37000
+    },
+    {
+     "childId": "ch20",
+     "amount": 37000
+    },
+    {
+     "childId": "ch21",
+     "amount": 37000
+    },
+    {
+     "childId": "ch22",
+     "amount": 37000
+    },
+    {
+     "childId": "ch23",
+     "amount": 37000
+    },
+    {
+     "childId": "ch24",
+     "amount": 37000
+    },
+    {
+     "childId": "ch25",
+     "amount": 37000
+    },
+    {
+     "childId": "ch26",
+     "amount": 37000
+    },
+    {
+     "childId": "ch27",
+     "amount": 37000
+    },
+    {
+     "childId": "ch28",
+     "amount": 37000
+    },
+    {
+     "childId": "ch29",
+     "amount": 37000
+    },
+    {
+     "childId": "ch30",
+     "amount": 37000
+    },
+    {
+     "childId": "ch31",
+     "amount": 37000
+    },
+    {
+     "childId": "ch32",
+     "amount": 37000
+    },
+    {
+     "childId": "ch33",
+     "amount": 37000
+    },
+    {
+     "childId": "ch34",
+     "amount": 37000
+    },
+    {
+     "childId": "ch35",
+     "amount": 37000
+    },
+    {
+     "childId": "ch36",
+     "amount": 37000
+    },
+    {
+     "childId": "ch37",
+     "amount": 37000
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex023",
+   "date": "2026-10-25",
+   "voucherNo": "170",
+   "itemId": "it_sa",
+   "summary": "10월 특별활동비 업체 지급 (교구스토리·체육)",
+   "total": 777000,
+   "needAmount": 777000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch17",
+     "amount": 37000
+    },
+    {
+     "childId": "ch18",
+     "amount": 37000
+    },
+    {
+     "childId": "ch19",
+     "amount": 37000
+    },
+    {
+     "childId": "ch20",
+     "amount": 37000
+    },
+    {
+     "childId": "ch21",
+     "amount": 37000
+    },
+    {
+     "childId": "ch22",
+     "amount": 37000
+    },
+    {
+     "childId": "ch23",
+     "amount": 37000
+    },
+    {
+     "childId": "ch24",
+     "amount": 37000
+    },
+    {
+     "childId": "ch25",
+     "amount": 37000
+    },
+    {
+     "childId": "ch26",
+     "amount": 37000
+    },
+    {
+     "childId": "ch27",
+     "amount": 37000
+    },
+    {
+     "childId": "ch28",
+     "amount": 37000
+    },
+    {
+     "childId": "ch29",
+     "amount": 37000
+    },
+    {
+     "childId": "ch30",
+     "amount": 37000
+    },
+    {
+     "childId": "ch31",
+     "amount": 37000
+    },
+    {
+     "childId": "ch32",
+     "amount": 37000
+    },
+    {
+     "childId": "ch33",
+     "amount": 37000
+    },
+    {
+     "childId": "ch34",
+     "amount": 37000
+    },
+    {
+     "childId": "ch35",
+     "amount": 37000
+    },
+    {
+     "childId": "ch36",
+     "amount": 37000
+    },
+    {
+     "childId": "ch37",
+     "amount": 37000
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex024",
+   "date": "2026-11-25",
+   "voucherNo": "177",
+   "itemId": "it_sa",
+   "summary": "11월 특별활동비 업체 지급 (교구스토리·체육)",
+   "total": 740000,
+   "needAmount": 740000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch17",
+     "amount": 37000
+    },
+    {
+     "childId": "ch18",
+     "amount": 37000
+    },
+    {
+     "childId": "ch19",
+     "amount": 37000
+    },
+    {
+     "childId": "ch20",
+     "amount": 37000
+    },
+    {
+     "childId": "ch21",
+     "amount": 37000
+    },
+    {
+     "childId": "ch22",
+     "amount": 37000
+    },
+    {
+     "childId": "ch23",
+     "amount": 37000
+    },
+    {
+     "childId": "ch24",
+     "amount": 37000
+    },
+    {
+     "childId": "ch25",
+     "amount": 37000
+    },
+    {
+     "childId": "ch26",
+     "amount": 37000
+    },
+    {
+     "childId": "ch27",
+     "amount": 37000
+    },
+    {
+     "childId": "ch28",
+     "amount": 37000
+    },
+    {
+     "childId": "ch30",
+     "amount": 37000
+    },
+    {
+     "childId": "ch31",
+     "amount": 37000
+    },
+    {
+     "childId": "ch32",
+     "amount": 37000
+    },
+    {
+     "childId": "ch33",
+     "amount": 37000
+    },
+    {
+     "childId": "ch34",
+     "amount": 37000
+    },
+    {
+     "childId": "ch35",
+     "amount": 37000
+    },
+    {
+     "childId": "ch36",
+     "amount": 37000
+    },
+    {
+     "childId": "ch37",
+     "amount": 37000
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex025",
+   "date": "2026-12-25",
+   "voucherNo": "184",
+   "itemId": "it_sa",
+   "summary": "12월 특별활동비 업체 지급 (교구스토리·체육)",
+   "total": 740000,
+   "needAmount": 740000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch17",
+     "amount": 37000
+    },
+    {
+     "childId": "ch18",
+     "amount": 37000
+    },
+    {
+     "childId": "ch19",
+     "amount": 37000
+    },
+    {
+     "childId": "ch20",
+     "amount": 37000
+    },
+    {
+     "childId": "ch21",
+     "amount": 37000
+    },
+    {
+     "childId": "ch22",
+     "amount": 37000
+    },
+    {
+     "childId": "ch23",
+     "amount": 37000
+    },
+    {
+     "childId": "ch24",
+     "amount": 37000
+    },
+    {
+     "childId": "ch25",
+     "amount": 37000
+    },
+    {
+     "childId": "ch26",
+     "amount": 37000
+    },
+    {
+     "childId": "ch27",
+     "amount": 37000
+    },
+    {
+     "childId": "ch28",
+     "amount": 37000
+    },
+    {
+     "childId": "ch30",
+     "amount": 37000
+    },
+    {
+     "childId": "ch31",
+     "amount": 37000
+    },
+    {
+     "childId": "ch32",
+     "amount": 37000
+    },
+    {
+     "childId": "ch33",
+     "amount": 37000
+    },
+    {
+     "childId": "ch34",
+     "amount": 37000
+    },
+    {
+     "childId": "ch35",
+     "amount": 37000
+    },
+    {
+     "childId": "ch36",
+     "amount": 37000
+    },
+    {
+     "childId": "ch37",
+     "amount": 37000
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex026",
+   "date": "2027-01-25",
+   "voucherNo": "191",
+   "itemId": "it_sa",
+   "summary": "1월 특별활동비 업체 지급 (교구스토리·체육)",
+   "total": 740000,
+   "needAmount": 740000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch17",
+     "amount": 37000
+    },
+    {
+     "childId": "ch18",
+     "amount": 37000
+    },
+    {
+     "childId": "ch19",
+     "amount": 37000
+    },
+    {
+     "childId": "ch20",
+     "amount": 37000
+    },
+    {
+     "childId": "ch21",
+     "amount": 37000
+    },
+    {
+     "childId": "ch22",
+     "amount": 37000
+    },
+    {
+     "childId": "ch23",
+     "amount": 37000
+    },
+    {
+     "childId": "ch24",
+     "amount": 37000
+    },
+    {
+     "childId": "ch25",
+     "amount": 37000
+    },
+    {
+     "childId": "ch26",
+     "amount": 37000
+    },
+    {
+     "childId": "ch27",
+     "amount": 37000
+    },
+    {
+     "childId": "ch28",
+     "amount": 37000
+    },
+    {
+     "childId": "ch30",
+     "amount": 37000
+    },
+    {
+     "childId": "ch31",
+     "amount": 37000
+    },
+    {
+     "childId": "ch32",
+     "amount": 37000
+    },
+    {
+     "childId": "ch33",
+     "amount": 37000
+    },
+    {
+     "childId": "ch34",
+     "amount": 37000
+    },
+    {
+     "childId": "ch35",
+     "amount": 37000
+    },
+    {
+     "childId": "ch36",
+     "amount": 37000
+    },
+    {
+     "childId": "ch37",
+     "amount": 37000
+    }
+   ],
+   "overrides": []
+  },
+  {
+   "id": "ex027",
+   "date": "2027-02-24",
+   "voucherNo": "198",
+   "itemId": "it_sa",
+   "summary": "2월 특별활동비 업체 지급 (교구스토리·체육)",
+   "total": 740000,
+   "needAmount": 740000,
+   "cardFee": 0,
+   "operAmount": 0,
+   "memo": "",
+   "allocations": [
+    {
+     "childId": "ch17",
+     "amount": 37000
+    },
+    {
+     "childId": "ch18",
+     "amount": 37000
+    },
+    {
+     "childId": "ch19",
+     "amount": 37000
+    },
+    {
+     "childId": "ch20",
+     "amount": 37000
+    },
+    {
+     "childId": "ch21",
+     "amount": 37000
+    },
+    {
+     "childId": "ch22",
+     "amount": 37000
+    },
+    {
+     "childId": "ch23",
+     "amount": 37000
+    },
+    {
+     "childId": "ch24",
+     "amount": 37000
+    },
+    {
+     "childId": "ch25",
+     "amount": 37000
+    },
+    {
+     "childId": "ch26",
+     "amount": 37000
+    },
+    {
+     "childId": "ch27",
+     "amount": 37000
+    },
+    {
+     "childId": "ch28",
+     "amount": 37000
+    },
+    {
+     "childId": "ch30",
+     "amount": 37000
+    },
+    {
+     "childId": "ch31",
+     "amount": 37000
+    },
+    {
+     "childId": "ch32",
+     "amount": 37000
+    },
+    {
+     "childId": "ch33",
+     "amount": 37000
+    },
+    {
+     "childId": "ch34",
+     "amount": 37000
+    },
+    {
+     "childId": "ch35",
+     "amount": 37000
+    },
+    {
+     "childId": "ch36",
+     "amount": 37000
+    },
+    {
+     "childId": "ch37",
+     "amount": 37000
+    }
+   ],
+   "overrides": []
+  }
+ ]
+}

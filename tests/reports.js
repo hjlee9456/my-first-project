@@ -61,11 +61,6 @@ const SEED = {
       total: 90000, needAmount: 90000, cardFee: 0, operAmount: 0, memo: "", overrides: [],
       allocations: [{ childId: "k1", amount: 30000 }, { childId: "k3", amount: 30000 }, { childId: "k4", amount: 30000 }] },
   ],
-  refunds: [
-    /* 4단계 반환관리에서 만들어질 기록 — 대장에 음수로 찍히는지 본다 */
-    { id: "rf1", childId: "k1", itemId: "it_field", reason: "미참여", amount: 20000,
-      date: "2026-11-20", route: "622목 보호자 반환금 (반납결의)", account: "", holder: "", memo: "" },
-  ],
 };
 
 (async () => {
@@ -99,10 +94,10 @@ const SEED = {
   await p.selectOption("#lg_kind", "receipt");
   await p.selectOption("#lg_item", "it_field");
   lg = flat(await p.textContent("#lg_body"));
-  check("수입대장에서 반환이 음수로 찍히고 합계에서 빠짐",
-    /-20,000/.test(lg) && /100,000/.test(lg), lg.slice(0, 220));
-  check("대장 비고에 퇴소·반환이 자동으로 들어감",
-    /06\.15 퇴소/.test(lg) && /20,000원 반환/.test(lg), lg.slice(0, 260));
+  check("수입대장에 수납결의서 금액이 수납일 달에 들어감",
+    /120,000/.test(lg), lg.slice(0, 200));
+  check("대장 비고에 퇴소·위탁이 자동으로 들어감",
+    /06\.15 퇴소/.test(lg) && /10월부터 위탁/.test(lg), lg.slice(0, 300));
 
   // ================= 중간퇴소 정산 =================
   await p.click('nav button[data-tab="settle"]');
@@ -116,7 +111,7 @@ const SEED = {
     /6월 유류비/.test(mq) && /기준일 이후/.test(mq), mq.slice(0, 150));
 
   let sheet = flat(await p.textContent("#st_sheet"));
-  check("현장학습비 반환금 95,000 (120,000 − 25,000)", /95,000/.test(sheet));
+  check("현장학습비 반환할 금액 95,000 (120,000 − 25,000)", /95,000/.test(sheet));
   check("입학준비금은 협의 표시", /협의/.test(sheet));
   check("정산 내역 산식이 한 줄로 나옴",
     /수납 120,000원 − 사용 25,000원 = 95,000원/.test(sheet), sheet.slice(sheet.indexOf("정산 내역"), sheet.indexOf("정산 내역") + 200));
@@ -165,6 +160,15 @@ const SEED = {
   const gen = await p.evaluate(() => balance("k1", "it_field", "2026-10-01", "2026-10-31"));
   check("일반 원아의 10월 지출은 그대로 사용액 30,000",
     gen.used === 30000 && gen.consign === 0, JSON.stringify(gen));
+
+  // ================= 반환 정산서 (전 원아) =================
+  await p.click('[data-m="back"]');
+  await p.click('[data-p="Y"]');
+  await p.waitForTimeout(300);
+  const bk = flat(await p.textContent("#bk_body"));
+  check("반환 정산서에 원아별 반환할 금액이 세목별로 나옴",
+    /필요경비 반환 정산서/.test(bk) && /반환 합계/.test(bk) && /현장학습비/.test(bk), bk.slice(0, 220));
+  check("퇴소·위탁이 비고에 표시", /06\.15 퇴소/.test(bk) && /위탁/.test(bk));
 
   // ================= 보호자용 안내문 =================
   await p.click('[data-m="notice"]');
