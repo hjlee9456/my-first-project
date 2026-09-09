@@ -1,0 +1,1697 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>어린이집 필요경비 원아별 정산</title>
+<style>
+:root{
+  --bg:#f6f7f9; --panel:#fff; --line:#dde1e7; --line2:#eef1f4;
+  --ink:#1c2530; --dim:#66707d; --faint:#98a1ad;
+  --accent:#2f6fd0; --accent-bg:#eaf1fc;
+  --warn:#b4610a; --warn-bg:#fdf3e6;
+  --bad:#c0392b; --bad-bg:#fdedeb;
+  --ok:#1f7a4d; --ok-bg:#e9f6ef;
+  --radius:6px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:14px/1.5 -apple-system,BlinkMacSystemFont,"Malgun Gothic","맑은 고딕","Apple SD Gothic Neo",sans-serif;}
+h1,h2,h3{margin:0;font-weight:600}
+h2{font-size:16px;margin-bottom:10px}
+h3{font-size:14px;color:var(--dim);margin:18px 0 8px}
+a{color:var(--accent)}
+
+/* ---------- layout ---------- */
+header{background:var(--panel);border-bottom:1px solid var(--line);padding:10px 18px;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:20}
+header h1{font-size:16px;white-space:nowrap}
+header .spacer{flex:1}
+#saveState{font-size:12px;color:var(--faint)}
+nav{background:var(--panel);border-bottom:1px solid var(--line);padding:0 18px;display:flex;gap:2px;
+  position:sticky;top:51px;z-index:19;overflow-x:auto}
+nav button{background:none;border:none;border-bottom:2px solid transparent;padding:10px 14px;
+  font:inherit;color:var(--dim);cursor:pointer;white-space:nowrap}
+nav button:hover{color:var(--ink)}
+nav button.on{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+main{padding:18px;max-width:1400px;margin:0 auto}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px;margin-bottom:16px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.grow{flex:1;min-width:0}
+.hint{font-size:12px;color:var(--faint);line-height:1.6}
+.hint b{color:var(--dim);font-weight:600}
+
+/* ---------- controls ---------- */
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--dim)}
+input,select,textarea{font:inherit;padding:6px 8px;border:1px solid var(--line);
+  border-radius:4px;background:#fff;color:var(--ink);min-width:0}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent-bg);border-color:var(--accent)}
+input[readonly]{background:var(--line2);color:var(--dim)}
+input.money{text-align:right;font-variant-numeric:tabular-nums}
+button.b{font:inherit;padding:6px 12px;border:1px solid var(--line);background:#fff;
+  border-radius:4px;cursor:pointer;color:var(--ink);white-space:nowrap}
+button.b:hover{background:var(--line2)}
+button.b.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+button.b.pri:hover{filter:brightness(1.08)}
+button.b.danger{color:var(--bad);border-color:#f0c8c2}
+button.b.danger:hover{background:var(--bad-bg)}
+button.b:disabled{opacity:.45;cursor:not-allowed}
+button.link{background:none;border:none;padding:0;font:inherit;color:var(--accent);
+  cursor:pointer;text-decoration:underline}
+
+/* ---------- tables ---------- */
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:middle}
+th{background:var(--line2);font-weight:600;color:var(--dim);white-space:nowrap}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+td.c,th.c{text-align:center;white-space:nowrap}
+tr.out td{color:var(--faint);background:#fbfbfc}
+tr.sum td{background:var(--line2);font-weight:600}
+tr.hl td{background:var(--accent-bg)}
+.scroll{overflow:auto;max-height:60vh;border:1px solid var(--line);border-radius:4px}
+.scroll table{border:none}
+.scroll th{position:sticky;top:0;z-index:1}
+.empty{padding:24px;text-align:center;color:var(--faint);font-size:13px}
+
+/* ---------- badges / notes ---------- */
+.tag{display:inline-block;font-size:11px;padding:1px 6px;border-radius:10px;
+  background:var(--line2);color:var(--dim);white-space:nowrap}
+.tag.consign{background:#efe7fb;color:#5b3ca8}
+.tag.ev{background:#fdf3e6;color:var(--warn)}
+.note{border-left:3px solid var(--accent);background:var(--accent-bg);
+  padding:8px 12px;border-radius:0 4px 4px 0;font-size:12px;color:var(--dim);margin:10px 0;line-height:1.7}
+.note.warn{border-color:var(--warn);background:var(--warn-bg)}
+.note.bad{border-color:var(--bad);background:var(--bad-bg);color:#8c3226}
+.note.ok{border-color:var(--ok);background:var(--ok-bg);color:#1a5c3b}
+
+/* ---------- picker ---------- */
+.picker{border:1px solid var(--line);border-radius:4px;max-height:340px;overflow:auto;padding:4px}
+.pk-class{padding:6px 8px 8px}
+.pk-class + .pk-class{border-top:1px solid var(--line2)}
+.pk-head{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--dim);
+  font-weight:600;margin-bottom:5px}
+.pk-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px}
+.pk-item{display:flex;align-items:center;gap:6px;padding:3px 6px;border-radius:3px;cursor:pointer;font-size:13px}
+.pk-item:hover{background:var(--line2)}
+.pk-item.dis{color:var(--faint);cursor:not-allowed}
+.pk-item.dis:hover{background:none}
+.pk-item input{margin:0}
+
+/* ---------- modal ---------- */
+.mask{position:fixed;inset:0;background:rgba(20,26,34,.45);display:flex;
+  align-items:flex-start;justify-content:center;padding:40px 16px;z-index:50;overflow:auto}
+.modal{background:var(--panel);border-radius:8px;width:100%;max-width:720px;
+  box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.modal header{position:static;border-radius:8px 8px 0 0}
+.modal .body{padding:16px}
+.modal .foot{padding:12px 16px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* ---------- print ---------- */
+@media print{
+  header,nav,.no-print{display:none!important}
+  body{background:#fff}
+  main{padding:0;max-width:none}
+  .panel{border:none;padding:0;margin:0 0 12px;break-inside:avoid}
+  .scroll{max-height:none;overflow:visible;border:none}
+  table{font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>어린이집 필요경비 원아별 정산</h1>
+  <label class="f" style="flex-direction:row;align-items:center;gap:6px">
+    회계연도
+    <select id="fyPick" style="width:110px"></select>
+  </label>
+  <span id="fyRange" class="hint"></span>
+  <span class="spacer"></span>
+  <span id="saveState"></span>
+  <button class="b" id="btnExport">JSON 백업</button>
+  <button class="b" id="btnImport">복원</button>
+  <input type="file" id="fileImport" accept="application/json" hidden>
+  <button class="b danger" id="btnReset">전체 초기화</button>
+</header>
+
+<nav id="tabs"></nav>
+
+<main>
+  <section class="panel" id="panel" hidden></section>
+</main>
+
+<div id="modalHost"></div>
+
+<script>
+"use strict";
+
+/* ==========================================================================
+   1. 상수 · 유틸
+   ========================================================================== */
+
+const LS_KEY = "nursery-settlement-v1";
+
+const GROUPS = {
+  "특별활동비":   { income: "211목", expense: "411목" },
+  "기타필요경비": { income: "221목", expense: "421목" },
+};
+
+const REFUND_ROUTES = {
+  "중간퇴소":   "622목 보호자 반환금",
+  "중간전환":   "622목 보호자 반환금",
+  "반기정산":   "622목 보호자 반환금",
+  "연말정산":   "622목 보호자 반환금",
+  "미참여":     "반납결의",
+  "과오납":     "세입 계정 직접 반납",
+};
+
+function uid(p){ return (p||"id") + "_" + Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-3); }
+function won(n){ return (Number(n)||0).toLocaleString("ko-KR"); }
+function num(v){
+  const s = String(v ?? "").replace(/[^0-9-]/g, "");
+  if (s === "" || s === "-") return 0;
+  return parseInt(s, 10);
+}
+function esc(s){
+  return String(s ?? "").replace(/[&<>"']/g, c =>
+    ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+}
+function todayISO(){
+  const d = new Date();
+  return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+}
+function el(html){
+  const t = document.createElement("template");
+  t.innerHTML = html.trim();
+  return t.content.firstElementChild;
+}
+function $(sel, root){ return (root || document).querySelector(sel); }
+function $$(sel, root){ return Array.from((root || document).querySelectorAll(sel)); }
+
+/* ---- 회계연도: 3월 1일 ~ 익년 2월 말일 ---- */
+function defaultFiscalYear(){
+  const d = new Date();
+  return d.getMonth() + 1 >= 3 ? d.getFullYear() : d.getFullYear() - 1;
+}
+function fyStart(y){ return y + "-03-01"; }
+function fyEnd(y){
+  const last = new Date(y + 1, 2, 0).getDate();   // 익년 2월 말일 (윤년 반영)
+  return (y + 1) + "-02-" + String(last).padStart(2, "0");
+}
+/** 회계연도의 12개월을 순서대로: 3~12월, 익년 1~2월 */
+function fyMonths(y){
+  const out = [];
+  for (let m = 3; m <= 12; m++) out.push({ key: y + "-" + String(m).padStart(2,"0"), label: m + "월" });
+  for (let m = 1; m <= 2; m++)  out.push({ key: (y+1) + "-" + String(m).padStart(2,"0"), label: m + "월" });
+  return out;
+}
+function halfRange(y, half){
+  return half === "H1"
+    ? { from: fyStart(y),      to: y + "-08-31",  label: "상반기(3~8월)" }
+    : { from: y + "-09-01",    to: fyEnd(y),      label: "하반기(9~익년 2월)" };
+}
+function monthKey(dateStr){ return String(dateStr || "").slice(0, 7); }
+function inRange(d, from, to){
+  if (!d) return false;
+  if (from && d < from) return false;
+  if (to   && d > to)   return false;
+  return true;
+}
+
+/* ==========================================================================
+   2. 저장소
+   ========================================================================== */
+
+let S = null;
+let saveTimer = null;
+
+function defaultItems(){
+  return [
+    { id:"it_prep",  name:"입학준비금",         group:"기타필요경비", targetMode:"fixed", enabled:true,  special:"prep",
+      note:"부모가 선택한 세부 항목만 수납 — 원아마다 금액이 다른 것이 정상" },
+    { id:"it_field", name:"현장학습비",         group:"기타필요경비", targetMode:"event", enabled:true,  note:"" },
+    { id:"it_bus",   name:"차량운행비",         group:"기타필요경비", targetMode:"fixed", enabled:true,
+      note:"인건비(120항)·차량비(215목) 우선 집행 권고" },
+    { id:"it_meal",  name:"아침·저녁급식비",    group:"기타필요경비", targetMode:"fixed", enabled:false, note:"" },
+    { id:"it_event", name:"부모부담행사비",     group:"기타필요경비", targetMode:"event", enabled:true,  yearLimit:12,
+      note:"연 12회 이내 · 운영위 사전 결정 항목만" },
+    { id:"it_local", name:"기타 시·도 특성화비", group:"기타필요경비", targetMode:"fixed", enabled:true,  note:"" },
+    { id:"it_sa",    name:"특별활동비",         group:"특별활동비",   targetMode:"fixed", enabled:true,
+      note:"과목이 여러 개면 과목별로 세목을 추가하세요" },
+  ];
+}
+
+function defaultStore(){
+  return {
+    version: 1,
+    fiscalYear: defaultFiscalYear(),
+    classes: [],
+    children: [],
+    items: defaultItems(),
+    rosters: [],
+    receipts: [],
+    consignPays: [],
+    expenses: [],
+    refunds: [],
+  };
+}
+
+function load(){
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      S = Object.assign(defaultStore(), parsed);
+      return;
+    }
+  } catch (e) {
+    console.error("저장 데이터를 읽지 못했습니다", e);
+  }
+  S = defaultStore();
+}
+
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(LS_KEY, JSON.stringify(S));
+      flagSaved("저장됨 " + new Date().toLocaleTimeString("ko-KR"));
+    } catch (e) {
+      flagSaved("저장 실패 — 브라우저 저장공간을 확인하세요", true);
+    }
+  }, 120);
+}
+function flagSaved(msg, bad){
+  const n = $("#saveState");
+  n.textContent = msg;
+  n.style.color = bad ? "var(--bad)" : "var(--faint)";
+}
+
+/* ==========================================================================
+   3. 조회 헬퍼
+   ========================================================================== */
+
+function itemById(id){ return S.items.find(i => i.id === id) || null; }
+function itemName(id){ const i = itemById(id); return i ? i.name : "(삭제된 세목)"; }
+function childById(id){ return S.children.find(c => c.id === id) || null; }
+function childName(id){ const c = childById(id); return c ? c.name : "(삭제된 원아)"; }
+function classById(id){ return S.classes.find(c => c.id === id) || null; }
+function enabledItems(){ return S.items.filter(i => i.enabled); }
+
+/** 재원 여부 — 입소일 이상, 퇴소일 이하 */
+function isEnrolled(child, date){
+  if (!child || !date) return false;
+  if (child.admitDate && date < child.admitDate) return false;
+  if (child.leaveDate && date > child.leaveDate) return false;
+  return true;
+}
+/** 재원 구간 — 명시된 것이 없으면 입·퇴소일로 일반 구간 하나를 만든다 */
+function enrollmentsOf(child){
+  if (child.enrollments && child.enrollments.length) return child.enrollments;
+  return [{ id:"auto", type:"general", startDate: child.admitDate || null, endDate: child.leaveDate || null }];
+}
+function enrollmentAt(child, date){
+  return enrollmentsOf(child).find(e => inRange(date, e.startDate, e.endDate)) || null;
+}
+function isConsign(child, date){
+  const e = enrollmentAt(child, date);
+  return !!e && e.type === "consign";
+}
+/** 해당 날짜의 반 — 반 소속 이력에서 시작일이 그날 이하인 마지막 항목 */
+function classAt(child, date){
+  const hist = (child.classHistory || []).slice().sort((a,b) => (a.startDate||"").localeCompare(b.startDate||""));
+  if (!hist.length) return null;
+  let found = null;
+  for (const h of hist) if (!h.startDate || h.startDate <= date) found = h;
+  return classById((found || hist[0]).classId);
+}
+function currentClass(child){ return classAt(child, todayISO()) || classAt(child, fyEnd(S.fiscalYear)); }
+
+/** 화면·배분 순서를 고정하는 원아 정렬 — 반 순서 → 이름 */
+function sortedChildren(list){
+  const order = new Map(S.classes.map((c, i) => [c.id, i]));
+  return (list || S.children).slice().sort((a, b) => {
+    const ca = currentClass(a), cb = currentClass(b);
+    const oa = ca ? order.get(ca.id) ?? 99 : 99;
+    const ob = cb ? order.get(cb.id) ?? 99 : 99;
+    if (oa !== ob) return oa - ob;
+    return a.name.localeCompare(b.name, "ko");
+  });
+}
+
+/* ==========================================================================
+   4. 계산 — 배분 · 잔액
+   ========================================================================== */
+
+/**
+ * 균등배분. 1인당 내림 후 나머지를 앞 순번부터 1원씩 가산해
+ * 배분 합계가 필요경비 부담분과 정확히 일치하게 만든다.
+ */
+function allocate(amount, childIds){
+  const n = childIds.length;
+  if (n === 0 || amount <= 0) return childIds.map(id => ({ childId: id, amount: 0 }));
+  const q = Math.floor(amount / n);
+  const r = amount - q * n;
+  return childIds.map((id, i) => ({ childId: id, amount: q + (i < r ? 1 : 0) }));
+}
+
+function sumReceipts(childId, itemId, from, to){
+  return S.receipts.reduce((s, r) =>
+    (r.childId === childId && r.itemId === itemId && inRange(r.date, from, to)) ? s + r.amount : s, 0);
+}
+function sumAlloc(childId, itemId, from, to){
+  let total = 0;
+  for (const ex of S.expenses) {
+    if (ex.itemId !== itemId || !inRange(ex.date, from, to)) continue;
+    for (const a of ex.allocations) if (a.childId === childId) total += a.amount;
+  }
+  return total;
+}
+function sumRefunds(childId, itemId, from, to){
+  return S.refunds.reduce((s, r) =>
+    (r.childId === childId && r.itemId === itemId && inRange(r.date, from, to)) ? s + r.amount : s, 0);
+}
+
+/** 원아 × 세목 잔액. 세목 간 상계 없음 (재무회계규칙 제15조) */
+function balance(childId, itemId, from, to){
+  const paid     = sumReceipts(childId, itemId, from, to);
+  const used     = sumAlloc(childId, itemId, from, to);
+  const refunded = sumRefunds(childId, itemId, from, to);
+  return { paid, used, refunded, left: paid - used - refunded };
+}
+
+/** 원아의 사용 건별 내역 (역추적용) */
+function usageRows(childId, itemId, from, to){
+  const rows = [];
+  for (const ex of S.expenses) {
+    if (itemId && ex.itemId !== itemId) continue;
+    if (!inRange(ex.date, from, to)) continue;
+    const a = ex.allocations.find(x => x.childId === childId);
+    if (!a || a.amount === 0) continue;
+    rows.push({ expenseId: ex.id, date: ex.date, itemId: ex.itemId, summary: ex.summary,
+                needAmount: ex.needAmount, headcount: ex.allocations.length, amount: a.amount });
+  }
+  return rows.sort((x, y) => x.date.localeCompare(y.date));
+}
+
+/** 어린이집 부담 집계 — 운영비 부담분 · 카드수수료 · 배분 단수차 */
+function centerBurden(from, to){
+  let oper = 0, fee = 0, rounding = 0;
+  for (const ex of S.expenses) {
+    if (!inRange(ex.date, from, to)) continue;
+    oper += ex.operAmount || 0;
+    fee  += ex.cardFee || 0;
+    rounding += ex.needAmount - ex.allocations.reduce((s, a) => s + a.amount, 0);
+  }
+  return { oper, fee, rounding, total: oper + fee + rounding };
+}
+
+/* ==========================================================================
+   5. 탭 골격
+   ========================================================================== */
+
+const TABS = [
+  { id:"setup",   label:"기초설정",     render:renderSetup },
+  { id:"receipt", label:"수납 입력",    render:renderReceipt },
+  { id:"expense", label:"지출 등록",    render:renderExpense },
+  { id:"child",   label:"원아별 현황",  render:renderChild },
+  { id:"check",   label:"검증",         render:renderCheck },
+];
+
+let activeTab = "setup";
+const view = {};                 // 탭별 화면 상태 (선택값 등)
+let highlightExpenseId = null;   // 역추적으로 이동해 온 지출건
+
+function renderTabs(){
+  const nav = $("#tabs");
+  nav.innerHTML = "";
+  for (const t of TABS) {
+    const b = el(`<button data-tab="${t.id}" class="${t.id === activeTab ? "on" : ""}">${esc(t.label)}</button>`);
+    b.onclick = () => { activeTab = t.id; render(); };
+    nav.appendChild(b);
+  }
+}
+
+function goTab(id){ activeTab = id; render(); }
+
+function render(){
+  renderTabs();
+  const fy = S.fiscalYear;
+  $("#fyRange").textContent = fyStart(fy) + " ~ " + fyEnd(fy);
+  const p = $("#panel");
+  p.hidden = false;
+  p.innerHTML = "";
+  (TABS.find(t => t.id === activeTab) || TABS[0]).render(p);
+}
+
+/* ==========================================================================
+   6. 기초설정
+   ========================================================================== */
+
+function renderSetup(root){
+  root.innerHTML = `
+    <h2>기초설정</h2>
+    <div class="hint">회계연도는 3월 1일부터 익년 2월 말일까지입니다. 반은 통계 단위가 아니라 원아를 빠르게 고르기 위한 도구입니다.</div>
+    <div id="secClass"></div>
+    <div id="secItem"></div>
+    <div id="secChild"></div>
+    <div id="secRoster"></div>`;
+  renderClasses($("#secClass", root));
+  renderItems($("#secItem", root));
+  renderChildren($("#secChild", root));
+  renderRosters($("#secRoster", root));
+}
+
+/* ---- 반 ---- */
+function renderClasses(root){
+  root.innerHTML = `<h3>반 구성</h3>
+    <div class="row" style="margin-bottom:8px">
+      <input id="newClass" placeholder="반 이름 (예: 새싹반)" style="width:200px">
+      <button class="b" id="addClass">반 추가</button>
+    </div>
+    <div id="classList"></div>`;
+
+  const add = () => {
+    const name = $("#newClass", root).value.trim();
+    if (!name) return;
+    S.classes.push({ id: uid("cl"), name });
+    save(); render();
+  };
+  $("#addClass", root).onclick = add;
+  $("#newClass", root).onkeydown = e => { if (e.key === "Enter") add(); };
+
+  const list = $("#classList", root);
+  if (!S.classes.length) { list.innerHTML = `<div class="empty">반이 없습니다. 먼저 반을 추가하세요.</div>`; return; }
+
+  const t = el(`<table><thead><tr>
+    <th style="width:60px">순서</th><th>반 이름</th><th class="c" style="width:90px">소속 원아</th>
+    <th class="c" style="width:170px">관리</th></tr></thead><tbody></tbody></table>`);
+  const tb = $("tbody", t);
+  S.classes.forEach((c, i) => {
+    const count = S.children.filter(ch => (ch.classHistory || []).some(h => h.classId === c.id)).length;
+    const tr = el(`<tr>
+      <td class="c">${i + 1}</td>
+      <td><input value="${esc(c.name)}" data-k="name" style="width:100%"></td>
+      <td class="c">${count}명</td>
+      <td class="c">
+        <button class="b" data-a="up" ${i === 0 ? "disabled" : ""}>↑</button>
+        <button class="b" data-a="down" ${i === S.classes.length - 1 ? "disabled" : ""}>↓</button>
+        <button class="b danger" data-a="del">삭제</button>
+      </td></tr>`);
+    $('[data-k="name"]', tr).onchange = e => { c.name = e.target.value.trim() || c.name; save(); render(); };
+    $('[data-a="up"]',   tr).onclick = () => { S.classes.splice(i-1, 0, S.classes.splice(i,1)[0]); save(); render(); };
+    $('[data-a="down"]', tr).onclick = () => { S.classes.splice(i+1, 0, S.classes.splice(i,1)[0]); save(); render(); };
+    $('[data-a="del"]',  tr).onclick = () => {
+      if (count) { alert("소속 이력이 있는 원아가 " + count + "명 있어 삭제할 수 없습니다."); return; }
+      if (!confirm(`"${c.name}"을(를) 삭제할까요?`)) return;
+      S.classes.splice(i, 1); save(); render();
+    };
+    tb.appendChild(tr);
+  });
+  list.appendChild(t);
+}
+
+/* ---- 세목 ---- */
+function renderItems(root){
+  root.innerHTML = `<h3>세목</h3>
+    <div class="hint">쓰지 않는 세목은 꺼 두세요. 모든 계산은 세목 단위이며 세목 간 합산·상계는 하지 않습니다(재무회계규칙 제15조).</div>
+    <div id="itemList" style="margin-top:8px"></div>
+    <div class="row" style="margin-top:8px">
+      <input id="newItem" placeholder="세목 추가 (예: 특별활동비-로봇과학)" style="width:260px">
+      <select id="newItemGroup">
+        <option value="기타필요경비">기타필요경비 (221목/421목)</option>
+        <option value="특별활동비">특별활동비 (211목/411목)</option>
+      </select>
+      <button class="b" id="addItem">세목 추가</button>
+    </div>`;
+
+  const t = el(`<table><thead><tr>
+    <th class="c" style="width:60px">사용</th><th>세목</th>
+    <th style="width:210px">구분</th><th style="width:150px">대상 원아 선정</th>
+    <th>비고</th><th class="c" style="width:70px"></th></tr></thead><tbody></tbody></table>`);
+  const tb = $("tbody", t);
+
+  for (const it of S.items) {
+    const g = GROUPS[it.group] || { income: "-", expense: "-" };
+    const used = S.receipts.some(r => r.itemId === it.id) || S.expenses.some(e => e.itemId === it.id);
+    const tr = el(`<tr class="${it.enabled ? "" : "out"}">
+      <td class="c"><input type="checkbox" data-k="enabled" ${it.enabled ? "checked" : ""}></td>
+      <td><input value="${esc(it.name)}" data-k="name" style="width:100%"></td>
+      <td>
+        <select data-k="group">
+          <option value="기타필요경비" ${it.group === "기타필요경비" ? "selected" : ""}>기타필요경비</option>
+          <option value="특별활동비"   ${it.group === "특별활동비"   ? "selected" : ""}>특별활동비</option>
+        </select>
+        <span class="tag">${g.income} / ${g.expense}</span>
+      </td>
+      <td><select data-k="targetMode">
+        <option value="fixed" ${it.targetMode === "fixed" ? "selected" : ""}>고정 명단</option>
+        <option value="event" ${it.targetMode === "event" ? "selected" : ""}>건별 체크</option>
+      </select></td>
+      <td><input value="${esc(it.note || "")}" data-k="note" style="width:100%" placeholder="—"></td>
+      <td class="c"><button class="b danger" data-a="del" ${used ? "disabled" : ""}>삭제</button></td>
+    </tr>`);
+    $('[data-k="enabled"]',    tr).onchange = e => { it.enabled = e.target.checked; save(); render(); };
+    $('[data-k="name"]',       tr).onchange = e => { it.name = e.target.value.trim() || it.name; save(); render(); };
+    $('[data-k="group"]',      tr).onchange = e => { it.group = e.target.value; save(); render(); };
+    $('[data-k="targetMode"]', tr).onchange = e => { it.targetMode = e.target.value; save(); render(); };
+    $('[data-k="note"]',       tr).onchange = e => { it.note = e.target.value; save(); };
+    $('[data-a="del"]',        tr).onclick  = () => {
+      if (!confirm(`세목 "${it.name}"을(를) 삭제할까요?`)) return;
+      S.items = S.items.filter(x => x.id !== it.id); save(); render();
+    };
+    tb.appendChild(tr);
+  }
+  $("#itemList", root).appendChild(t);
+
+  $("#addItem", root).onclick = () => {
+    const name = $("#newItem", root).value.trim();
+    if (!name) return;
+    S.items.push({ id: uid("it"), name, group: $("#newItemGroup", root).value,
+                   targetMode: "fixed", enabled: true, note: "" });
+    save(); render();
+  };
+}
+
+/* ---- 원아 명부 ---- */
+function renderChildren(root){
+  const showLeft = view.showLeft !== false;
+  root.innerHTML = `<h3>원아 명부</h3>
+    <div class="row" style="margin-bottom:8px">
+      <button class="b pri" id="addChild">원아 추가</button>
+      <label class="f" style="flex-direction:row;align-items:center;gap:6px;font-size:13px;color:var(--ink)">
+        <input type="checkbox" id="showLeft" ${showLeft ? "checked" : ""}> 퇴소 원아도 표시
+      </label>
+      <span class="grow"></span>
+      <span class="hint">재원 ${S.children.filter(c => isEnrolled(c, todayISO())).length}명 / 전체 ${S.children.length}명</span>
+    </div>
+    <div id="childList"></div>`;
+
+  $("#addChild", root).onclick = () => openChildModal(null);
+  $("#showLeft", root).onchange = e => { view.showLeft = e.target.checked; render(); };
+
+  const list = $("#childList", root);
+  const rows = sortedChildren().filter(c => showLeft || !c.leaveDate || c.leaveDate >= todayISO());
+  if (!rows.length) { list.innerHTML = `<div class="empty">원아가 없습니다.</div>`; return; }
+
+  const t = el(`<table><thead><tr>
+    <th class="c" style="width:50px">순번</th><th style="width:120px">성명</th><th style="width:110px">반</th>
+    <th class="c" style="width:110px">입소일</th><th class="c" style="width:110px">퇴소일</th>
+    <th class="c" style="width:90px">재원</th><th>비고</th>
+    <th class="c" style="width:120px"></th></tr></thead><tbody></tbody></table>`);
+  const tb = $("tbody", t);
+  rows.forEach((c, i) => {
+    const cls = currentClass(c);
+    const consign = isConsign(c, todayISO()) || enrollmentsOf(c).some(e => e.type === "consign");
+    const out = !isEnrolled(c, todayISO());
+    const tr = el(`<tr class="${out ? "out" : ""}">
+      <td class="c">${i + 1}</td>
+      <td><b>${esc(c.name)}</b></td>
+      <td>${cls ? esc(cls.name) : '<span class="hint">미지정</span>'}</td>
+      <td class="c">${esc(c.admitDate || "-")}</td>
+      <td class="c">${esc(c.leaveDate || "-")}</td>
+      <td class="c">${consign ? '<span class="tag consign">위탁</span>' : '<span class="tag">일반</span>'}</td>
+      <td>${esc(c.memo || "")}</td>
+      <td class="c">
+        <button class="b" data-a="edit">편집</button>
+        <button class="b danger" data-a="del">삭제</button>
+      </td></tr>`);
+    $('[data-a="edit"]', tr).onclick = () => openChildModal(c.id);
+    $('[data-a="del"]',  tr).onclick = () => {
+      const hits = S.receipts.filter(r => r.childId === c.id).length
+                 + S.expenses.filter(e => e.allocations.some(a => a.childId === c.id)).length;
+      if (hits) { alert(`"${c.name}"의 수납·배분 기록이 ${hits}건 있어 삭제할 수 없습니다.\n퇴소일을 입력해 주세요.`); return; }
+      if (!confirm(`"${c.name}"을(를) 삭제할까요?`)) return;
+      S.children = S.children.filter(x => x.id !== c.id); save(); render();
+    };
+    tb.appendChild(tr);
+  });
+  list.appendChild(t);
+}
+
+/* ---- 고정 명단 ---- */
+function renderRosters(root){
+  root.innerHTML = `<h3>고정 명단</h3>
+    <div class="hint">특별활동 과목별 참여자, 차량 이용 원아, 원복 신청 원아처럼 반복해서 쓰는 명단을 만들어 두면 지출 등록에서 한 번에 불러올 수 있습니다. 불러온 뒤 그 자리에서 빼거나 더할 수 있습니다.</div>
+    <div class="row" style="margin:8px 0">
+      <input id="newRoster" placeholder="명단 이름 (예: 차량 이용 원아)" style="width:240px">
+      <button class="b" id="addRoster">명단 추가</button>
+    </div>
+    <div id="rosterList"></div>`;
+
+  $("#addRoster", root).onclick = () => {
+    const name = $("#newRoster", root).value.trim();
+    if (!name) return;
+    const r = { id: uid("rs"), name, itemId: null, childIds: [] };
+    S.rosters.push(r); save(); render(); openRosterModal(r.id);
+  };
+
+  const list = $("#rosterList", root);
+  if (!S.rosters.length) { list.innerHTML = `<div class="empty">고정 명단이 없습니다.</div>`; return; }
+
+  const t = el(`<table><thead><tr>
+    <th>명단</th><th style="width:220px">연결 세목</th><th class="c" style="width:80px">인원</th>
+    <th class="c" style="width:130px"></th></tr></thead><tbody></tbody></table>`);
+  const tb = $("tbody", t);
+  for (const r of S.rosters) {
+    const opts = ['<option value="">— 전체 세목 —</option>']
+      .concat(S.items.map(i => `<option value="${i.id}" ${r.itemId === i.id ? "selected" : ""}>${esc(i.name)}</option>`)).join("");
+    const tr = el(`<tr>
+      <td><input value="${esc(r.name)}" data-k="name" style="width:100%"></td>
+      <td><select data-k="item" style="width:100%">${opts}</select></td>
+      <td class="c">${r.childIds.length}명</td>
+      <td class="c">
+        <button class="b" data-a="edit">명단 편집</button>
+        <button class="b danger" data-a="del">삭제</button>
+      </td></tr>`);
+    $('[data-k="name"]', tr).onchange = e => { r.name = e.target.value.trim() || r.name; save(); render(); };
+    $('[data-k="item"]', tr).onchange = e => { r.itemId = e.target.value || null; save(); render(); };
+    $('[data-a="edit"]', tr).onclick  = () => openRosterModal(r.id);
+    $('[data-a="del"]',  tr).onclick  = () => {
+      if (!confirm(`명단 "${r.name}"을(를) 삭제할까요?`)) return;
+      S.rosters = S.rosters.filter(x => x.id !== r.id); save(); render();
+    };
+    tb.appendChild(tr);
+  }
+  list.appendChild(t);
+}
+
+/* ==========================================================================
+   7. 원아 편집 모달
+   ========================================================================== */
+
+function openChildModal(childId){
+  const isNew = !childId;
+  const c = isNew
+    ? { id: uid("ch"), name: "", admitDate: fyStart(S.fiscalYear), leaveDate: "", memo: "",
+        classHistory: [], enrollments: [] }
+    : JSON.parse(JSON.stringify(childById(childId)));
+
+  if (!c.classHistory) c.classHistory = [];
+  if (!c.enrollments)  c.enrollments  = [];
+
+  const body = el(`<div>
+    <div class="grid3">
+      <label class="f">성명<input id="m_name" value="${esc(c.name)}"></label>
+      <label class="f">입소일<input type="date" id="m_admit" value="${esc(c.admitDate || "")}"></label>
+      <label class="f">퇴소일 (재원 중이면 비움)<input type="date" id="m_leave" value="${esc(c.leaveDate || "")}"></label>
+    </div>
+    <label class="f" style="margin-top:10px">비고<input id="m_memo" value="${esc(c.memo || "")}"></label>
+
+    <h3>반 소속 이력</h3>
+    <div class="hint">반 이동은 <b>이동일만 기록</b>하면 그 전후가 자동으로 나뉩니다.</div>
+    <div id="m_classes" style="margin-top:6px"></div>
+    <button class="b" id="m_addClass" style="margin-top:6px">반 이력 추가</button>
+
+    <h3>재원 구간</h3>
+    <div class="hint">보호자가 취직해 위탁보육으로 바뀌면 그 날짜로 새 구간을 시작하세요. 지출일이 속한 구간의 재원 유형에 따라 정산 방법이 갈립니다.</div>
+    <div id="m_enrolls" style="margin-top:6px"></div>
+    <button class="b" id="m_addEnroll" style="margin-top:6px">재원 구간 추가</button>
+  </div>`);
+
+  function drawClasses(){
+    const host = $("#m_classes", body);
+    host.innerHTML = "";
+    if (!S.classes.length) { host.innerHTML = `<div class="hint">먼저 기초설정에서 반을 추가하세요.</div>`; return; }
+    if (!c.classHistory.length) { host.innerHTML = `<div class="hint">이력이 없습니다.</div>`; return; }
+    const t = el(`<table><thead><tr><th style="width:200px">반</th><th style="width:160px">시작일</th>
+      <th class="c" style="width:70px"></th></tr></thead><tbody></tbody></table>`);
+    const tb = $("tbody", t);
+    c.classHistory.forEach((h, i) => {
+      const opts = S.classes.map(cl => `<option value="${cl.id}" ${h.classId === cl.id ? "selected" : ""}>${esc(cl.name)}</option>`).join("");
+      const tr = el(`<tr>
+        <td><select style="width:100%">${opts}</select></td>
+        <td><input type="date" value="${esc(h.startDate || "")}" style="width:100%"></td>
+        <td class="c"><button class="b danger">삭제</button></td></tr>`);
+      $("select", tr).onchange = e => { h.classId = e.target.value; };
+      $("input",  tr).onchange = e => { h.startDate = e.target.value; };
+      $("button", tr).onclick  = () => { c.classHistory.splice(i, 1); drawClasses(); };
+      tb.appendChild(tr);
+    });
+    host.appendChild(t);
+  }
+
+  function drawEnrolls(){
+    const host = $("#m_enrolls", body);
+    host.innerHTML = "";
+    if (!c.enrollments.length) {
+      host.innerHTML = `<div class="hint">구간을 지정하지 않으면 입소일~퇴소일 전체가 <b>일반</b> 재원으로 처리됩니다.</div>`;
+      return;
+    }
+    const t = el(`<table><thead><tr><th style="width:110px">유형</th><th style="width:140px">시작일</th>
+      <th style="width:140px">종료일</th><th>사업장</th><th class="c" style="width:70px"></th></tr></thead><tbody></tbody></table>`);
+    const tb = $("tbody", t);
+    c.enrollments.forEach((en, i) => {
+      const tr = el(`<tr>
+        <td><select style="width:100%">
+          <option value="general" ${en.type === "general" ? "selected" : ""}>일반</option>
+          <option value="consign" ${en.type === "consign" ? "selected" : ""}>위탁</option>
+        </select></td>
+        <td><input type="date" data-k="s" value="${esc(en.startDate || "")}" style="width:100%"></td>
+        <td><input type="date" data-k="e" value="${esc(en.endDate || "")}" style="width:100%"></td>
+        <td><input data-k="emp" value="${esc(en.employer || "")}" placeholder="위탁 사업장" style="width:100%"></td>
+        <td class="c"><button class="b danger">삭제</button></td></tr>`);
+      $("select", tr).onchange        = e => { en.type = e.target.value; };
+      $('[data-k="s"]', tr).onchange  = e => { en.startDate = e.target.value; };
+      $('[data-k="e"]', tr).onchange  = e => { en.endDate = e.target.value || null; };
+      $('[data-k="emp"]', tr).onchange= e => { en.employer = e.target.value; };
+      $("button", tr).onclick         = () => { c.enrollments.splice(i, 1); drawEnrolls(); };
+      tb.appendChild(tr);
+    });
+    host.appendChild(t);
+  }
+
+  drawClasses(); drawEnrolls();
+  $("#m_addClass",  body).onclick = () => {
+    if (!S.classes.length) { alert("먼저 기초설정에서 반을 추가하세요."); return; }
+    c.classHistory.push({ classId: S.classes[0].id, startDate: $("#m_admit", body).value || fyStart(S.fiscalYear) });
+    drawClasses();
+  };
+  $("#m_addEnroll", body).onclick = () => {
+    c.enrollments.push({ id: uid("en"), type: "general",
+      startDate: $("#m_admit", body).value || fyStart(S.fiscalYear), endDate: null, employer: "" });
+    drawEnrolls();
+  };
+
+  openModal(isNew ? "원아 추가" : "원아 편집", body, () => {
+    const name = $("#m_name", body).value.trim();
+    if (!name) { alert("성명을 입력하세요."); return false; }
+    c.name = name;
+    c.admitDate = $("#m_admit", body).value;
+    c.leaveDate = $("#m_leave", body).value || "";
+    c.memo = $("#m_memo", body).value;
+    if (c.leaveDate && c.admitDate && c.leaveDate < c.admitDate) { alert("퇴소일이 입소일보다 빠릅니다."); return false; }
+    if (isNew) S.children.push(c);
+    else S.children = S.children.map(x => x.id === c.id ? c : x);
+    save(); render();
+    return true;
+  });
+}
+
+/* ---- 고정 명단 편집 모달 ---- */
+function openRosterModal(rosterId){
+  const r = S.rosters.find(x => x.id === rosterId);
+  if (!r) return;
+  const picked = new Set(r.childIds);
+  const body = el(`<div>
+    <div class="hint">이 명단에 들어갈 원아를 고르세요. 지출 등록에서 이 명단을 불러온 뒤 그 건에서만 빼거나 더할 수 있습니다.</div>
+    <div id="pk" style="margin-top:8px"></div>
+  </div>`);
+  buildPicker($("#pk", body), { selected: picked, date: null });
+  openModal("명단 편집 — " + r.name, body, () => {
+    r.childIds = sortedChildren().filter(c => picked.has(c.id)).map(c => c.id);
+    save(); render();
+    return true;
+  });
+}
+
+/* ==========================================================================
+   8. 원아 선택기
+   ========================================================================== */
+
+/**
+ * 반별로 묶인 체크박스 그리드.
+ * date를 주면 그날 재원기간 밖 원아는 선택할 수 없게 잠근다.
+ */
+function buildPicker(host, opts){
+  const selected = opts.selected;
+  const date = opts.date || null;
+  const onChange = opts.onChange || (() => {});
+
+  host.innerHTML = `
+    <div class="row no-print" style="margin-bottom:6px">
+      <button class="b" data-a="all">전체 선택</button>
+      <button class="b" data-a="none">전체 해제</button>
+      <span class="grow"></span>
+      <span class="hint" data-r="count"></span>
+    </div>
+    <div class="picker" data-r="body"></div>`;
+
+  const bodyEl = $('[data-r="body"]', host);
+  const countEl = $('[data-r="count"]', host);
+
+  function selectable(c){ return !date || isEnrolled(c, date); }
+
+  function refresh(){
+    const n = sortedChildren().filter(c => selected.has(c.id)).length;
+    countEl.textContent = "선택 " + n + "명";
+    onChange();
+  }
+
+  function draw(){
+    bodyEl.innerHTML = "";
+    const groups = S.classes.map(cl => ({ cl, list: [] }));
+    const noClass = { cl: null, list: [] };
+    for (const c of sortedChildren()) {
+      const cls = date ? classAt(c, date) : currentClass(c);
+      const g = cls ? groups.find(x => x.cl.id === cls.id) : null;
+      (g || noClass).list.push(c);
+    }
+    const all = groups.concat(noClass.list.length ? [noClass] : []);
+    if (!all.some(g => g.list.length)) { bodyEl.innerHTML = `<div class="empty">원아가 없습니다.</div>`; return; }
+
+    for (const g of all) {
+      if (!g.list.length) continue;
+      const box = el(`<div class="pk-class">
+        <div class="pk-head">
+          <span>${g.cl ? esc(g.cl.name) : "반 미지정"}</span>
+          <button class="b" style="padding:2px 8px;font-size:11px" data-a="g-all">이 반 전체</button>
+          <button class="b" style="padding:2px 8px;font-size:11px" data-a="g-none">해제</button>
+        </div>
+        <div class="pk-list"></div></div>`);
+      const listEl = $(".pk-list", box);
+      for (const c of g.list) {
+        const ok = selectable(c);
+        const reason = !ok ? (date < (c.admitDate || "") ? "입소 전" : "퇴소 후") : "";
+        const item = el(`<label class="pk-item ${ok ? "" : "dis"}" title="${esc(reason)}">
+          <input type="checkbox" ${selected.has(c.id) ? "checked" : ""} ${ok ? "" : "disabled"}>
+          <span>${esc(c.name)}</span>
+          ${date && isConsign(c, date) ? '<span class="tag consign">위탁</span>' : ""}
+          ${ok ? "" : `<span class="tag">${esc(reason)}</span>`}
+        </label>`);
+        $("input", item).onchange = e => {
+          if (e.target.checked) selected.add(c.id); else selected.delete(c.id);
+          refresh();
+        };
+        listEl.appendChild(item);
+      }
+      $('[data-a="g-all"]',  box).onclick = () => { g.list.filter(selectable).forEach(c => selected.add(c.id)); draw(); refresh(); };
+      $('[data-a="g-none"]', box).onclick = () => { g.list.forEach(c => selected.delete(c.id)); draw(); refresh(); };
+      bodyEl.appendChild(box);
+    }
+  }
+
+  $('[data-a="all"]',  host).onclick = () => { S.children.filter(selectable).forEach(c => selected.add(c.id)); draw(); refresh(); };
+  $('[data-a="none"]', host).onclick = () => { selected.clear(); draw(); refresh(); };
+
+  draw(); refresh();
+  return { redraw: () => { draw(); refresh(); } };
+}
+
+/* ==========================================================================
+   9. 수납 입력
+   ========================================================================== */
+
+function renderReceipt(root){
+  const items = enabledItems();
+  if (!items.length) { root.innerHTML = `<div class="empty">사용 중인 세목이 없습니다. 기초설정에서 세목을 켜 주세요.</div>`; return; }
+  if (!S.children.length) { root.innerHTML = `<div class="empty">원아가 없습니다. 기초설정에서 원아를 등록하세요.</div>`; return; }
+
+  const v = view.receipt = Object.assign({ itemId: items[0].id, date: todayISO(), base: 0 }, view.receipt || {});
+  if (!items.some(i => i.id === v.itemId)) v.itemId = items[0].id;
+
+  root.innerHTML = `
+    <h2>수납 입력</h2>
+    <div class="hint">세목과 수납일을 고른 뒤 기준금액을 일괄 적용하고 원아별로 고치면 됩니다.
+      피복류처럼 부모가 선택한 세부 항목만 수납하는 경우, 미선택 원아는 <b>0원으로 두면</b> 기록이 생기지 않습니다.
+      중간입소 원아의 비례 수납액도 그 자리에서 고쳐 넣으세요.</div>
+
+    <div class="row" style="margin:12px 0">
+      <label class="f">세목<select id="r_item" style="width:220px">
+        ${items.map(i => `<option value="${i.id}" ${i.id === v.itemId ? "selected" : ""}>${esc(i.name)}</option>`).join("")}
+      </select></label>
+      <label class="f">수납일<input type="date" id="r_date" value="${esc(v.date)}"></label>
+      <label class="f">기준금액<input class="money" id="r_base" value="${won(v.base)}" style="width:120px"></label>
+      <button class="b" id="r_apply">재원 원아에게 일괄 적용</button>
+      <button class="b" id="r_clear">전체 0원</button>
+      <span class="grow"></span>
+      <button class="b pri" id="r_save">수납 저장</button>
+    </div>
+    <div id="r_note"></div>
+    <div class="scroll"><div id="r_grid"></div></div>
+
+    <h3>수납 내역</h3>
+    <div id="r_list"></div>`;
+
+  $("#r_item", root).onchange = e => { v.itemId = e.target.value; render(); };
+  $("#r_date", root).onchange = e => { v.date = e.target.value; render(); };
+  $("#r_base", root).onchange = e => { v.base = num(e.target.value); e.target.value = won(v.base); };
+
+  const it = itemById(v.itemId);
+  if (it && it.note) $("#r_note", root).innerHTML = `<div class="note">${esc(it.name)} — ${esc(it.note)}</div>`;
+
+  /* 이미 저장된 같은 (세목·수납일) 기록을 불러와 편집 가능하게 만든다 */
+  const draft = new Map();
+  for (const r of S.receipts) {
+    if (r.itemId === v.itemId && r.date === v.date) draft.set(r.childId, { amount: r.amount, memo: r.memo || "" });
+  }
+
+  const gridHost = $("#r_grid", root);
+  function drawGrid(){
+    const rows = sortedChildren();
+    const t = el(`<table><thead><tr>
+      <th class="c" style="width:50px">순번</th><th style="width:120px">성명</th><th style="width:110px">반</th>
+      <th class="c" style="width:80px">재원</th><th class="n" style="width:130px">수납액</th><th>비고</th>
+    </tr></thead><tbody></tbody></table>`);
+    const tb = $("tbody", t);
+    rows.forEach((c, i) => {
+      const enrolled = isEnrolled(c, v.date);
+      const d = draft.get(c.id) || { amount: 0, memo: "" };
+      const cls = classAt(c, v.date) || currentClass(c);
+      const tr = el(`<tr class="${enrolled ? "" : "out"}">
+        <td class="c">${i + 1}</td>
+        <td><b>${esc(c.name)}</b></td>
+        <td>${cls ? esc(cls.name) : "-"}</td>
+        <td class="c">${enrolled ? (isConsign(c, v.date) ? '<span class="tag consign">위탁</span>' : '<span class="tag">일반</span>')
+                                  : '<span class="tag">재원 밖</span>'}</td>
+        <td class="n"><input class="money" value="${won(d.amount)}" style="width:110px"></td>
+        <td><input value="${esc(d.memo)}" style="width:100%" placeholder="—"></td>
+      </tr>`);
+      const amtEl = $("input.money", tr);
+      amtEl.onchange = e => {
+        const val = num(e.target.value);
+        e.target.value = won(val);
+        draft.set(c.id, { amount: val, memo: $$("input", tr)[1].value });
+        drawTotal();
+      };
+      $$("input", tr)[1].onchange = e => {
+        const cur = draft.get(c.id) || { amount: 0 };
+        draft.set(c.id, { amount: cur.amount, memo: e.target.value });
+      };
+      tb.appendChild(tr);
+    });
+    const foot = el(`<tr class="sum"><td colspan="4" class="c">합계</td>
+      <td class="n" id="r_total"></td><td></td></tr>`);
+    tb.appendChild(foot);
+    gridHost.innerHTML = "";
+    gridHost.appendChild(t);
+    drawTotal();
+  }
+  function drawTotal(){
+    let sum = 0, n = 0;
+    draft.forEach(d => { if (d.amount > 0) { sum += d.amount; n++; } });
+    const cell = $("#r_total", gridHost);
+    if (cell) cell.textContent = won(sum) + "원 (" + n + "명)";
+  }
+  drawGrid();
+
+  $("#r_apply", root).onclick = () => {
+    const base = num($("#r_base", root).value);
+    for (const c of S.children) if (isEnrolled(c, v.date)) {
+      const cur = draft.get(c.id) || { memo: "" };
+      draft.set(c.id, { amount: base, memo: cur.memo || "" });
+    }
+    v.base = base; drawGrid();
+  };
+  $("#r_clear", root).onclick = () => { draft.forEach((d, k) => draft.set(k, { amount: 0, memo: d.memo })); drawGrid(); };
+
+  $("#r_save", root).onclick = () => {
+    if (!v.date) { alert("수납일을 입력하세요."); return; }
+    S.receipts = S.receipts.filter(r => !(r.itemId === v.itemId && r.date === v.date));
+    let saved = 0;
+    for (const c of sortedChildren()) {
+      const d = draft.get(c.id);
+      if (!d || d.amount === 0) continue;
+      S.receipts.push({ id: uid("rc"), childId: c.id, itemId: v.itemId, date: v.date, amount: d.amount, memo: d.memo || "" });
+      saved++;
+    }
+    save(); render();
+    alert(`${itemName(v.itemId)} ${v.date} 수납 ${saved}건을 저장했습니다.`);
+  };
+
+  renderReceiptList($("#r_list", root));
+}
+
+function renderReceiptList(host){
+  const fy = S.fiscalYear, from = fyStart(fy), to = fyEnd(fy);
+  const rows = S.receipts.filter(r => inRange(r.date, from, to))
+    .sort((a, b) => b.date.localeCompare(a.date) || childName(a.childId).localeCompare(childName(b.childId), "ko"));
+  if (!rows.length) { host.innerHTML = `<div class="empty">이 회계연도의 수납 기록이 없습니다.</div>`; return; }
+
+  const byKey = new Map();
+  for (const r of rows) {
+    const k = r.itemId + "|" + r.date;
+    if (!byKey.has(k)) byKey.set(k, { itemId: r.itemId, date: r.date, n: 0, sum: 0 });
+    const g = byKey.get(k); g.n++; g.sum += r.amount;
+  }
+  const t = el(`<table><thead><tr>
+    <th class="c" style="width:110px">수납일</th><th style="width:200px">세목</th>
+    <th class="c" style="width:90px">인원</th><th class="n" style="width:140px">수납 합계</th>
+    <th class="c" style="width:150px"></th></tr></thead><tbody></tbody></table>`);
+  const tb = $("tbody", t);
+  let total = 0;
+  for (const g of Array.from(byKey.values()).sort((a, b) => b.date.localeCompare(a.date))) {
+    total += g.sum;
+    const tr = el(`<tr>
+      <td class="c">${esc(g.date)}</td><td>${esc(itemName(g.itemId))}</td>
+      <td class="c">${g.n}명</td><td class="n">${won(g.sum)}</td>
+      <td class="c">
+        <button class="b" data-a="open">불러와 수정</button>
+        <button class="b danger" data-a="del">삭제</button>
+      </td></tr>`);
+    $('[data-a="open"]', tr).onclick = () => {
+      view.receipt = Object.assign(view.receipt || {}, { itemId: g.itemId, date: g.date });
+      render(); window.scrollTo(0, 0);
+    };
+    $('[data-a="del"]', tr).onclick = () => {
+      if (!confirm(`${itemName(g.itemId)} ${g.date} 수납 ${g.n}건을 삭제할까요?`)) return;
+      S.receipts = S.receipts.filter(r => !(r.itemId === g.itemId && r.date === g.date));
+      save(); render();
+    };
+    tb.appendChild(tr);
+  }
+  tb.appendChild(el(`<tr class="sum"><td colspan="3" class="c">회계연도 수납 합계</td>
+    <td class="n">${won(total)}</td><td></td></tr>`));
+  host.innerHTML = "";
+  host.appendChild(t);
+}
+
+/* ==========================================================================
+   10. 지출 등록 — 대장을 채우는 유일한 지점
+   ========================================================================== */
+
+function renderExpense(root){
+  const items = enabledItems();
+  if (!items.length) { root.innerHTML = `<div class="empty">사용 중인 세목이 없습니다.</div>`; return; }
+  if (!S.children.length) { root.innerHTML = `<div class="empty">원아가 없습니다. 기초설정에서 원아를 등록하세요.</div>`; return; }
+
+  const editing = view.expenseEditId ? S.expenses.find(e => e.id === view.expenseEditId) : null;
+  const f = view.expenseForm = editing
+    ? { date: editing.date, itemId: editing.itemId, summary: editing.summary, total: editing.total,
+        needAmount: editing.needAmount, cardFee: editing.cardFee || 0, memo: editing.memo || "",
+        targets: new Set(editing.allocations.map(a => a.childId)) }
+    : Object.assign({ date: todayISO(), itemId: items[0].id, summary: "", total: 0, needAmount: 0,
+                      cardFee: 0, memo: "", targets: new Set() },
+                    view.expenseForm && view.expenseForm.keep ? view.expenseForm : {});
+  if (!(f.targets instanceof Set)) f.targets = new Set(f.targets || []);
+  if (!items.some(i => i.id === f.itemId)) f.itemId = items[0].id;
+  delete f.keep;
+
+  root.innerHTML = `
+    <h2>지출 등록 ${editing ? '<span class="tag ev">수정 중</span>' : ""}</h2>
+    <div class="hint">지출결의서 1건을 그대로 옮겨 적고 대상 원아를 지정하면 개인별 대장·정산서·보고서가 모두 여기서 파생됩니다.
+      적요에 <b>인원수만</b> 남기는 대신 <b>명단</b>이 저장되므로, 담당자가 바뀌어도 계산 근거가 남습니다.</div>
+
+    <div class="row" style="margin:12px 0">
+      <label class="f">지출일<input type="date" id="e_date" value="${esc(f.date)}"></label>
+      <label class="f">세목<select id="e_item" style="width:200px">
+        ${items.map(i => `<option value="${i.id}" ${i.id === f.itemId ? "selected" : ""}>${esc(i.name)}</option>`).join("")}
+      </select></label>
+      <label class="f grow">적요<input id="e_summary" value="${esc(f.summary)}" placeholder="예: 곰돌이 상하세트 구입"></label>
+    </div>
+    <div class="row">
+      <label class="f">지출결의서 총액<input class="money" id="e_total" value="${won(f.total)}" style="width:130px"></label>
+      <label class="f">필요경비 부담분<input class="money" id="e_need" value="${won(f.needAmount)}" style="width:130px"></label>
+      <button class="b" id="e_allNeed" style="margin-bottom:1px">전액 필요경비</button>
+      <label class="f">카드수수료<input class="money" id="e_fee" value="${won(f.cardFee)}" style="width:110px"></label>
+      <label class="f">운영비 부담분 (자동)<input class="money" id="e_oper" readonly style="width:130px"></label>
+      <label class="f grow">비고<input id="e_memo" value="${esc(f.memo || "")}"></label>
+    </div>
+    <div id="e_split"></div>
+
+    <h3>대상 원아</h3>
+    <div class="row" style="margin-bottom:6px">
+      <select id="e_roster" style="width:240px"></select>
+      <button class="b" id="e_loadRoster">명단 불러오기</button>
+      <button class="b" id="e_addRoster">명단 더하기</button>
+      <span class="grow"></span>
+      <button class="b" id="e_saveRoster">현재 선택을 고정 명단으로 저장</button>
+    </div>
+    <div id="e_pick"></div>
+    <div id="e_preview" style="margin-top:12px"></div>
+
+    <div class="row" style="margin-top:12px">
+      <button class="b pri" id="e_save">${editing ? "수정 저장" : "지출 등록"}</button>
+      ${editing ? '<button class="b" id="e_cancel">수정 취소</button>' : ""}
+      <span class="grow"></span>
+      <span class="hint" id="e_guard"></span>
+    </div>
+
+    <h3>지출 내역</h3>
+    <div id="e_list"></div>`;
+
+  const gEl = {
+    date: $("#e_date", root), item: $("#e_item", root), summary: $("#e_summary", root),
+    total: $("#e_total", root), need: $("#e_need", root), fee: $("#e_fee", root),
+    oper: $("#e_oper", root), memo: $("#e_memo", root),
+  };
+
+  gEl.date.onchange = e => { f.date = e.target.value; f.keep = true; render(); };
+  gEl.item.onchange = e => { f.itemId = e.target.value; f.keep = true; render(); };
+  gEl.summary.oninput = e => { f.summary = e.target.value; };
+  gEl.memo.oninput = e => { f.memo = e.target.value; };
+  gEl.total.onchange = e => { f.total = num(e.target.value); e.target.value = won(f.total); syncSplit(); };
+  gEl.need.onchange  = e => { f.needAmount = num(e.target.value); e.target.value = won(f.needAmount); syncSplit(); };
+  gEl.fee.onchange   = e => { f.cardFee = num(e.target.value); e.target.value = won(f.cardFee); syncSplit(); };
+  $("#e_allNeed", root).onclick = () => {
+    f.needAmount = Math.max(0, f.total - f.cardFee);
+    gEl.need.value = won(f.needAmount); syncSplit();
+  };
+
+  const it = itemById(f.itemId);
+  const splitHost = $("#e_split", root);
+  function operAmount(){ return f.total - f.needAmount - f.cardFee; }
+  function syncSplit(){
+    const oper = operAmount();
+    gEl.oper.value = won(oper);
+    const msgs = [];
+    if (it && it.note) msgs.push(`<div class="note">${esc(it.name)} — ${esc(it.note)}</div>`);
+    if (oper < 0) {
+      msgs.push(`<div class="note bad">필요경비 부담분 + 카드수수료가 지출결의서 총액을 넘습니다. 금액을 확인하세요.</div>`);
+    } else if (f.cardFee > 0) {
+      msgs.push(`<div class="note">카드수수료 ${won(f.cardFee)}원은 어린이집 부담으로 잡히며 원아 잔액에서 차감하지 않습니다. (재무회계 매뉴얼 19p)</div>`);
+    }
+    splitHost.innerHTML = msgs.join("");
+    drawPreview();
+  }
+
+  /* 배분 미리보기 */
+  function targetIds(){ return sortedChildren().filter(c => f.targets.has(c.id)).map(c => c.id); }
+  function drawPreview(){
+    const prev = $("#e_preview", root);
+    const guard = $("#e_guard", root);
+    const btn = $("#e_save", root);
+    const ids = targetIds();
+    const n = ids.length;
+    const A = f.needAmount;
+
+    if (n === 0) {
+      prev.innerHTML = `<div class="note warn">대상 원아를 지정해야 저장할 수 있습니다.</div>`;
+      guard.textContent = "저장 차단 — 대상 원아 미지정";
+      btn.disabled = true; return;
+    }
+    if (operAmount() < 0) {
+      prev.innerHTML = `<div class="note bad">금액 구성이 맞지 않아 저장할 수 없습니다.</div>`;
+      guard.textContent = "저장 차단 — 금액 구성 오류";
+      btn.disabled = true; return;
+    }
+
+    const alloc = allocate(A, ids);
+    const sum = alloc.reduce((s, a) => s + a.amount, 0);
+    const q = Math.floor(A / n), r = A - q * n;
+    const outside = ids.filter(id => !isEnrolled(childById(id), f.date));
+
+    prev.innerHTML = `
+      <div class="note ${sum === A ? "ok" : "bad"}">
+        대상 <b>${n}명</b> · 1인당 <b>${won(q)}원</b>${r > 0 ? ` (앞 순번 ${r}명은 ${won(q + 1)}원)` : ""}
+        · 배분 합계 <b>${won(sum)}원</b> ${sum === A ? "= 필요경비 부담분 ✓" : "≠ 필요경비 부담분 ✗"}
+      </div>
+      ${outside.length ? `<div class="note bad">재원기간 밖 원아가 ${outside.length}명 포함되어 있습니다: ${outside.map(id => esc(childName(id))).join(", ")}</div>` : ""}
+      <div class="hint">적요에 남는 형태 — <b>${esc(f.summary || "(적요)")} (${n}명 × ${won(q)}${r > 0 ? "~" + won(q + 1) : ""})</b></div>`;
+
+    const bad = sum !== A || outside.length > 0;
+    guard.textContent = bad ? "저장 차단 — 위 경고를 해소하세요" : "";
+    btn.disabled = bad;
+  }
+
+  /* 고정 명단 */
+  const rosterSel = $("#e_roster", root);
+  const usable = S.rosters.filter(r => !r.itemId || r.itemId === f.itemId);
+  rosterSel.innerHTML = usable.length
+    ? usable.map(r => `<option value="${r.id}">${esc(r.name)} (${r.childIds.length}명)</option>`).join("")
+    : `<option value="">— 저장된 명단 없음 —</option>`;
+
+  const picker = buildPicker($("#e_pick", root), { selected: f.targets, date: f.date, onChange: () => drawPreview() });
+
+  $("#e_loadRoster", root).onclick = () => {
+    const r = S.rosters.find(x => x.id === rosterSel.value);
+    if (!r) return;
+    f.targets.clear();
+    r.childIds.forEach(id => { const c = childById(id); if (c && isEnrolled(c, f.date)) f.targets.add(id); });
+    picker.redraw();
+  };
+  $("#e_addRoster", root).onclick = () => {
+    const r = S.rosters.find(x => x.id === rosterSel.value);
+    if (!r) return;
+    r.childIds.forEach(id => { const c = childById(id); if (c && isEnrolled(c, f.date)) f.targets.add(id); });
+    picker.redraw();
+  };
+  $("#e_saveRoster", root).onclick = () => {
+    if (!f.targets.size) { alert("선택된 원아가 없습니다."); return; }
+    const name = prompt("고정 명단 이름", itemName(f.itemId) + " 참여 원아");
+    if (!name) return;
+    S.rosters.push({ id: uid("rs"), name: name.trim(), itemId: f.itemId,
+                     childIds: sortedChildren().filter(c => f.targets.has(c.id)).map(c => c.id) });
+    f.keep = true; save(); render();
+  };
+
+  syncSplit();
+
+  $("#e_save", root).onclick = () => {
+    const ids = targetIds();
+    if (!ids.length) { alert("대상 원아를 지정하세요."); return; }
+    if (!f.date) { alert("지출일을 입력하세요."); return; }
+    const alloc = allocate(f.needAmount, ids);
+    const sum = alloc.reduce((s, a) => s + a.amount, 0);
+    if (sum !== f.needAmount) { alert("배분 합계가 필요경비 부담분과 일치하지 않아 저장할 수 없습니다."); return; }
+
+    const rec = {
+      id: editing ? editing.id : uid("ex"),
+      date: f.date, itemId: f.itemId, summary: f.summary.trim(),
+      total: f.total, needAmount: f.needAmount, cardFee: f.cardFee,
+      operAmount: operAmount(), memo: f.memo || "", allocations: alloc,
+    };
+    if (editing) S.expenses = S.expenses.map(e => e.id === rec.id ? rec : e);
+    else S.expenses.push(rec);
+
+    view.expenseEditId = null;
+    view.expenseForm = null;
+    highlightExpenseId = rec.id;
+    save(); render();
+  };
+  if (editing) $("#e_cancel", root).onclick = () => { view.expenseEditId = null; view.expenseForm = null; render(); };
+
+  renderExpenseList($("#e_list", root));
+}
+
+function renderExpenseList(host){
+  const fy = S.fiscalYear, from = fyStart(fy), to = fyEnd(fy);
+  const rows = S.expenses.filter(e => inRange(e.date, from, to)).sort((a, b) => b.date.localeCompare(a.date));
+  if (!rows.length) { host.innerHTML = `<div class="empty">이 회계연도의 지출 기록이 없습니다.</div>`; return; }
+
+  const t = el(`<table><thead><tr>
+    <th class="c" style="width:100px">지출일</th><th style="width:150px">세목</th><th>적요</th>
+    <th class="n" style="width:110px">총액</th><th class="n" style="width:110px">필요경비</th>
+    <th class="n" style="width:100px">운영비</th><th class="c" style="width:70px">인원</th>
+    <th class="n" style="width:100px">1인당</th><th class="c" style="width:170px"></th>
+  </tr></thead><tbody></tbody></table>`);
+  const tb = $("tbody", t);
+  let tTotal = 0, tNeed = 0, tOper = 0;
+
+  for (const ex of rows) {
+    tTotal += ex.total; tNeed += ex.needAmount; tOper += ex.operAmount || 0;
+    const n = ex.allocations.length;
+    const q = n ? Math.floor(ex.needAmount / n) : 0;
+    const r = n ? ex.needAmount - q * n : 0;
+    const tr = el(`<tr class="${ex.id === highlightExpenseId ? "hl" : ""}">
+      <td class="c">${esc(ex.date)}</td>
+      <td>${esc(itemName(ex.itemId))}</td>
+      <td>${esc(ex.summary || "-")}${ex.cardFee ? ` <span class="tag">수수료 ${won(ex.cardFee)}</span>` : ""}</td>
+      <td class="n">${won(ex.total)}</td>
+      <td class="n">${won(ex.needAmount)}</td>
+      <td class="n">${won(ex.operAmount || 0)}</td>
+      <td class="c">${n}명</td>
+      <td class="n">${won(q)}${r > 0 ? "~" + won(q + 1) : ""}</td>
+      <td class="c">
+        <button class="b" data-a="who">명단</button>
+        <button class="b" data-a="edit">수정</button>
+        <button class="b danger" data-a="del">삭제</button>
+      </td></tr>`);
+    $('[data-a="who"]',  tr).onclick = () => openTargetListModal(ex.id);
+    $('[data-a="edit"]', tr).onclick = () => { view.expenseEditId = ex.id; view.expenseForm = null; render(); window.scrollTo(0, 0); };
+    $('[data-a="del"]',  tr).onclick = () => {
+      if (!confirm(`${ex.date} ${itemName(ex.itemId)} "${ex.summary}" 지출건을 삭제할까요?\n배분된 개인별 사용액도 함께 사라집니다.`)) return;
+      S.expenses = S.expenses.filter(x => x.id !== ex.id); save(); render();
+    };
+    tb.appendChild(tr);
+  }
+  tb.appendChild(el(`<tr class="sum"><td colspan="3" class="c">회계연도 합계</td>
+    <td class="n">${won(tTotal)}</td><td class="n">${won(tNeed)}</td><td class="n">${won(tOper)}</td>
+    <td colspan="3"></td></tr>`));
+  host.innerHTML = "";
+  host.appendChild(t);
+  highlightExpenseId = null;
+}
+
+/* ---- 지출건별 참여원아 명단 (지출결의서 첨부용) ---- */
+function openTargetListModal(expenseId){
+  const ex = S.expenses.find(e => e.id === expenseId);
+  if (!ex) return;
+  const n = ex.allocations.length;
+  const rows = ex.allocations.map((a, i) => {
+    const c = childById(a.childId);
+    const cls = c ? classAt(c, ex.date) : null;
+    return `<tr><td class="c">${i + 1}</td><td>${esc(childName(a.childId))}</td>
+      <td>${cls ? esc(cls.name) : "-"}</td><td class="n">${won(a.amount)}</td></tr>`;
+  }).join("");
+  const body = el(`<div>
+    <div class="hint no-print">이 표를 인쇄해 지출결의서에 첨부하면 배분 근거가 됩니다.</div>
+    <table style="margin-top:10px">
+      <tr><th style="width:120px">지출일</th><td>${esc(ex.date)}</td>
+          <th style="width:120px">세목</th><td>${esc(itemName(ex.itemId))}</td></tr>
+      <tr><th>적요</th><td colspan="3">${esc(ex.summary || "-")}</td></tr>
+      <tr><th>지출결의서 총액</th><td class="n">${won(ex.total)}원</td>
+          <th>필요경비 부담분</th><td class="n">${won(ex.needAmount)}원</td></tr>
+      <tr><th>운영비 부담분</th><td class="n">${won(ex.operAmount || 0)}원</td>
+          <th>카드수수료(어린이집 부담)</th><td class="n">${won(ex.cardFee || 0)}원</td></tr>
+      <tr><th>대상 인원</th><td colspan="3">${n}명</td></tr>
+    </table>
+    <table style="margin-top:12px"><thead><tr>
+      <th class="c" style="width:60px">순번</th><th>성명</th><th style="width:120px">반</th>
+      <th class="n" style="width:120px">귀속액</th></tr></thead>
+      <tbody>${rows}</tbody>
+      <tfoot><tr class="sum"><td colspan="3" class="c">합계</td>
+        <td class="n">${won(ex.allocations.reduce((s, a) => s + a.amount, 0))}</td></tr></tfoot>
+    </table>
+  </div>`);
+  openModal("지출건별 참여원아 명단", body, null, [
+    { label: "인쇄", fn: () => window.print() },
+    { label: "CSV 저장", fn: () => downloadCSV(
+        `참여원아명단_${ex.date}_${itemName(ex.itemId)}.csv`,
+        [["순번", "성명", "반", "귀속액"]].concat(ex.allocations.map((a, i) => {
+          const c = childById(a.childId);
+          return [i + 1, childName(a.childId), (c && classAt(c, ex.date) || {}).name || "", a.amount];
+        }))) },
+  ]);
+}
+
+/* ==========================================================================
+   11. 원아별 현황
+   ========================================================================== */
+
+function renderChild(root){
+  if (!S.children.length) { root.innerHTML = `<div class="empty">원아가 없습니다.</div>`; return; }
+  const list = sortedChildren();
+  const v = view.child = Object.assign({ childId: list[0].id }, view.child || {});
+  if (!childById(v.childId)) v.childId = list[0].id;
+
+  const fy = S.fiscalYear, from = fyStart(fy), to = fyEnd(fy);
+
+  root.innerHTML = `
+    <h2>원아별 현황</h2>
+    <div class="row" style="margin:10px 0">
+      <label class="f">원아<select id="c_pick" style="width:220px">
+        ${list.map(c => `<option value="${c.id}" ${c.id === v.childId ? "selected" : ""}>${esc(c.name)}${c.leaveDate ? " (퇴소)" : ""}</option>`).join("")}
+      </select></label>
+      <span class="grow"></span>
+      <button class="b no-print" id="c_csv">CSV 저장</button>
+      <button class="b no-print" id="c_print">인쇄</button>
+    </div>
+    <div id="c_info"></div>
+    <div id="c_sum"></div>
+    <h3>사용 건별 내역</h3>
+    <div class="hint no-print">금액을 누르면 그 지출결의서 건으로 이동합니다.</div>
+    <div id="c_use"></div>`;
+
+  $("#c_pick", root).onchange = e => { v.childId = e.target.value; render(); };
+  $("#c_print", root).onclick = () => window.print();
+
+  const c = childById(v.childId);
+  const ens = enrollmentsOf(c);
+  $("#c_info", root).innerHTML = `
+    <table style="max-width:760px"><tbody>
+      <tr><th style="width:110px">성명</th><td>${esc(c.name)}</td>
+          <th style="width:110px">반</th><td>${(currentClass(c) || {}).name || "-"}</td></tr>
+      <tr><th>입소일</th><td>${esc(c.admitDate || "-")}</td>
+          <th>퇴소일</th><td>${esc(c.leaveDate || "재원 중")}</td></tr>
+      <tr><th>재원 구간</th><td colspan="3">${ens.map(e =>
+            `${e.type === "consign" ? '<span class="tag consign">위탁</span>' : '<span class="tag">일반</span>'} ${esc(e.startDate || "")} ~ ${esc(e.endDate || "계속")}${e.employer ? " · " + esc(e.employer) : ""}`
+          ).join("<br>")}</td></tr>
+    </tbody></table>`;
+
+  /* 세목별 요약 */
+  const items = S.items.filter(i => i.enabled
+    || S.receipts.some(r => r.childId === c.id && r.itemId === i.id)
+    || S.expenses.some(e => e.itemId === i.id && e.allocations.some(a => a.childId === c.id)));
+
+  const t = el(`<table style="margin-top:12px"><thead><tr>
+    <th style="width:200px">세목</th><th style="width:120px">구분</th>
+    <th class="n" style="width:130px">수납</th><th class="n" style="width:130px">사용</th>
+    <th class="n" style="width:120px">반환</th><th class="n" style="width:130px">남은 금액</th>
+  </tr></thead><tbody></tbody></table>`);
+  const tb = $("tbody", t);
+  const csv = [["세목", "구분", "수납", "사용", "반환", "남은 금액"]];
+  let tp = 0, tu = 0, tr = 0;
+
+  for (const it of items) {
+    const b = balance(c.id, it.id, from, to);
+    if (!b.paid && !b.used && !b.refunded) continue;
+    tp += b.paid; tu += b.used; tr += b.refunded;
+    const over = b.used > b.paid;
+    const g = GROUPS[it.group] || {};
+    tb.appendChild(el(`<tr>
+      <td>${esc(it.name)}</td>
+      <td><span class="tag">${esc(it.group)} ${g.income || ""}</span></td>
+      <td class="n">${won(b.paid)}</td>
+      <td class="n">${won(b.used)}</td>
+      <td class="n">${won(b.refunded)}</td>
+      <td class="n" style="${over ? "color:var(--bad);font-weight:600" : ""}">${won(b.left)}${over ? " ⚠" : ""}</td>
+    </tr>`));
+    csv.push([it.name, it.group, b.paid, b.used, b.refunded, b.left]);
+  }
+  if (tb.children.length === 0) {
+    $("#c_sum", root).innerHTML = `<div class="empty">이 원아의 수납·사용 기록이 없습니다.</div>`;
+  } else {
+    tb.appendChild(el(`<tr class="sum"><td colspan="2" class="c">합계</td>
+      <td class="n">${won(tp)}</td><td class="n">${won(tu)}</td>
+      <td class="n">${won(tr)}</td><td class="n">${won(tp - tu - tr)}</td></tr>`));
+    csv.push(["합계", "", tp, tu, tr, tp - tu - tr]);
+    $("#c_sum", root).appendChild(t);
+    const anyOver = items.some(it => { const b = balance(c.id, it.id, from, to); return b.used > b.paid; });
+    if (anyOver) $("#c_sum", root).appendChild(el(
+      `<div class="note warn">수납액을 넘겨 사용한 세목이 있습니다. 초과분은 어린이집 운영비로 처리하고, 원아 잔액은 0에서 멈춥니다.</div>`));
+  }
+  $("#c_csv", root).onclick = () => downloadCSV(`원아별현황_${c.name}_${fy}.csv`, csv);
+
+  /* 사용 건별 내역 */
+  const useHost = $("#c_use", root);
+  const rows = usageRows(c.id, null, from, to);
+  if (!rows.length) { useHost.innerHTML = `<div class="empty">사용 내역이 없습니다.</div>`; return; }
+
+  const ut = el(`<table><thead><tr>
+    <th class="c" style="width:100px">지출일</th><th style="width:150px">세목</th><th>적요</th>
+    <th class="n" style="width:110px">필요경비 부담분</th><th class="c" style="width:70px">인원</th>
+    <th class="n" style="width:110px">내 귀속액</th></tr></thead><tbody></tbody></table>`);
+  const utb = $("tbody", ut);
+  for (const r of rows) {
+    const tr2 = el(`<tr>
+      <td class="c">${esc(r.date)}</td><td>${esc(itemName(r.itemId))}</td><td>${esc(r.summary || "-")}</td>
+      <td class="n">${won(r.needAmount)}</td><td class="c">${r.headcount}명</td>
+      <td class="n"><button class="link">${won(r.amount)}</button></td></tr>`);
+    $("button", tr2).onclick = () => { highlightExpenseId = r.expenseId; goTab("expense"); };
+    utb.appendChild(tr2);
+  }
+  utb.appendChild(el(`<tr class="sum"><td colspan="5" class="c">사용 합계</td>
+    <td class="n">${won(rows.reduce((s, r) => s + r.amount, 0))}</td></tr>`));
+  useHost.appendChild(ut);
+}
+
+/* ==========================================================================
+   12. 검증
+   ========================================================================== */
+
+function runChecks(){
+  const fy = S.fiscalYear, from = fyStart(fy), to = fyEnd(fy);
+  const out = [];
+  const add = (level, title, detail, jump) => out.push({ level, title, detail, jump });
+
+  for (const ex of S.expenses) {
+    const label = `${ex.date} ${itemName(ex.itemId)} "${ex.summary || "-"}"`;
+
+    if (!ex.allocations.length) {
+      add("bad", "대상 원아가 지정되지 않은 지출건", label, () => { view.expenseEditId = ex.id; goTab("expense"); });
+    }
+    const sum = ex.allocations.reduce((s, a) => s + a.amount, 0);
+    if (sum !== ex.needAmount) {
+      add("bad", "배분 합계가 필요경비 부담분과 다름",
+        `${label} — 배분 ${won(sum)}원 vs 필요경비 ${won(ex.needAmount)}원`,
+        () => { view.expenseEditId = ex.id; goTab("expense"); });
+    }
+    const outside = ex.allocations.filter(a => { const c = childById(a.childId); return c && !isEnrolled(c, ex.date); });
+    if (outside.length) {
+      add("bad", "재원기간 밖 원아가 배분에 포함됨",
+        `${label} — ${outside.map(a => childName(a.childId)).join(", ")}`,
+        () => { view.expenseEditId = ex.id; goTab("expense"); });
+    }
+    if (!inRange(ex.date, from, to)) {
+      add("warn", "회계연도 범위 밖 지출건", label, null);
+    }
+    if ((ex.operAmount || 0) < 0) {
+      add("bad", "금액 구성 오류", `${label} — 운영비 부담분이 음수입니다`, () => { view.expenseEditId = ex.id; goTab("expense"); });
+    }
+  }
+
+  for (const r of S.receipts) {
+    if (!inRange(r.date, from, to)) add("warn", "회계연도 범위 밖 수납", `${r.date} ${childName(r.childId)} ${itemName(r.itemId)} ${won(r.amount)}원`, null);
+    const c = childById(r.childId);
+    if (c && !isEnrolled(c, r.date)) {
+      add("warn", "재원기간 밖 수납", `${r.date} ${c.name} ${itemName(r.itemId)} — 입소 ${c.admitDate || "-"} / 퇴소 ${c.leaveDate || "-"}`, null);
+    }
+  }
+
+  /* 세목별 배분 초과 · 미집행 */
+  for (const it of S.items) {
+    const overs = [];
+    for (const c of S.children) {
+      const b = balance(c.id, it.id, from, to);
+      if (b.used > b.paid && b.used > 0) overs.push(`${c.name} (수납 ${won(b.paid)} / 사용 ${won(b.used)})`);
+    }
+    if (overs.length) {
+      add("warn", `수납액을 넘긴 사용 — ${it.name}`,
+        `${overs.length}명: ${overs.slice(0, 6).join(", ")}${overs.length > 6 ? " 외" : ""} — 초과분은 어린이집 운영비 처리`, null);
+    }
+    const paidAny = S.receipts.some(r => r.itemId === it.id && inRange(r.date, from, to));
+    const spentAny = S.expenses.some(e => e.itemId === it.id && inRange(e.date, from, to));
+    if (paidAny && !spentAny) {
+      add("warn", `수납만 있고 지출이 없음 — ${it.name}`, "미집행 상태입니다. 집행하거나 정산·반환 처리가 필요합니다.", null);
+    }
+    if (it.yearLimit) {
+      const n = S.expenses.filter(e => e.itemId === it.id && inRange(e.date, from, to)).length;
+      if (n > it.yearLimit) {
+        add("bad", `${it.name} 연 ${it.yearLimit}회 초과`, `이 회계연도에 ${n}건이 등록되었습니다.`, null);
+      }
+    }
+  }
+
+  return out;
+}
+
+function renderCheck(root){
+  const issues = runChecks();
+  const fy = S.fiscalYear, from = fyStart(fy), to = fyEnd(fy);
+  const cb = centerBurden(from, to);
+
+  const paidTotal = S.receipts.filter(r => inRange(r.date, from, to)).reduce((s, r) => s + r.amount, 0);
+  const usedTotal = S.expenses.filter(e => inRange(e.date, from, to))
+    .reduce((s, e) => s + e.allocations.reduce((x, a) => x + a.amount, 0), 0);
+  const refundTotal = S.refunds.filter(r => inRange(r.date, from, to)).reduce((s, r) => s + r.amount, 0);
+
+  root.innerHTML = `
+    <h2>검증</h2>
+    <h3>대사</h3>
+    <table style="max-width:620px"><tbody>
+      <tr><th style="width:260px">수납 합계 (221목·211목)</th><td class="n">${won(paidTotal)}원</td></tr>
+      <tr><th>원아 배분 합계 (421목·411목 중 필요경비 부담분)</th><td class="n">${won(usedTotal)}원</td></tr>
+      <tr><th>반환 합계 (622목 등)</th><td class="n">${won(refundTotal)}원</td></tr>
+      <tr class="sum"><th>남은 금액</th><td class="n">${won(paidTotal - usedTotal - refundTotal)}원</td></tr>
+    </tbody></table>
+    <div class="hint" style="margin-top:6px">위탁 원아가 있으면 <b>221목 수납 합계 ≠ 421목 지출 합계</b>가 정상입니다(전입금 충당분 때문). 위탁 화면은 3단계에서 붙습니다.</div>
+
+    <h3>어린이집 부담</h3>
+    <table style="max-width:620px"><tbody>
+      <tr><th style="width:260px">운영비 부담분</th><td class="n">${won(cb.oper)}원</td></tr>
+      <tr><th>카드수수료 (매뉴얼 19p)</th><td class="n">${won(cb.fee)}원</td></tr>
+      <tr><th>배분 단수차</th><td class="n">${won(cb.rounding)}원</td></tr>
+      <tr class="sum"><th>합계</th><td class="n">${won(cb.total)}원</td></tr>
+    </tbody></table>
+
+    <h3>점검 결과</h3>
+    <div id="chk"></div>`;
+
+  const host = $("#chk", root);
+  if (!issues.length) { host.innerHTML = `<div class="note ok">걸린 항목이 없습니다.</div>`; return; }
+
+  const bad = issues.filter(i => i.level === "bad").length;
+  host.appendChild(el(`<div class="note ${bad ? "bad" : "warn"}">
+    ${bad ? `저장 차단 대상 ${bad}건을 포함해 ` : ""}${issues.length}건이 걸렸습니다.</div>`));
+
+  const t = el(`<table><thead><tr><th class="c" style="width:70px">등급</th>
+    <th style="width:300px">항목</th><th>내용</th><th class="c" style="width:90px"></th></tr></thead><tbody></tbody></table>`);
+  const tb = $("tbody", t);
+  for (const i of issues) {
+    const tr = el(`<tr>
+      <td class="c"><span class="tag" style="${i.level === "bad" ? "background:var(--bad-bg);color:var(--bad)" : "background:var(--warn-bg);color:var(--warn)"}">${i.level === "bad" ? "오류" : "주의"}</span></td>
+      <td>${esc(i.title)}</td><td>${esc(i.detail)}</td>
+      <td class="c">${i.jump ? '<button class="b">이동</button>' : ""}</td></tr>`);
+    if (i.jump) $("button", tr).onclick = i.jump;
+    tb.appendChild(tr);
+  }
+  host.appendChild(t);
+}
+
+/* ==========================================================================
+   13. 모달 · 내보내기
+   ========================================================================== */
+
+function openModal(title, bodyNode, onOk, extraButtons){
+  const mask = el(`<div class="mask"><div class="modal">
+    <header><h1>${esc(title)}</h1></header>
+    <div class="body"></div>
+    <div class="foot"></div>
+  </div></div>`);
+  $(".body", mask).appendChild(bodyNode);
+
+  const foot = $(".foot", mask);
+  for (const b of (extraButtons || [])) {
+    const btn = el(`<button class="b no-print">${esc(b.label)}</button>`);
+    btn.onclick = b.fn;
+    foot.appendChild(btn);
+  }
+  const close = el(`<button class="b">${onOk ? "취소" : "닫기"}</button>`);
+  close.onclick = () => mask.remove();
+  foot.appendChild(close);
+
+  if (onOk) {
+    const ok = el(`<button class="b pri">저장</button>`);
+    ok.onclick = () => { if (onOk() !== false) mask.remove(); };
+    foot.appendChild(ok);
+  }
+  mask.onclick = e => { if (e.target === mask) mask.remove(); };
+  document.addEventListener("keydown", function esckey(e){
+    if (e.key === "Escape") { mask.remove(); document.removeEventListener("keydown", esckey); }
+  });
+  $("#modalHost").appendChild(mask);
+}
+
+/** 엑셀에서 한글이 깨지지 않도록 UTF-8 BOM을 붙인 CSV */
+function downloadCSV(filename, rows){
+  const body = rows.map(r => r.map(cell => {
+    const s = String(cell ?? "");
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }).join(",")).join("\r\n");
+  downloadBlob(filename, "﻿" + body, "text/csv;charset=utf-8");
+}
+function downloadBlob(filename, text, mime){
+  const url = URL.createObjectURL(new Blob([text], { type: mime }));
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* ==========================================================================
+   14. 초기화
+   ========================================================================== */
+
+function initHeader(){
+  const sel = $("#fyPick");
+  const base = defaultFiscalYear();
+  const years = new Set([S.fiscalYear]);
+  for (let y = base - 3; y <= base + 2; y++) years.add(y);
+  sel.innerHTML = Array.from(years).sort((a, b) => a - b)
+    .map(y => `<option value="${y}" ${y === S.fiscalYear ? "selected" : ""}>${y}년도</option>`).join("");
+  sel.onchange = e => { S.fiscalYear = parseInt(e.target.value, 10); save(); render(); };
+
+  $("#btnExport").onclick = () => {
+    downloadBlob(`필요경비정산_백업_${S.fiscalYear}년도_${todayISO()}.json`,
+      JSON.stringify(S, null, 2), "application/json");
+  };
+  $("#btnImport").onclick = () => $("#fileImport").click();
+  $("#fileImport").onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        if (!data || !Array.isArray(data.children)) throw new Error("형식이 맞지 않습니다");
+        if (!confirm("복원하면 지금 저장된 내용이 모두 덮어써집니다. 계속할까요?")) return;
+        S = Object.assign(defaultStore(), data);
+        save(); initHeader(); render();
+        alert("복원했습니다.");
+      } catch (err) {
+        alert("복원 실패 — " + err.message);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+  $("#btnReset").onclick = () => {
+    if (!confirm("모든 데이터를 지웁니다. 먼저 JSON 백업을 받아 두었나요?")) return;
+    if (!confirm("정말 초기화할까요? 되돌릴 수 없습니다.")) return;
+    S = defaultStore(); save(); initHeader(); render();
+  };
+}
+
+/** 금액 입력칸을 입력하는 동안 세 자리마다 콤마로 끊어 보여준다 */
+document.addEventListener("input", e => {
+  if (!e.target.classList || !e.target.classList.contains("money")) return;
+  const v = num(e.target.value);
+  const pos = e.target.selectionStart;
+  const before = e.target.value.length;
+  e.target.value = v === 0 && e.target.value.trim() === "" ? "" : won(v);
+  const after = e.target.value.length;
+  const p = Math.max(0, pos + (after - before));
+  try { e.target.setSelectionRange(p, p); } catch (_) {}
+});
+
+load();
+initHeader();
+render();
+flagSaved("");
+</script>
+</body>
+</html>
