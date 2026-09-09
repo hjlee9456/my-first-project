@@ -77,11 +77,47 @@ const SEED = {
   // ================= 대장 =================
   await page.click('nav button[data-tab="ledger"]');
   await page.selectOption("#lg_kind", "expense");
-  await page.selectOption("#lg_item", { label: "현장학습비" });
-  const lg = flat(await page.textContent("#lg_body"));
+  await page.selectOption("#lg_item", "it_field");
+  let lg = flat(await page.textContent("#lg_body"));
   check("지출대장 4월/10월 칸 채워짐", /4월/.test(lg) && /25,000/.test(lg) && /30,000/.test(lg), lg.slice(0, 190));
-  check("지출대장 합계 = 190,000 (김서우 25,000+30,000=55,000)", /55,000/.test(lg));
+  check("지출대장 합계 (김서우 25,000+30,000=55,000)", /55,000/.test(lg));
   check("인쇄 머리글에 어린이집 이름", /여수시립 햇살어린이집/.test(lg));
+
+  // 전체 세목 — 아동 × 계정과목이 행으로 중첩되는 실제 서식 구조
+  await page.selectOption("#lg_item", "");
+  lg = flat(await page.textContent("#lg_body"));
+  check("전체 세목 — 한 장에 계정과목이 행으로 중첩됨",
+    /계정과목/.test(lg) && /현장학습비/.test(lg) && /차량운행비/.test(lg), lg.slice(0, 200));
+  check("지출대장 — 지출이 없는 입학준비금은 기본으로 빠짐", !/입학준비금/.test(lg));
+  const cls = await page.locator("#lg_body tbody td[rowspan]").count();
+  check("반·아동 칸이 세목 행만큼 병합됨", cls > 0, cls + "개");
+
+  await page.check("#lg_blank");
+  lg = flat(await page.textContent("#lg_body"));
+  check("「기록 없는 계정과목도 표시」를 켜면 입학준비금도 나옴", /입학준비금/.test(lg));
+  await page.uncheck("#lg_blank");
+
+  // 수입대장에는 입학준비금 수납이 잡혀야 한다
+  await page.selectOption("#lg_kind", "receipt");
+  lg = flat(await page.textContent("#lg_body"));
+  check("수입대장에는 입학준비금 수납이 잡힘", /입학준비금/.test(lg) && /90,000/.test(lg), lg.slice(0, 200));
+  await page.selectOption("#lg_kind", "expense");
+
+  // 수입대장 — 반환은 음수로 (반환 기록을 하나 넣고 확인)
+  await page.evaluate(() => {
+    const s = JSON.parse(localStorage.getItem("nursery-settlement-v1"));
+    s.refunds.push({ id: "rf1", childId: "k1", itemId: "it_field", reason: "미참여",
+                     amount: 20000, date: "2026-11-20", route: "반납결의", account: "", holder: "", memo: "" });
+    localStorage.setItem("nursery-settlement-v1", JSON.stringify(s));
+  });
+  await page.reload();
+  await page.waitForTimeout(250);
+  await page.click('nav button[data-tab="ledger"]');
+  await page.selectOption("#lg_item", "it_field");
+  lg = flat(await page.textContent("#lg_body"));
+  check("수입대장 — 반환이 음수로 표시되고 합계에서 빠짐",
+    /-20,000/.test(lg) && /100,000/.test(lg), lg.slice(0, 220));
+  check("대장 비고에 반환 내역 자동 기입", /20,000원 반환/.test(lg));
 
   // ================= 중간퇴소 정산 =================
   await page.click('nav button[data-tab="settle"]');
