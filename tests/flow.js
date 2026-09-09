@@ -66,7 +66,6 @@ const flat = s => String(s||"").replace(/\s+/g," ");
   await p.fill("#rc_no", "6");
   await p.selectOption("#rc_item", { label: "현장학습비" });
   await p.fill("#rc_summary", "기타필요경비-현장학습비 1분기");
-  await p.fill("#rc_account", "신한12600409");
   await p.locator("#rc_pick .pk-class", { hasText: "새싹반" }).locator('[data-a="g-all"]').click();
   await p.waitForTimeout(150);
   await p.click("#rc_std");   // 기초설정 30,000원 쓰기
@@ -79,9 +78,10 @@ const flat = s => String(s||"").replace(/\s+/g," ");
   await p.click("#rc_save");
   await p.waitForTimeout(300);
   const vlist = flat(await p.textContent("#rc_list"));
-  check("수납결의서가 번호·계좌와 함께 기록됨",
-    /신한12600409/.test(vlist) && /이하람/.test(vlist) && /김서우/.test(vlist) && /60,000/.test(vlist),
-    vlist.slice(vlist.indexOf("2026-03-20"), vlist.indexOf("2026-03-20")+120));
+  check("수납결의서가 번호·대상 원아와 함께 기록됨",
+    /이하람/.test(vlist) && /김서우/.test(vlist) && /60,000/.test(vlist),
+    vlist.slice(vlist.indexOf("2026-03-20"), vlist.indexOf("2026-03-20")+110));
+  check("수납 입력에 계좌 칸이 없음", (await p.locator("#rc_account").count()) === 0);
 
   // 두 번째 결의서 (풀잎반, 다른 날짜)
   await p.fill("#rc_date", "2026-03-21");
@@ -130,8 +130,10 @@ const flat = s => String(s||"").replace(/\s+/g," ");
 
   // ---- 정산보고서: 임의 기간 ----
   await p.click('nav button[data-tab="settle"]');
-  const order = await p.$$eval("#panel .row.no-print button.b", bs => bs.slice(0,3).map(b=>b.textContent.trim()));
-  check("중간퇴소 버튼이 맨 오른쪽", order[2] && order[2].includes("중간퇴소"), order.join(" | "));
+  const order = await p.$$eval("#panel .row.no-print button.b", bs => bs.slice(0,4).map(b=>b.textContent.trim()));
+  check("정산·보고 버튼 순서 (중간퇴소가 맨 오른쪽)",
+    order[0].includes("운영위원회") && order[2].includes("반환 정산서") && order[3].includes("중간퇴소"),
+    order.join(" | "));
   await p.click('[data-m="half"]');
   await p.selectOption("#hp_from", "2026-09");
   await p.selectOption("#hp_to", "2026-11");
@@ -144,11 +146,16 @@ const flat = s => String(s||"").replace(/\s+/g," ");
 
   // ---- 보호자용 안내문: 지출건별 내역 ----
   await p.click('[data-m="notice"]');
+  await p.selectOption("#nt_class", "");
+  await p.waitForTimeout(150);
   await p.selectOption("#nt_child", { label: "김서우" });
   await p.waitForTimeout(250);
   const nt = flat(await p.textContent("#nt_body"));
-  check("안내문에 세목별 지출건 내역이 들어감",
-    /세목별 지출 내역/.test(nt) && /가을 현장학습 버스/.test(nt) && /104/.test(nt), nt.slice(nt.indexOf("세목별 지출"), nt.indexOf("세목별 지출")+220));
+  check("안내문에 지출 내역이 들어가고 결의서 번호는 빠짐",
+    /산출 근거 — 지출 내역/.test(nt) && /가을 현장학습 버스/.test(nt) && !/결의서/.test(nt.slice(nt.indexOf("산출 근거"))),
+    nt.slice(nt.indexOf("산출 근거"), nt.indexOf("산출 근거")+200));
+  check("안내문에서 반을 먼저 고르고 원아를 고른다",
+    (await p.locator("#nt_class").count()) === 1 && (await p.locator("#nt_child").count()) === 1);
 
   // ---- 정산 반환 확정 버튼이 없어야 함 ----
   await p.click('[data-m="exit"]');

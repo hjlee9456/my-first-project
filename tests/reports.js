@@ -113,8 +113,9 @@ const SEED = {
   let sheet = flat(await p.textContent("#st_sheet"));
   check("현장학습비 반환할 금액 95,000 (120,000 − 25,000)", /95,000/.test(sheet));
   check("입학준비금은 협의 표시", /협의/.test(sheet));
-  check("정산 내역 산식이 한 줄로 나옴",
-    /수납 120,000원 − 사용 25,000원 = 95,000원/.test(sheet), sheet.slice(sheet.indexOf("정산 내역"), sheet.indexOf("정산 내역") + 200));
+  check("정산 내역이 표로 맨 앞에 나옴",
+    /정산 내역 세목수납액 실 사용금액 반환할 금액/.test(sheet) && sheet.indexOf("정산 내역") < sheet.indexOf("산출 근거"),
+    sheet.slice(sheet.indexOf("정산 내역"), sheet.indexOf("정산 내역") + 170));
   check("반환금 확정 버튼은 없음", (await p.locator("#ex_fix").count()) === 0);
 
   // 6월 유류비를 사유와 함께 포함시킨다
@@ -175,13 +176,16 @@ const SEED = {
   await p.click('[data-p="Y"]').catch(() => {});
   await p.selectOption("#nt_from", "2026-03");
   await p.selectOption("#nt_to", "2027-02");
+  await p.selectOption("#nt_class", "");
+  await p.waitForTimeout(150);
   await p.selectOption("#nt_child", "k1");
   await p.waitForTimeout(300);
   const nt = flat(await p.textContent("#nt_body"));
-  check("안내문에 세목별 지출건 내역이 날짜순으로 들어감",
-    /세목별 지출 내역/.test(nt) && /봄 현장학습 입장료/.test(nt) && /가을 현장학습 버스/.test(nt) && /6월 유류비/.test(nt),
-    nt.slice(nt.indexOf("세목별 지출"), nt.indexOf("세목별 지출") + 230));
-  check("안내문에 지출결의서 번호가 표시됨", /31/.test(nt) && /104/.test(nt));
+  check("안내문에 지출 내역이 날짜순으로 들어감",
+    /산출 근거 — 지출 내역/.test(nt) && /봄 현장학습 입장료/.test(nt) && /가을 현장학습 버스/.test(nt) && /6월 유류비/.test(nt),
+    nt.slice(nt.indexOf("산출 근거"), nt.indexOf("산출 근거") + 230));
+  check("안내문에 지출결의서 번호는 넣지 않음",
+    !/결의서/.test(nt.slice(nt.indexOf("산출 근거"))));
 
   await p.check("#nt_all");
   await p.waitForTimeout(300);

@@ -81,10 +81,12 @@ const OUT = process.env.SHOT_DIR || "./";
   await p.click('[data-m="notice"]');
   check("안내문에 자주 쓰는 기간 버튼", (await p.locator('#panel [data-p="H1"]').count()) > 0);
   await p.click('[data-p="Y"]');
+  await p.selectOption("#nt_class", "");
+  await p.waitForTimeout(150);
   await p.selectOption("#nt_child", { label: "이하진" });
   await p.waitForTimeout(300);
   const nt = flat(await p.textContent("#nt_body"));
-  check("안내문에 지출건별 내역", /세목별 지출 내역/.test(nt), nt.slice(nt.indexOf("세목별 지출"), nt.indexOf("세목별 지출")+180));
+  check("안내문에 지출건별 내역", /산출 근거 — 지출 내역/.test(nt), nt.slice(nt.indexOf("산출 근거"), nt.indexOf("산출 근거")+180));
   check("안내문에 반환 열 없음", !/반환/.test(nt.slice(0, nt.indexOf("세목별 지출"))));
 
   // 중간퇴소 정산
@@ -93,7 +95,7 @@ const OUT = process.env.SHOT_DIR || "./";
   await p.waitForTimeout(350);
   const ex = flat(await p.textContent("#st_sheet"));
   check("중간퇴소 정산서 — 반환할 금액", /반환할 금액/.test(ex) && !/기 반환/.test(ex), ex.slice(0,200));
-  check("정산 내역 산식", /수납 .*원 − 사용 .*원 =/.test(ex));
+  check("정산 내역이 표로 맨 앞에", /정산 내역 세목수납액 실 사용금액 반환할 금액/.test(ex) && ex.indexOf("정산 내역") < ex.indexOf("산출 근거"), ex.slice(ex.indexOf("정산 내역"), ex.indexOf("정산 내역")+150));
   await p.screenshot({ path: OUT+"d-exit.png", fullPage: true });
 
   // 대장
