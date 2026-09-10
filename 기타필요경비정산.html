@@ -156,11 +156,13 @@ table.ledger th,table.ledger td{padding:3px 5px}
 .printhead h1{font-size:19px;text-align:center;margin-bottom:6px}
 .printhead .sub{text-align:center;font-size:12px;color:var(--dim);margin-bottom:14px}
 .sheet + .sheet{margin-top:28px}
-.signline{margin-top:26px;font-size:12px;line-height:2.2}
 .print-only{display:none}
 
 @media print{
-  @page{size:A4;margin:14mm 12mm}
+  /* 여백을 0으로 두면 브라우저가 날짜·주소 같은 머리글·바닥글을 찍지 않는다.
+     대신 내용 쪽에 여백을 줘 종이 끝에 붙지 않게 한다. */
+  @page{size:A4;margin:0}
+  body{padding:12mm 11mm}
   header,nav,.no-print{display:none!important}
   /* 화면에서 일하는 데 쓰는 안내는 출력물에 넣지 않는다 */
   .note,.law,.hint,.tag.ev{display:none!important}
@@ -180,7 +182,6 @@ table.ledger th,table.ledger td{padding:3px 5px}
   .sheet.pagebreak{break-after:page}
   table.ledger{font-size:8px}
   table.ledger th,table.ledger td{padding:2px 3px;white-space:nowrap}
-  .signline{break-inside:avoid;margin-top:18px}
 }
 </style>
 </head>
@@ -306,37 +307,104 @@ function defaultItems(){
   ];
 }
 
-function defaultStore(){
+/**
+ * 저장 구조
+ *   { version, fiscalYear, years: { "2026": {...}, "2027": {...} }, lastBackupAt }
+ *
+ * 회계연도마다 자료를 따로 보관한다. 새 회계연도를 시작해도 지난 해 자료는
+ * 그대로 남고, 화면 위 회계연도에서 언제든 오갈 수 있다.
+ * 지금 보고 있는 연도의 자료는 S에 펼쳐 두어 코드가 S.children처럼 바로 쓴다.
+ */
+const YEAR_FIELDS = ["classes", "children", "items", "rosters", "vouchers", "receipts", "expenses"];
+
+function emptyYear(){
   return {
-    version: 1,
-    fiscalYear: defaultFiscalYear(),
     classes: [],
     children: [],
     items: defaultItems(),
     rosters: [],
-    vouchers: [],   // 수납결의서 1건 = { date, voucherNo, itemId, summary, account, lines[] }
+    vouchers: [],   // 수납결의서 1건 = { date, voucherNo, itemId, summary, lines[] }
     receipts: [],   // 결의서에서 파생된 원아별 수납 기록
     expenses: [],
-    lastBackupAt: null,
   };
+}
+
+function defaultStore(){
+  const y = defaultFiscalYear();
+  const st = { version: 2, fiscalYear: y, years: {}, lastBackupAt: null };
+  st.years[y] = emptyYear();
+  YEAR_FIELDS.forEach(k => st[k] = st.years[y][k]);
+  return st;
+}
+
+/** 지금 보고 있는 연도의 자료를 보관함에 되돌려 넣는다 */
+function syncYear(){
+  const d = {};
+  YEAR_FIELDS.forEach(k => d[k] = S[k]);
+  S.years[S.fiscalYear] = d;
+}
+
+/** 보관함에서 그 연도 자료를 꺼내 펼친다 */
+function loadYear(y){
+  if (!S.years[y]) S.years[y] = emptyYear();
+  S.fiscalYear = +y;
+  YEAR_FIELDS.forEach(k => S[k] = S.years[y][k]);
+  rebuildReceipts();
+}
+
+/** 저장·백업에 쓰는 모양 — 펼쳐 둔 자료는 빼고 보관함만 담는다 */
+function storeShape(){
+  syncYear();
+  return { version: 2, fiscalYear: S.fiscalYear, years: S.years, lastBackupAt: S.lastBackupAt };
+}
+
+function listYears(){
+  return Object.keys(S.years).map(Number).sort((a, b) => a - b);
+}
+
+function switchYear(y){
+  syncYear();
+  loadYear(y);
+  Object.keys(view).forEach(k => delete view[k]);
+  activeTab = "setup";
+  save(); initHeader(); render();
 }
 
 function load(){
   try {
     const raw = localStorage.getItem(LS_KEY);
-    if (raw) {
-      S = migrate(Object.assign(defaultStore(), JSON.parse(raw)));
-      return;
-    }
+    if (raw) { S = migrate(JSON.parse(raw)); return; }
   } catch (e) {
     console.error("저장 데이터를 읽지 못했습니다", e);
   }
   S = defaultStore();
 }
 
-/** 예전 판으로 입력한 자료를 새 구조로 옮긴다 */
-function migrate(st){
-  for (const c of st.children) {
+/** 예전 판으로 입력한 자료를 지금 구조로 옮긴다 */
+function migrate(raw){
+  let st;
+  if (raw && raw.years) {
+    st = { version: 2, fiscalYear: +raw.fiscalYear, years: raw.years, lastBackupAt: raw.lastBackupAt || null };
+  } else {
+    /* 한 해분만 담던 판 — 그 해를 보관함 첫 칸에 넣는다 */
+    const y = (raw && raw.fiscalYear) || defaultFiscalYear();
+    st = { version: 2, fiscalYear: +y, years: {}, lastBackupAt: (raw && raw.lastBackupAt) || null };
+    const d = emptyYear();
+    YEAR_FIELDS.forEach(k => { if (raw && raw[k]) d[k] = raw[k]; });
+    st.years[y] = d;
+  }
+  Object.keys(st.years).forEach(y => fixYear(st.years[y]));
+  if (!st.years[st.fiscalYear]) st.fiscalYear = +Object.keys(st.years).sort()[0];
+  S = st;
+  loadYear(st.fiscalYear);
+  return S;
+}
+
+/** 한 해분 자료의 예전 흔적을 손질한다 */
+function fixYear(d){
+  YEAR_FIELDS.forEach(k => { if (!Array.isArray(d[k])) d[k] = k === "items" ? defaultItems() : []; });
+
+  for (const c of d.children) {
     if (!c.consignPeriods) {
       c.consignPeriods = (c.enrollments || [])
         .filter(e => e.type === "consign")
@@ -346,34 +414,34 @@ function migrate(st){
     delete c.enrollments;
   }
   /* 수납결의서가 없던 판의 수납 기록을 (수납일 · 세목)별로 묶어 결의서 하나로 만든다 */
-  if (!st.vouchers.length && st.receipts.length) {
+  if (!d.vouchers.length && d.receipts.length) {
     const byKey = new Map();
-    for (const r of st.receipts) {
+    for (const r of d.receipts) {
       const k = r.date + "|" + r.itemId;
       if (!byKey.has(k)) byKey.set(k, { id: uid("vc"), date: r.date, voucherNo: "", itemId: r.itemId,
-                                        summary: "", account: "", perAmount: 0, lines: [], total: 0 });
+                                        summary: "", perAmount: 0, lines: [], total: 0 });
       const v = byKey.get(k);
       v.lines.push({ childId: r.childId, amount: r.amount, memo: r.memo || "" });
       v.total += r.amount;
     }
-    st.vouchers = Array.from(byKey.values());
+    d.vouchers = Array.from(byKey.values());
   }
-  for (const it of st.items) { delete it.cycle; delete it.limit; delete it.yearLimit; }
-  delete st.consignPays;
-  delete st.refunds;
-  return st;
+  for (const it of d.items) { delete it.cycle; delete it.limit; delete it.yearLimit; }
+  delete d.consignPays;
+  delete d.refunds;
 }
 
 function save(){
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    try {
-      localStorage.setItem(LS_KEY, JSON.stringify(S));
-      flagSaved("저장됨 " + new Date().toLocaleTimeString("ko-KR"));
-    } catch (e) {
-      flagSaved("저장 실패 — 브라우저 저장공간을 확인하세요", true);
-    }
-  }, 120);
+  saveTimer = setTimeout(persistNow, 120);
+}
+function persistNow(){
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify(storeShape()));
+    flagSaved("저장됨 " + new Date().toLocaleTimeString("ko-KR"));
+  } catch (e) {
+    flagSaved("저장 실패 — 브라우저 저장공간이 찼을 수 있습니다", true);
+  }
 }
 function flagSaved(msg, bad){
   const n = $("#saveState");
@@ -644,18 +712,13 @@ function render(){
 function renderSetup(root){
   root.innerHTML = `
     <h2>기초설정</h2>
-    <div class="hint">회계연도는 3월 1일부터 익년 2월 말일까지입니다. 반은 통계 단위가 아니라 원아를 빠르게 고르기 위한 도구입니다.</div>
-    <div class="row" style="margin-top:10px">
-      <label class="f grow" style="max-width:420px">어린이집 이름 (인쇄물 머리글에 찍힙니다)
-        <input id="setCenter" value="${esc(centerName())}" placeholder="예: 여수시립 햇살어린이집"></label>
-      <span class="hint" style="margin-bottom:6px">물품관리시스템과 같은 이름을 씁니다.</span>
-    </div>
+    <div class="hint">회계연도는 3월 1일부터 익년 2월 말일까지입니다. 반은 통계 단위가 아니라 원아를 빠르게 고르기 위한 도구입니다.<br>
+      어린이집 이름은 <b>첫 화면</b>에서 정합니다.${centerName() ? " 지금 이름은 <b>" + esc(centerName()) + "</b>입니다." : ""}</div>
     <div id="secClass"></div>
     <div id="secItem"></div>
     <div id="secChild"></div>
     <div id="secRoster"></div>
     <div id="secRollover"></div>`;
-  $("#setCenter", root).onchange = e => { setCenterName(e.target.value.trim()); flagSaved("어린이집 이름을 저장했습니다"); };
   renderClasses($("#secClass", root));
   renderItems($("#secItem", root));
   renderChildren($("#secChild", root));
@@ -839,71 +902,156 @@ function renderChildren(root){
 /* ---- 회계연도 마감과 승계 ---- */
 function renderRollover(root){
   const fy = S.fiscalYear;
-  const has = S.vouchers.length || S.expenses.length;
+  const years = listYears();
   root.innerHTML = `<h3>회계연도 마감과 승계</h3>
-    <div class="hint">3월 신학기가 되면 <b>새 회계연도 시작</b>을 눌러 넘어가세요.
-      반·원아·세목·고정 명단은 그대로 넘어가고 <b>금액만 초기화</b>됩니다.
-      원아마다 올라갈 반을 고르고, 졸업하거나 그만둔 아이는 빼면 됩니다.</div>
+    <div class="hint">3월 신학기가 되면 <b>새 회계연도 시작</b>을 눌러 새 해를 만드세요.
+      <b>지난 해 자료는 그대로 남습니다.</b> 화면 위 <b>회계연도</b>에서 언제든 오갈 수 있습니다.<br>
+      먼저 새 해의 <b>반 구성</b>을 확정하고, 그 반으로 <b>원아를 배치</b>하는 두 단계로 진행합니다.</div>
     <div class="row" style="margin-top:8px">
-      <button class="b" id="btnRollover">새 회계연도 시작 (${fy + 1}년도)</button>
+      <button class="b pri" id="btnRollover">새 회계연도 시작 (${fy + 1}년도)</button>
       <span class="hint" style="margin-bottom:6px">
-        지금 ${fy}년도에 수납결의서 ${S.vouchers.length}건 · 지출 ${S.expenses.length}건이 들어 있습니다.
+        지금 ${fy}년도에 원아 ${S.children.length}명 · 수납결의서 ${S.vouchers.length}건 · 지출 ${S.expenses.length}건.
       </span>
-    </div>`;
+    </div>
+    <h3>보관 중인 회계연도</h3>
+    <div id="ro_years"></div>`;
+
   $("#btnRollover", root).onclick = () => {
-    if (!S.children.length) { alert("원아가 없습니다."); return; }
     if (!S.classes.length) { alert("먼저 반을 만드세요."); return; }
     openRolloverModal();
   };
+
+  const t = el(`<table style="max-width:760px"><thead><tr>
+    <th style="width:110px">회계연도</th><th class="c" style="width:80px">원아</th>
+    <th class="c" style="width:110px">수납결의서</th><th class="c" style="width:80px">지출</th>
+    <th class="c" style="width:150px"></th></tr></thead><tbody></tbody></table>`);
+  const tb = $("tbody", t);
+  for (const y of years) {
+    const d = y === fy ? { children: S.children, vouchers: S.vouchers, expenses: S.expenses } : S.years[y];
+    const on = y === fy;
+    const tr = el(`<tr class="${on ? "hl" : ""}">
+      <td><b>${y}년도</b>${on ? ' <span class="tag">보는 중</span>' : ""}</td>
+      <td class="c">${(d.children || []).length}명</td>
+      <td class="c">${(d.vouchers || []).length}건</td>
+      <td class="c">${(d.expenses || []).length}건</td>
+      <td class="c">
+        ${on ? "" : '<button class="b" data-a="go">이 연도 보기</button>'}
+        ${years.length > 1 ? '<button class="b danger" data-a="del">삭제</button>' : ""}
+      </td></tr>`);
+    const go = $('[data-a="go"]', tr);
+    if (go) go.onclick = () => switchYear(y);
+    const del = $('[data-a="del"]', tr);
+    if (del) del.onclick = () => {
+      if (!confirm(`${y}년도 자료를 통째로 지웁니다.\n원아 ${(d.children || []).length}명 · 수납결의서 ${(d.vouchers || []).length}건 · 지출 ${(d.expenses || []).length}건.\n\n되돌릴 수 없습니다. 계속할까요?`)) return;
+      if (!confirm(`정말 ${y}년도를 지울까요?`)) return;
+      if (y === fy) {
+        const other = years.find(x => x !== y);
+        delete S.years[y];
+        loadYear(other);
+      } else {
+        delete S.years[y];
+      }
+      Object.keys(view).forEach(k => delete view[k]);
+      save(); initHeader(); render();
+    };
+    tb.appendChild(tr);
+  }
+  $("#ro_years", root).appendChild(t);
 }
 
 /**
- * 새 회계연도 승계.
- * 지난 해 자료는 프로그램 안에 남기지 않는다. 다시 볼 일이 있으면
- * 그 해 백업 파일을 「복원」으로 불러오면 되므로, 시작 전에 백업을 받게 한다.
+ * 새 회계연도 승계 — 두 단계.
+ *   1) 새 해의 반 구성을 확정한다. 어린이집은 해마다 반 이름과 수가 조금씩 바뀐다.
+ *   2) 그 반으로 원아를 배치한다.
+ * 지난 해 자료는 건드리지 않는다. 반·세목·고정 명단은 복사해 새 해에 넣는다.
  */
 function openRolloverModal(){
   const fy = S.fiscalYear, next = fy + 1;
+  const exists = !!S.years[next];
   const kids = sortedChildren();
+
+  /* 1단계 — 올해 반을 복사해 놓고 손보게 한다. id를 유지하면 원아 배치가 그대로 따라온다. */
+  let newClasses = S.classes.map(c => ({ id: c.id, name: c.name }));
   const plan = new Map(kids.map(c => [c.id, {
     keep: !c.leaveDate,
     classId: (currentClass(c) || S.classes[0] || {}).id || "",
   }]));
-  let backedUp = false;
+  let step = 1;
 
   const body = el(`<div>
-    <div class="warn">
-      <p><b>${next}년도를 시작하면 ${fy}년도의 수납결의서와 지출이 모두 지워집니다.</b>
-        되돌릴 수 없습니다. 반드시 먼저 백업 파일을 받아 두세요.</p>
-      <p>지난 해 대장이나 정산서를 다시 뽑아야 할 때는 그 백업 파일을
-        <b>「복원」</b>으로 불러오면 그때 상태로 되돌아갑니다.</p>
-    </div>
-    <div class="row" style="margin:12px 0">
-      <button class="b pri" id="ro_backup">${fy}년도 자료 백업 받기</button>
-      <label class="f" style="flex-direction:row;align-items:center;gap:6px;font-size:13px;color:var(--ink)">
-        <input type="checkbox" id="ro_ok"> 백업 파일을 받아 두었습니다
-      </label>
-    </div>
-    <table style="max-width:520px"><tbody>
-      <tr><th style="width:150px">새 회계연도</th><td><b>${next}년도</b> &nbsp; ${fyStart(next)} ~ ${fyEnd(next)}</td></tr>
-    </tbody></table>
-
-    <h3>원아 배치</h3>
-    <div class="hint">올라갈 아이는 새 반을 고르고, 졸업하거나 그만둔 아이는 체크를 끄세요.
-      퇴소일이 적힌 아이는 미리 꺼 두었습니다.</div>
-    <div class="row" style="margin:8px 0">
-      <button class="b" id="ro_all">전체 올라감</button>
-      <button class="b" id="ro_none">전체 제외</button>
+    ${exists ? `<div class="note bad">${next}년도가 이미 있습니다. 저장하면 그 해의 반·원아·세목이 <b>이 내용으로 덮어써집니다.</b>
+      (${next}년도에 이미 넣어 둔 수납결의서와 지출은 그대로 남습니다.)</div>` : ""}
+    <div class="note">지난 ${fy}년도 자료는 <b>그대로 남습니다.</b>
+      화면 위 회계연도에서 ${fy}년도로 돌아가면 대장도 정산서도 그때 그대로 나옵니다.</div>
+    <div class="row" style="margin:10px 0 4px">
+      <b id="ro_stepname"></b>
       <span class="grow"></span>
-      <span class="hint" id="ro_count" style="margin-bottom:0"></span>
+      <span class="hint" style="margin-bottom:0" id="ro_step">1 / 2 단계</span>
     </div>
-    <div class="scroll" style="max-height:340px"><div id="ro_list"></div></div>
+    <div id="ro_s1"></div>
+    <div id="ro_s2"></div>
+    <div class="row" style="margin-top:12px">
+      <button class="b" id="ro_prev">← 이전</button>
+      <button class="b pri" id="ro_next">다음 → 원아 배치</button>
+      <span class="grow"></span>
+      <span class="hint" style="margin-bottom:0" id="ro_count"></span>
+    </div>
   </div>`);
 
-  $("#ro_backup", body).onclick = () => { exportBackup(); backedUp = true; };
-  $("#ro_ok", body).onchange = e => { backedUp = e.target.checked; };
+  /* ---------------- 1단계: 반 구성 ---------------- */
+  function drawClasses(){
+    const host = $("#ro_s1", body);
+    host.innerHTML = `<div class="hint">올해 반이 그대로 복사되어 있습니다.
+      이름을 고치거나, 반을 더하거나 뺄 수 있습니다. 여기서 정한 반으로 다음 단계에서 원아를 배치합니다.</div>
+      <div id="ro_cl" style="margin-top:8px"></div>
+      <div class="row" style="margin-top:8px">
+        <input id="ro_newcl" placeholder="반 이름 (예: 햇살반)" style="width:220px">
+        <button class="b" id="ro_addcl">반 추가</button>
+      </div>`;
+    const t = el(`<table style="max-width:620px"><thead><tr>
+      <th class="c" style="width:60px">순서</th><th>반 이름</th>
+      <th class="c" style="width:110px">${fy}년도 원아</th>
+      <th class="c" style="width:80px"></th></tr></thead><tbody></tbody></table>`);
+    const tb = $("tbody", t);
+    newClasses.forEach((cl, i) => {
+      const n = kids.filter(k => (currentClass(k) || {}).id === cl.id).length;
+      const tr = el(`<tr>
+        <td class="c">${i + 1}</td>
+        <td><input value="${esc(cl.name)}" style="width:100%"></td>
+        <td class="c">${n ? n + "명" : "-"}</td>
+        <td class="c"><button class="b danger">삭제</button></td></tr>`);
+      $("input", tr).onchange = e => { cl.name = e.target.value.trim() || cl.name; };
+      $("button", tr).onclick = () => {
+        newClasses.splice(i, 1);
+        plan.forEach(v => { if (v.classId === cl.id) v.classId = (newClasses[0] || {}).id || ""; });
+        drawClasses();
+      };
+      tb.appendChild(tr);
+    });
+    $("#ro_cl", host).appendChild(t);
+    const add = () => {
+      const name = $("#ro_newcl", host).value.trim();
+      if (!name) return;
+      newClasses.push({ id: uid("cl"), name });
+      drawClasses();
+    };
+    $("#ro_addcl", host).onclick = add;
+    $("#ro_newcl", host).onkeydown = e => { if (e.key === "Enter") add(); };
+  }
 
-  function draw(){
+  /* ---------------- 2단계: 원아 배치 ---------------- */
+  function drawKids(){
+    const host = $("#ro_s2", body);
+    host.innerHTML = `<div class="hint">올라갈 아이는 <b>${next}년도 반</b>을 고르고,
+      졸업하거나 그만둔 아이는 체크를 끄세요. 퇴소일이 적힌 아이는 미리 꺼 두었습니다.</div>
+      <div class="row" style="margin:8px 0">
+        <button class="b" id="ro_all">전체 올라감</button>
+        <button class="b" id="ro_none">전체 제외</button>
+      </div>
+      <div class="scroll" style="max-height:330px"><div id="ro_list"></div></div>`;
+    $("#ro_all", host).onclick  = () => { plan.forEach(v => v.keep = true);  drawKids(); };
+    $("#ro_none", host).onclick = () => { plan.forEach(v => v.keep = false); drawKids(); };
+
     const t = el(`<table><thead><tr>
       <th class="c" style="width:50px">순번</th><th style="width:120px">성명</th>
       <th style="width:110px">${fy}년도 반</th>
@@ -919,46 +1067,77 @@ function openRolloverModal(){
         <td>${now ? esc(now.name) : "-"}</td>
         <td class="c"><input type="checkbox" ${st.keep ? "checked" : ""}></td>
         <td><select ${st.keep ? "" : "disabled"} style="width:100%">
-          ${S.classes.map(cl => `<option value="${cl.id}" ${cl.id === st.classId ? "selected" : ""}>${esc(cl.name)}</option>`).join("")}
+          ${newClasses.map(cl => `<option value="${cl.id}" ${cl.id === st.classId ? "selected" : ""}>${esc(cl.name)}</option>`).join("")}
         </select></td></tr>`);
-      $('input[type="checkbox"]', tr).onchange = e => { st.keep = e.target.checked; draw(); };
+      $('input[type="checkbox"]', tr).onchange = e => { st.keep = e.target.checked; drawKids(); };
       $("select", tr).onchange = e => { st.classId = e.target.value; };
       tb.appendChild(tr);
     });
-    $("#ro_list", body).innerHTML = "";
-    $("#ro_list", body).appendChild(t);
-    const n = kids.filter(c => plan.get(c.id).keep).length;
-    $("#ro_count", body).textContent = `올라감 ${n}명 · 제외 ${kids.length - n}명`;
+    $("#ro_list", host).appendChild(t);
+    updateCount();
   }
-  $("#ro_all", body).onclick  = () => { plan.forEach(v => v.keep = true);  draw(); };
-  $("#ro_none", body).onclick = () => { plan.forEach(v => v.keep = false); draw(); };
-  draw();
 
-  openModal(`새 회계연도 시작 — ${next}년도`, body, () => {
-    if (!backedUp) { alert("먼저 백업 파일을 받고 체크해 주세요."); return false; }
+  function updateCount(){
+    const n = kids.filter(c => plan.get(c.id).keep).length;
+    $("#ro_count", body).textContent = step === 1
+      ? `반 ${newClasses.length}개`
+      : `올라감 ${n}명 · 제외 ${kids.length - n}명`;
+  }
+
+  const okBtn = () => $(".modal .foot button.pri", mask);
+  function showStep(){
+    $("#ro_s1", body).hidden = step !== 1;
+    $("#ro_s2", body).hidden = step !== 2;
+    $("#ro_step", body).textContent = step + " / 2 단계";
+    $("#ro_stepname", body).textContent = step === 1
+      ? `1단계 — ${next}년도 반 구성` : `2단계 — 원아 배치`;
+    $("#ro_prev", body).hidden = step === 1;
+    $("#ro_next", body).hidden = step === 2;
+    const ok = okBtn();
+    if (ok) ok.hidden = step !== 2;
+    if (step === 2) drawKids();
+    updateCount();
+  }
+  $("#ro_next", body).onclick = () => {
+    if (!newClasses.length) { alert("반이 하나도 없습니다."); return; }
+    plan.forEach(v => { if (!newClasses.some(c => c.id === v.classId)) v.classId = newClasses[0].id; });
+    step = 2; showStep();
+  };
+  $("#ro_prev", body).onclick = () => { step = 1; drawClasses(); showStep(); };
+
+  drawClasses();
+
+  const mask = openModal(`새 회계연도 시작 — ${next}년도`, body, () => {
     const keep = kids.filter(c => plan.get(c.id).keep);
-    if (!keep.length) { alert("올라가는 원아가 한 명도 없습니다."); return false; }
-    if (!confirm(`${next}년도로 넘어갑니다.\n\n올라가는 원아 ${keep.length}명\n지워지는 자료: 수납결의서 ${S.vouchers.length}건 · 지출 ${S.expenses.length}건\n\n계속할까요?`)) return false;
+    if (!confirm(`${next}년도를 만듭니다.\n\n반 ${newClasses.length}개 · 올라가는 원아 ${keep.length}명\n\n${fy}년도 자료는 그대로 남습니다. 계속할까요?`)) return false;
 
     const start = fyStart(next);
-    S.fiscalYear = next;
-    S.vouchers = [];
-    S.expenses = [];
-    S.receipts = [];
-    S.children = keep.map(c => Object.assign({}, c, {
-      leaveDate: "",
-      classHistory: [{ classId: plan.get(c.id).classId, startDate: start }],
-    }));
-    const alive = new Set(S.children.map(c => c.id));
-    S.rosters = S.rosters.map(r => Object.assign({}, r, { childIds: r.childIds.filter(id => alive.has(id)) }));
-    S.lastBackupAt = null;
-
+    const old = S.years[next] || emptyYear();
+    const alive = new Set(keep.map(c => c.id));
+    const fresh = {
+      classes: newClasses.map(c => ({ id: c.id, name: c.name })),
+      children: keep.map(c => Object.assign(JSON.parse(JSON.stringify(c)), {
+        leaveDate: "",
+        classHistory: [{ classId: plan.get(c.id).classId, startDate: start }],
+      })),
+      items: JSON.parse(JSON.stringify(S.items)),
+      rosters: JSON.parse(JSON.stringify(S.rosters))
+        .map(r => Object.assign(r, { childIds: r.childIds.filter(id => alive.has(id)) })),
+      /* 이미 만들어 둔 해라면 그 해에 넣은 금액 자료는 건드리지 않는다 */
+      vouchers: old.vouchers || [],
+      receipts: old.receipts || [],
+      expenses: old.expenses || [],
+    };
+    syncYear();
+    S.years[next] = fresh;
+    loadYear(next);
     Object.keys(view).forEach(k => delete view[k]);
     activeTab = "setup";
     save(); initHeader(); render();
-    alert(`${next}년도로 넘어왔습니다. 원아 ${keep.length}명이 올라왔습니다.`);
+    alert(`${next}년도로 넘어왔습니다. 반 ${newClasses.length}개 · 원아 ${keep.length}명이 올라왔습니다.\n${fy}년도는 화면 위 회계연도에서 다시 볼 수 있습니다.`);
     return true;
   });
+  showStep();
 }
 
 /* ---- 고정 명단 ---- */
@@ -1886,6 +2065,7 @@ function renderChild(root){
 
   $("#c_print", root).onclick = () => window.print();
   const pick = childSelect($("#c_sel", root), v, {
+    classKey: "classId", childKey: "childId",
     classId: "c_class", childId: "c_pick", width: 190,
     suffix: k => k.leaveDate ? " (퇴소)" : "",
   });
@@ -1998,10 +2178,8 @@ const SETTLE_MODES = [
 function periodOf(v){
   const fy = S.fiscalYear;
   const months = fyMonths(fy);
-  const fromM = v.fromMonth || months[0].key;
-  const toM   = v.toMonth   || months[months.length - 1].key;
-  const lo = fromM <= toM ? fromM : toM;
-  const hi = fromM <= toM ? toM : fromM;
+  const lo = v.fromMonth || months[0].key;
+  const hi = v.toMonth   || months[months.length - 1].key;
   const y0 = +lo.slice(0, 4), y1 = +hi.slice(0, 4);
   const label = `${+lo.slice(5)}월 ~ ${y1 > y0 ? "익년 " : ""}${+hi.slice(5)}월`;
   return { from: monthRange(lo).from, to: monthRange(hi).to, fromM: lo, toM: hi, label,
@@ -2026,6 +2204,13 @@ function periodButtons(spec, months){
       <button class="b ${on(0, 11)}" data-p="Y"  style="padding:5px 9px">연간</button>
     </span></div>`;
 }
+/** 시작월·마지막월이 뒤집히지 않게, 방금 고른 쪽을 그대로 두고 상대 쪽을 끌어당긴다 */
+function setPeriod(v, which, val){
+  if (which === "from") { v.fromMonth = val; if (!v.toMonth || v.toMonth < val) v.toMonth = val; }
+  else                  { v.toMonth = val;   if (!v.fromMonth || v.fromMonth > val) v.fromMonth = val; }
+  render();
+}
+
 function wirePeriodButtons(host, v, months){
   $('[data-p="H1"]', host).onclick = () => { v.fromMonth = months[0].key;  v.toMonth = months[5].key;  render(); };
   $('[data-p="H2"]', host).onclick = () => { v.fromMonth = months[6].key;  v.toMonth = months[11].key; render(); };
@@ -2036,30 +2221,31 @@ function wirePeriodButtons(host, v, months){
  * 반 → 원아 2단 선택. 원아가 많아지면 한 줄짜리 목록에서 이름을 찾기 어려우므로
  * 반으로 먼저 좁힌다. state의 { classId, childId }를 고쳐 쓰고 고른 원아를 돌려준다.
  */
-function childSelect(host, state, opts){
+function childSelect(host, store, opts){
   opts = opts || {};
+  const ck = opts.classKey, kk = opts.childKey;   /* 화면 상태에 그대로 적어 두는 자리 */
   const asOf = opts.asOf || todayISO();
   const all = sortedChildren().filter(opts.filter || (() => true));
   const pool = all.filter(c => {
-    if (!state.classId) return true;
+    if (!store[ck]) return true;
     const cl = classAt(c, asOf) || currentClass(c);
-    return cl && cl.id === state.classId;
+    return cl && cl.id === store[ck];
   });
-  if (!pool.some(c => c.id === state.childId)) state.childId = pool.length ? pool[0].id : null;
+  if (!pool.some(c => c.id === store[kk])) store[kk] = pool.length ? pool[0].id : null;
 
   host.innerHTML = `
     <label class="f">반<select id="${opts.classId}" style="width:120px">
       <option value="">전체</option>
-      ${S.classes.map(cl => `<option value="${cl.id}" ${cl.id === state.classId ? "selected" : ""}>${esc(cl.name)}</option>`).join("")}
+      ${S.classes.map(cl => `<option value="${cl.id}" ${cl.id === store[ck] ? "selected" : ""}>${esc(cl.name)}</option>`).join("")}
     </select></label>
     <label class="f">원아<select id="${opts.childId}" style="width:${opts.width || 170}px">
       ${pool.length
-        ? pool.map(c => `<option value="${c.id}" ${c.id === state.childId ? "selected" : ""}>${esc(c.name)}${opts.suffix ? opts.suffix(c) : ""}</option>`).join("")
+        ? pool.map(c => `<option value="${c.id}" ${c.id === store[kk] ? "selected" : ""}>${esc(c.name)}${opts.suffix ? opts.suffix(c) : ""}</option>`).join("")
         : `<option value="">— 이 반에 원아가 없습니다 —</option>`}
     </select></label>`;
-  $("#" + opts.classId, host).onchange = e => { state.classId = e.target.value; state.childId = null; render(); };
-  $("#" + opts.childId, host).onchange = e => { state.childId = e.target.value; (opts.onPick || render)(); };
-  return { pool, child: childById(state.childId) };
+  $("#" + opts.classId, host).onchange = e => { store[ck] = e.target.value; store[kk] = null; render(); };
+  $("#" + opts.childId, host).onchange = e => { store[kk] = e.target.value; (opts.onPick || render)(); };
+  return { pool, child: childById(store[kk]) };
 }
 
 function printHead(title, sub){
@@ -2118,8 +2304,8 @@ function settleBack(host){
       실제 반환·계좌 처리는 이 표를 보고 어린이집에서 진행하시면 됩니다.</div>
     <div id="bk_body"></div>`;
 
-  $("#bk_from", host).onchange = e => { v.fromMonth = e.target.value; render(); };
-  $("#bk_to", host).onchange   = e => { v.toMonth = e.target.value; render(); };
+  $("#bk_from", host).onchange = e => setPeriod(v, "from", e.target.value);
+  $("#bk_to", host).onchange   = e => setPeriod(v, "to", e.target.value);
   $("#bk_zero", host).onchange = e => { v.bkZero = e.target.checked; render(); };
   wirePeriodButtons(host, v, months);
   $("#bk_print", host).onclick = () => window.print();
@@ -2195,11 +2381,6 @@ function settleBack(host){
   if (anyOver) body.appendChild(el(`<div class="note">수납액을 넘겨 쓴 세목은
     반환할 금액을 0으로 두고 비고에 초과액만 적었습니다. 초과분은 어린이집 운영비로 처리합니다.</div>`));
 
-  body.appendChild(el(`<div class="signline">
-    위와 같이 ${esc(spec.label)} 필요경비를 정산하였으며, 반환할 금액은 위와 같습니다.<br>
-    작성일 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 년 &nbsp;&nbsp;&nbsp; 월 &nbsp;&nbsp;&nbsp; 일 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    어린이집 원장 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (인)</div>`));
-
   $("#bk_csv", host).onclick = () => downloadCSV(`반환정산서_${fy}_${spec.fromM}_${spec.toM}.csv`, csv);
 }
 
@@ -2209,12 +2390,13 @@ function settleExit(host){
   const v = view.settle;
   if (!v.exitInit) {
     const leaving = sortedChildren().find(k => k.leaveDate);
-    if (leaving) { v.exitClassId = ""; v.exitChildId = leaving.id; v.asOf = leaving.leaveDate; }
+    v.exitClassId = "";
+    if (leaving) { v.exitChildId = leaving.id; v.asOf = leaving.leaveDate; }
     v.reason = v.reason || "중간퇴소";
     v.exitInit = true;
   }
   if (!v.asOf) v.asOf = todayISO();
-  const sel = { classId: v.exitClassId || "", childId: v.exitChildId || null };
+
 
   const fy = S.fiscalYear;
   const from = fyStart(fy);
@@ -2238,12 +2420,12 @@ function settleExit(host){
     <div id="st_month" class="no-print"></div>
     <div id="st_sheet"></div>`;
 
-  const pick = childSelect($("#st_sel", host), sel, {
+  const pick = childSelect($("#st_sel", host), v, {
+    classKey: "exitClassId", childKey: "exitChildId",
     classId: "st_class", childId: "st_child", width: 180,
     suffix: k => k.leaveDate ? " · 퇴소 " + k.leaveDate : "",
-    onPick: () => { const k = childById(sel.childId); if (k && k.leaveDate) v.asOf = k.leaveDate; render(); },
+    onPick: () => { const k = childById(v.exitChildId); if (k && k.leaveDate) v.asOf = k.leaveDate; render(); },
   });
-  v.exitClassId = sel.classId; v.exitChildId = sel.childId;
   $("#st_reason", host).onchange = e => { v.reason = e.target.value; render(); };
   $("#st_asof", host).onchange   = e => { v.asOf = e.target.value; render(); };
   $("#st_print", host).onclick   = () => window.print();
@@ -2452,13 +2634,6 @@ function drawExitSheet(host, c, from, to, forcedTo, consign){
       위 표의 금액은 보호자가 직접 낸 몫만 계산한 것이니 어린이집에서 따로 판단하세요.
       <div class="law">근거 — 본문 8p · 부록 182p 위탁보육계약서(예시) 제5조 ⑥</div></div>`));
   }
-
-  body.appendChild(el(`<div class="signline">
-    위와 같이 필요경비를 정산하였습니다.<br>
-    작성일 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 년 &nbsp;&nbsp;&nbsp; 월 &nbsp;&nbsp;&nbsp; 일<br>
-    ${esc(centerName() || "어린이집")} 원장 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (인)
-    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 보호자 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (인)
-  </div>`));
 }
 
 /* ---------------- 정산보고서 (운영위원회용) — 세목별 통계 ---------------- */
@@ -2503,8 +2678,8 @@ function settleHalf(host){
       원아 한 사람씩의 내역은 <b>보호자용 개별 안내문</b>에서 뽑으세요.</div>
     <div id="hp_body"></div>`;
 
-  $("#hp_from", host).onchange   = e => { v.fromMonth = e.target.value; render(); };
-  $("#hp_to", host).onchange     = e => { v.toMonth = e.target.value; render(); };
+  $("#hp_from", host).onchange   = e => setPeriod(v, "from", e.target.value);
+  $("#hp_to", host).onchange     = e => setPeriod(v, "to", e.target.value);
   $("#hp_detail", host).onchange = e => { v.hpDetail = e.target.checked; render(); };
   wirePeriodButtons(host, v, months);
   $("#hp_print", host).onclick = () => window.print();
@@ -2617,11 +2792,6 @@ function settleHalf(host){
     }
   }
 
-  body.appendChild(el(`<div class="signline">
-    위와 같이 필요경비를 정산하여 보고합니다.<br>
-    작성일 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 년 &nbsp;&nbsp;&nbsp; 월 &nbsp;&nbsp;&nbsp; 일 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-    어린이집 원장 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (인)</div>`));
-
   $("#hp_csv", host).onclick = () => downloadCSV(`정산보고서_${fy}_${spec.fromM}_${spec.toM}.csv`, csv);
 }
 
@@ -2653,13 +2823,13 @@ function settleNotice(host){
     <div id="nt_body"></div>`;
 
   wirePeriodButtons(host, v, months);
-  $("#nt_from", host).onchange   = e => { v.fromMonth = e.target.value; render(); };
-  $("#nt_to", host).onchange     = e => { v.toMonth = e.target.value; render(); };
-  const sel = { classId: v.noticeClass || "", childId: v.noticeChild || null };
-  const pick = childSelect($("#nt_sel", host), sel, {
+  $("#nt_from", host).onchange   = e => setPeriod(v, "from", e.target.value);
+  $("#nt_to", host).onchange     = e => setPeriod(v, "to", e.target.value);
+  if (v.noticeClass === undefined) v.noticeClass = "";
+  const pick = childSelect($("#nt_sel", host), v, {
+    classKey: "noticeClass", childKey: "noticeChild",
     classId: "nt_class", childId: "nt_child", width: 160, asOf: spec.to,
   });
-  v.noticeClass = sel.classId; v.noticeChild = sel.childId;
   const pool = pick.pool;
   $("#nt_all", host).onchange    = e => { v.noticeAll = e.target.checked; render(); };
   $("#nt_detail", host).onchange = e => { v.noticeDetail = e.target.checked; render(); };
@@ -2746,12 +2916,7 @@ function noticeSheet(c, spec, fy, withDetail){
         <td class="n">${won(leftT)}</td></tr>
     </tbody></table>
     ${anyConsign ? `<div class="note no-print">위탁보육료를 받는 달의 지출은 위탁보육료로 충당되므로 보호자 부담에서 빠집니다.</div>` : ""}
-    ${detail}
-    <div class="signline">
-      위와 같이 ${esc(spec.label)} 필요경비를 정산하여 알려 드립니다.<br>
-      작성일 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 년 &nbsp;&nbsp;&nbsp; 월 &nbsp;&nbsp;&nbsp; 일 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-      ${esc(centerName() || "어린이집")} 원장 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (인)
-    </div>`;
+    ${detail}`;
   return node;
 }
 
@@ -3229,9 +3394,10 @@ const FAQ = [
     law:"사회복지법인 및 사회복지시설 재무·회계 규칙 제15조 · 부록 47p" },
 
   { g:"정산·보고", q:"정산서·보고서를 인쇄하면 어린이집 이름이 안 나옵니다.",
-    k:"기관명 어린이집 이름 인쇄 머리글",
-    a:`<p><b>기초설정</b> 맨 위 <b>「어린이집 이름」</b> 칸에 한 번만 적으면, 모든 인쇄물 머리글에 자동으로 찍힙니다.</p>
-       <p>물품관리시스템과 <b>같은 이름을 공유</b>하므로, 한쪽에서 적으면 다른 쪽에도 반영됩니다.</p>` },
+    k:"기관명 어린이집 이름 인쇄 머리글 첫화면",
+    a:`<p>어린이집 이름은 <b>맨 처음 화면</b>(프로그램을 고르는 화면) 위쪽 칸에 적습니다.
+         한 번만 적어 두면 모든 인쇄물 머리글에 자동으로 찍힙니다.</p>
+       <p>정산 프로그램과 물품관리시스템이 <b>같은 이름을 함께 씁니다.</b> 그래서 첫 화면에서 한 번만 적으면 양쪽 인쇄물에 다 나옵니다.</p>` },
 
   /* ---- 프로그램·자료 ---- */
   { g:"프로그램·자료", q:"다른 컴퓨터에서 열었더니 입력한 게 하나도 없습니다.",
@@ -3250,23 +3416,30 @@ const FAQ = [
 
   { g:"프로그램·자료", q:"3월이 되었습니다. 새 학년도는 어떻게 시작하나요?",
     k:"신학기 3월 새학년 연도 이월 승계 진급 졸업",
-    a:`<p><b>기초설정 맨 아래 「새 회계연도 시작」</b>을 누르세요.</p>
-       <ol><li>먼저 <b>지난 해 자료를 백업</b> 받습니다. (창 안에 버튼이 있습니다)</li>
-       <li>원아마다 <b>올라갈 반</b>을 고릅니다. 그대로 있을 아이는 손대지 않아도 됩니다.</li>
-       <li>졸업하거나 그만둔 아이는 <b>체크를 끕니다.</b> 퇴소일을 적어 둔 아이는 미리 꺼져 있습니다.</li>
+    a:`<p><b>기초설정 맨 아래 「새 회계연도 시작」</b>을 누르세요. 두 단계로 진행됩니다.</p>
+       <ol><li><b>1단계 — 반 구성.</b> 올해 반이 그대로 복사되어 있습니다.
+         이름이 바뀌는 반은 <b>고쳐 적고</b>, 없어지는 반은 <b>지우고</b>, 새로 생기는 반은 <b>더합니다.</b></li>
+       <li><b>2단계 — 원아 배치.</b> 1단계에서 정한 반 중에서 원아마다 <b>올라갈 반</b>을 고릅니다.
+         졸업하거나 그만둔 아이는 <b>체크를 끕니다.</b> 퇴소일을 적어 둔 아이는 미리 꺼져 있습니다.</li>
        <li><b>「저장」</b>을 누르면 새 회계연도로 넘어갑니다.</li></ol>
-       <table><thead><tr><th>넘어가는 것</th><th>지워지는 것</th></tr></thead><tbody>
-         <tr><td>반 · 원아 · 세목(1인당 수납액 포함) · 고정 명단 · 위탁 기간</td>
+       <div class="warn"><p><b>지난 해 자료는 하나도 지워지지 않습니다.</b>
+         새 회계연도는 금액만 비어 있는 새 장부로 따로 만들어지고,
+         지난 해 장부는 그대로 보관됩니다. 화면 위 <b>회계연도</b>에서 언제든 오갈 수 있습니다.</p></div>
+       <table><thead><tr><th>새 해로 이어지는 것</th><th>새 해에서 비어 있는 것</th></tr></thead><tbody>
+         <tr><td>반(1단계에서 정한 대로) · 원아 · 세목(1인당 수납액 포함) · 고정 명단 · 위탁 기간</td>
              <td>수납결의서 · 지출 · 그에 딸린 모든 금액</td></tr>
        </tbody></table>
        <p>새로 들어온 아이는 넘어간 뒤 <b>원아 추가</b>로 넣으면 됩니다.</p>` },
 
   { g:"프로그램·자료", q:"작년 대장이나 정산서를 다시 뽑아야 합니다.",
-    k:"작년 지난해 이전연도 다시 과거 복원",
-    a:`<p>새 회계연도로 넘어갈 때 받아 둔 <b>그 해 백업 파일</b>을 <b>「복원」</b>으로 불러오면
-         그때 상태로 돌아갑니다. 필요한 서류를 뽑은 뒤, 다시 <b>올해 백업 파일</b>을 복원해 돌아오면 됩니다.</p>
-       <div class="warn"><p>그래서 <b>해마다 백업 파일을 따로 보관</b>해 두셔야 합니다.
-         파일 이름에 연도와 날짜가 들어가니 폴더 하나에 모아 두세요.</p></div>` },
+    k:"작년 지난해 이전연도 다시 과거 회계연도 전환",
+    a:`<p>화면 <b>맨 위 「회계연도」</b>에서 그 해를 고르기만 하면 됩니다.
+         백업 파일을 복원할 필요가 없습니다.</p>
+       <ol><li>화면 위 <b>회계연도</b>를 지난 해로 바꿉니다.</li>
+       <li><b>대장 · 정산·보고</b>에서 필요한 서류를 뽑습니다. 그때 있던 반 이름·원아·금액이 그대로 나옵니다.</li>
+       <li>다 뽑았으면 <b>회계연도</b>를 올해로 되돌립니다.</li></ol>
+       <p>보관 중인 회계연도 목록은 <b>기초설정 맨 아래</b>에서 볼 수 있습니다.
+         더 볼 일이 없는 해는 거기서 지울 수도 있지만, 자리를 많이 차지하지 않으니 그냥 두시길 권합니다.</p>` },
 
   { g:"프로그램·자료", q:"화면 위에 “백업한 지 며칠 지났습니다”가 떴어요.",
     k:"백업 알림 경고 며칠 지남",
@@ -3289,8 +3462,10 @@ const FAQ = [
     a:`<p>인쇄 창에서 이렇게 맞춰 보세요.</p>
        <ul><li><b>용지 방향: 가로</b> (대장처럼 월 12칸이 있는 표는 가로가 편합니다)</li>
        <li><b>배율: 「페이지에 맞춤」</b> 또는 80~90%</li>
-       <li>여백: 기본</li></ul>
-       <p>화면의 버튼·탭은 인쇄되지 않고 표만 나옵니다.</p>` },
+       <li>여백: <b>기본 그대로</b> 두세요 (프로그램이 알아서 잡아 둡니다)</li></ul>
+       <p>화면의 버튼·탭은 인쇄되지 않고 표만 나옵니다. 표가 다음 장으로 넘어가도 <b>머리행이 쪽마다 다시</b> 찍힙니다.</p>
+       <p>날짜·파일 경로 같은 <b>브라우저 머리글·바닥글은 찍히지 않게</b> 해 두었습니다.
+         그래도 나온다면 인쇄 창의 <b>「추가 설정」 → 「머리글 및 바닥글」</b> 체크를 꺼 주세요.</p>` },
 
   { g:"프로그램·자료", q:"물품관리시스템과 같이 쓰면 자료가 섞이나요?",
     k:"물품관리 통합 같이 섞임 충돌 첫화면",
@@ -3452,12 +3627,15 @@ function manualFull(sources){
     <li><b>하반기</b> : 9월 ~ 익년 2월</li>
   </ul>
   <p>화면 맨 위에서 회계연도를 고르면 그 아래 모든 숫자가 그 기간으로 맞춰집니다.</p>
+  <p>회계연도마다 장부가 <b>따로 보관</b>됩니다. 새 회계연도를 시작해도 지난 해 자료는 그대로 남고,
+    맨 위 <b>회계연도</b>를 지난 해로 바꾸면 그때 대장·정산서를 언제든 다시 뽑을 수 있습니다.</p>
 
   <h2>4. 맨 처음 한 번만 — 기초설정</h2>
   <p><b>기초설정</b> 탭에서 위에서부터 차례로 채우시면 됩니다.</p>
 
   <h3>① 어린이집 이름</h3>
-  <p>맨 위 칸에 적으면 모든 인쇄물 머리글에 자동으로 찍힙니다. 물품관리시스템과 같은 이름을 씁니다.</p>
+  <p>어린이집 이름은 <b>맨 처음 화면</b>(프로그램을 고르는 화면) 위쪽 칸에 적습니다.
+    한 번만 적어 두면 모든 인쇄물 머리글에 자동으로 찍히고, 물품관리시스템도 같은 이름을 씁니다.</p>
 
   <h3>② 반 구성</h3>
   <p>반 이름을 적고 <b>「반 추가」</b>. 순서는 화살표로 바꿉니다.</p>
@@ -3583,22 +3761,26 @@ function manualFull(sources){
     전입금으로 충당한 부분이 있기 때문입니다.</blockquote>
 
   <h2>11. 새 학년도 시작 — 마감과 승계</h2>
-  <p>3월이 되면 <b>기초설정 맨 아래 「새 회계연도 시작」</b>을 누르세요.</p>
+  <p>3월이 되면 <b>기초설정 맨 아래 「새 회계연도 시작」</b>을 누르세요. 두 단계로 진행됩니다.</p>
   <ol>
-    <li>창 안의 버튼으로 <b>지난 해 자료를 백업</b> 받습니다. 받지 않으면 다음으로 넘어가지 않습니다.</li>
-    <li>원아마다 <b>올라갈 반</b>을 고릅니다. 졸업하거나 그만둔 아이는 체크를 끕니다.</li>
+    <li><b>1단계 — 반 구성.</b> 올해 반이 그대로 복사되어 있습니다. 어린이집은 해마다 반 이름과 구성이
+      조금씩 바뀌므로, 먼저 <b>새 해에 쓸 반</b>을 확정합니다. 이름은 고쳐 적고, 없어지는 반은 지우고,
+      새로 생기는 반은 더합니다.</li>
+    <li><b>2단계 — 원아 배치.</b> 1단계에서 정한 반 중에서 원아마다 <b>올라갈 반</b>을 고릅니다.
+      졸업하거나 그만둔 아이는 체크를 끕니다. 퇴소일을 적어 둔 아이는 미리 꺼져 있습니다.</li>
     <li>저장하면 새 회계연도로 넘어갑니다.</li>
   </ol>
   <table>
-    <thead><tr><th>넘어가는 것</th><th>지워지는 것</th></tr></thead>
+    <thead><tr><th>새 해로 이어지는 것</th><th>새 해에서 비어 있는 것</th></tr></thead>
     <tbody><tr>
-      <td>반 · 원아 · 세목(1인당 수납액 포함) · 고정 명단 · 위탁 기간</td>
+      <td>반(1단계에서 정한 대로) · 원아 · 세목(1인당 수납액 포함) · 고정 명단 · 위탁 기간</td>
       <td>수납결의서 · 지출 · 그에 딸린 모든 금액</td>
     </tr></tbody>
   </table>
-  <div class="warn"><p><b>해마다 백업 파일을 따로 보관하세요.</b>
-    작년 대장이나 정산서를 다시 뽑아야 할 때, 그 해 백업 파일을 「복원」으로 불러오면 그때 상태로 돌아갑니다.
-    필요한 것을 뽑은 뒤 올해 백업 파일을 다시 복원해 돌아오면 됩니다.</p></div>
+  <div class="warn"><p><b>지난 해 자료는 하나도 지워지지 않습니다.</b>
+    새 회계연도는 금액만 비어 있는 새 장부로 따로 만들어지고, 지난 해 장부는 그대로 보관됩니다.</p>
+    <p>작년 대장이나 정산서를 다시 뽑아야 하면 <b>화면 맨 위 「회계연도」를 지난 해로 바꾸기만</b> 하면 됩니다.
+      백업 파일을 복원할 필요가 없습니다. 다 뽑았으면 올해로 되돌리세요.</p></div>
   <blockquote>회계연도 중간에 이 프로그램을 도입한다면, <b>지나간 수납결의서와 지출을 그대로 입력</b>하시면 됩니다.
     그래야 개인별 대장과 정산서가 온전히 맞습니다.</blockquote>
 
@@ -3660,8 +3842,9 @@ function manualQuick(sources){
   </table>
 
   <h2>3월이 되면</h2>
-  <p><b>기초설정 맨 아래 「새 회계연도 시작」</b> → 백업 받기 → 올라갈 반 고르기 → 저장.
-    반·원아·세목은 넘어가고 금액만 초기화됩니다.</p>
+  <p><b>기초설정 맨 아래 「새 회계연도 시작」</b> → 새 해 반 구성 확정 → 원아마다 올라갈 반 고르기 → 저장.
+    반·원아·세목은 넘어가고 금액만 비어 있습니다.</p>
+  <p><b>지난 해 자료는 그대로 남습니다.</b> 작년 서류가 필요하면 화면 맨 위 <b>회계연도</b>를 지난 해로 바꾸세요.</p>
 
   <h2>잊지 마세요</h2>
   <div class="warn">
@@ -3708,6 +3891,7 @@ function openModal(title, bodyNode, onOk, extraButtons){
     if (e.key === "Escape") { mask.remove(); document.removeEventListener("keydown", esckey); }
   });
   $("#modalHost").appendChild(mask);
+  return mask;
 }
 
 /** 지금 자료를 JSON 파일로 내려받고, 마지막 백업 시각을 적어 둔다 */
@@ -3761,13 +3945,11 @@ function downloadBlob(filename, text, mime){
    ========================================================================== */
 
 function initHeader(){
+  /* 보관 중인 회계연도만 고를 수 있다. 새 연도는 기초설정의 「새 회계연도 시작」으로 만든다. */
   const sel = $("#fyPick");
-  const base = defaultFiscalYear();
-  const years = new Set([S.fiscalYear]);
-  for (let y = base - 3; y <= base + 2; y++) years.add(y);
-  sel.innerHTML = Array.from(years).sort((a, b) => a - b)
+  sel.innerHTML = listYears()
     .map(y => `<option value="${y}" ${y === S.fiscalYear ? "selected" : ""}>${y}년도</option>`).join("");
-  sel.onchange = e => { S.fiscalYear = parseInt(e.target.value, 10); save(); render(); };
+  sel.onchange = e => switchYear(parseInt(e.target.value, 10));
 
   $("#btnExport").onclick = () => exportBackup();
   $("#btnImport").onclick = () => $("#fileImport").click();
@@ -3778,12 +3960,12 @@ function initHeader(){
     reader.onload = () => {
       try {
         const data = JSON.parse(reader.result);
-        if (!data || !Array.isArray(data.children)) throw new Error("형식이 맞지 않습니다");
+        const okShape = data && (data.years || Array.isArray(data.children));
+        if (!okShape) throw new Error("형식이 맞지 않습니다");
         if (!confirm("복원하면 지금 저장된 내용이 모두 덮어써집니다. 계속할까요?")) return;
-        S = migrate(Object.assign(defaultStore(), data));
-        rebuildReceipts();
+        S = migrate(data);
         save(); initHeader(); render();
-        alert("복원했습니다.");
+        alert(`복원했습니다. 회계연도 ${listYears().join(", ")}년도가 들어 있습니다.`);
       } catch (err) {
         alert("복원 실패 — " + err.message);
       }
@@ -3811,7 +3993,6 @@ document.addEventListener("input", e => {
 });
 
 load();
-rebuildReceipts();
 initHeader();
 render();
 flagSaved("");

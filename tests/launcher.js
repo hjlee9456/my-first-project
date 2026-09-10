@@ -37,7 +37,7 @@ const flat = s => String(s || "").replace(/\s+/g, " ");
   await p.evaluate(() => localStorage.setItem("centerName", "여수시립 힐스테이트죽림젠트리스어린이집"));
   await p.reload();
   await p.waitForTimeout(300);
-  check("첫 화면에 어린이집 이름", /힐스테이트죽림젠트리스/.test(await p.textContent("#centerName")));
+  check("첫 화면에 어린이집 이름", /힐스테이트죽림젠트리스/.test(await p.inputValue("#centerName")));
 
   // ---- 정산 프로그램 ----
   await p.locator('.card[data-app="settle"]').click();

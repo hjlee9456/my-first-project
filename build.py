@@ -48,7 +48,15 @@ body{margin:0;background:var(--bg);color:var(--ink);
 /* ---------- 첫 화면 ---------- */
 #home{min-height:100%;display:flex;flex-direction:column;
   align-items:center;justify-content:center;padding:40px 20px;gap:6px}
-#home .center{font-size:13px;color:var(--faint);letter-spacing:.02em}
+#home .nameRow{display:flex;align-items:center;gap:8px;margin-bottom:2px}
+#home .nameRow label{font-size:12px;color:var(--faint)}
+#home .nameRow input{font:inherit;font-size:13px;text-align:center;padding:5px 10px;width:290px;
+  border:1px solid transparent;border-radius:5px;background:transparent;color:var(--dim)}
+#home .nameRow input:hover{border-color:var(--line);background:#fff}
+#home .nameRow input:focus{outline:2px solid var(--accent-bg);border-color:var(--accent);
+  background:#fff;color:var(--ink)}
+#home .saved{font-size:11px;color:var(--accent);opacity:0;transition:.2s}
+#home .saved.on{opacity:1}
 #home h1{margin:2px 0 4px;font-size:27px;font-weight:700}
 #home .lead{font-size:13.5px;color:var(--dim);margin-bottom:26px}
 .cards{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
@@ -82,7 +90,11 @@ body{margin:0;background:var(--bg);color:var(--ink);
 <body>
 
 <div id="home">
-  <div class="center" id="centerName"></div>
+  <div class="nameRow">
+    <input id="centerName" placeholder="어린이집 이름을 적으세요 (인쇄물 머리글에 찍힙니다)"
+           title="여기 적은 이름이 두 프로그램의 인쇄물에 모두 찍힙니다">
+    <span class="saved" id="nameSaved">저장됨</span>
+  </div>
   <h1>어린이집 관리</h1>
   <div class="lead">쓰실 프로그램을 고르세요.</div>
   <div class="cards">
@@ -174,12 +186,23 @@ Array.prototype.forEach.call(document.querySelectorAll(".card"), function(el){
   el.onclick = function(){ openApp(el.getAttribute("data-app")); };
 });
 
-/* 두 프로그램이 같은 자리에 적어 두는 어린이집 이름을 첫 화면에도 보여 준다 */
+/* 어린이집 이름은 여기서 한 번만 정한다.
+   두 프로그램이 같은 자리를 보므로 양쪽 인쇄물에 모두 찍힌다. */
+var nameInput = document.getElementById("centerName");
+var nameSaved = document.getElementById("nameSaved");
+
 function showCenterName(){
   var n = "";
   try { n = localStorage.getItem("centerName") || ""; } catch (e) {}
-  document.getElementById("centerName").textContent = n;
+  nameInput.value = n;
 }
+function saveCenterName(){
+  try { localStorage.setItem("centerName", nameInput.value.trim()); } catch (e) {}
+  nameSaved.classList.add("on");
+  setTimeout(function(){ nameSaved.classList.remove("on"); }, 1200);
+}
+nameInput.addEventListener("change", saveCenterName);
+nameInput.addEventListener("keydown", function(e){ if (e.key === "Enter") nameInput.blur(); });
 showCenterName();
 
 /* 새로고침해도 보던 프로그램으로 돌아온다 */
