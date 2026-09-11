@@ -48,15 +48,7 @@ PATCHES = {
         여기서 정한 이름은 화면 상단과 물품대장·재물조사 조서 인쇄물에 함께 표시됩니다.
       </p>
     </div>""",
-         """    <!-- 어린이집 이름 — 통합본에서는 맨 처음 화면에서 정한다 -->
-    <div class="input-area">
-      <div style="font-size:15px; font-weight:bold; margin-bottom:10px;">어린이집 이름</div>
-      <p style="margin:0; font-size:13px; color:#555; line-height:1.9;">
-        어린이집 이름은 <b>맨 처음 화면</b>에서 정합니다.
-        위쪽 <b>「← 처음 화면」</b>을 누르면 나오는 화면 위쪽 칸에 적으세요.<br>
-        한 번만 적어 두면 <b>물품관리와 기타필요경비 정산</b>의 인쇄물에 모두 함께 찍힙니다.
-      </p>
-    </div>"""),
+         """    <!-- 어린이집 이름은 맨 처음 화면에서 정한다 -->"""),
 
         # 입력칸이 없어졌으므로 화면 상단 이름만 갱신한다
         ("""      document.getElementById('center-name-display').textContent = name;
@@ -82,16 +74,20 @@ PATCHES = {
       <p>인쇄물에 어린이집 이름이 자동으로 찍히게 하려면, 처음에 한 번만 적어 두면 됩니다.</p>
       <ol>
         <li>화면 위 <b>「← 처음 화면」</b>을 눌러 <b>맨 처음 화면</b>으로 나갑니다.</li>
-        <li>화면 위쪽 칸에 이름을 적습니다. (예: 여수시립 햇살어린이집)</li>
-        <li><b>Enter</b>를 누르거나 칸 밖을 누르면 저장됩니다.</li>
+        <li>왼쪽 위 <b>「⚙ 어린이집 이름 설정」</b>을 누릅니다.</li>
+        <li>이름을 적고 <b>「저장」</b>을 누릅니다. (예: 여수시립 햇살어린이집)</li>
       </ol>
       <p>이제 물품대장·재물조사 서류를 인쇄하면, 어린이집 이름이 자동으로 들어갑니다.
         <b>기타필요경비 정산</b>의 인쇄물에도 같은 이름이 함께 찍힙니다.</p>""") ,
 
         # 설명서 — 빠르게본
         ("""      <p><b>⚙ 설정 → 어린이집 이름 입력 → 「저장」.</b> (인쇄물에 자동으로 찍힙니다.)</p>""",
-         """      <p><b>「← 처음 화면」 → 위쪽 칸에 이름 적기 → Enter.</b>
+         """      <p><b>「← 처음 화면」 → 왼쪽 위 「⚙ 어린이집 이름 설정」 → 이름 적고 「저장」.</b>
         (두 프로그램 인쇄물에 모두 자동으로 찍힙니다.)</p>"""),
+
+        # 이름 칸이 빠져 설정 화면 첫 칸이 되므로 위 여백을 없앤다
+        ("""    <div class="input-area" style="margin-top:32px; border-top:2px solid #e74c3c; padding-top:20px;">""",
+         """    <div class="input-area" style="border-top:2px solid #e74c3c; padding-top:20px;">"""),
 
         # 시스템 초기화 안내 문구
         ("""        &nbsp;&nbsp;※ 어린이집 이름 설정은 유지됩니다.<br>""",
@@ -145,15 +141,10 @@ body{margin:0;background:var(--bg);color:var(--ink);
 /* ---------- 첫 화면 ---------- */
 #home{min-height:100%;display:flex;flex-direction:column;
   align-items:center;justify-content:center;padding:40px 20px;gap:6px}
-#home .nameRow{display:flex;align-items:center;gap:8px;margin-bottom:2px}
-#home .nameRow label{font-size:12px;color:var(--faint)}
-#home .nameRow input{font:inherit;font-size:13px;text-align:center;padding:5px 10px;width:290px;
-  border:1px solid transparent;border-radius:5px;background:transparent;color:var(--dim)}
-#home .nameRow input:hover{border-color:var(--line);background:#fff}
-#home .nameRow input:focus{outline:2px solid var(--accent-bg);border-color:var(--accent);
-  background:#fff;color:var(--ink)}
-#home .saved{font-size:11px;color:var(--accent);opacity:0;transition:.2s}
-#home .saved.on{opacity:1}
+#home .corner{position:fixed;top:14px;left:14px;font:inherit;font-size:13px;
+  padding:7px 14px;border:1px solid var(--line);background:var(--panel);
+  border-radius:6px;cursor:pointer;color:var(--dim)}
+#home .corner:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
 #home h1{margin:2px 0 4px;font-size:27px;font-weight:700}
 #home .lead{font-size:13.5px;color:var(--dim);margin-bottom:26px}
 .cards{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
@@ -171,6 +162,24 @@ body{margin:0;background:var(--bg);color:var(--ink);
 #home .about .ver{color:var(--dim);font-weight:600;margin-bottom:3px}
 #home .about a{color:var(--accent);text-decoration:none;font-weight:600}
 #home .about a:hover{text-decoration:underline}
+
+/* ---------- 어린이집 이름 창 ---------- */
+#nameMask{position:fixed;inset:0;background:rgba(20,26,34,.42);
+  display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
+#nameMask[hidden]{display:none}
+#nameBox{background:var(--panel);border-radius:10px;padding:24px 26px 20px;
+  width:100%;max-width:430px;box-shadow:0 16px 44px rgba(0,0,0,.22)}
+#nameBox h2{margin:0 0 8px;font-size:17px}
+#nameBox p{margin:0 0 16px;font-size:12.5px;color:var(--dim);line-height:1.8}
+#nameBox input{font:inherit;font-size:14px;width:100%;padding:9px 11px;
+  border:1px solid var(--line);border-radius:6px;color:var(--ink)}
+#nameBox input:focus{outline:2px solid var(--accent-bg);border-color:var(--accent)}
+#nameBox .btns{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+#nameBox button{font:inherit;font-size:13px;padding:7px 16px;border:1px solid var(--line);
+  background:#fff;border-radius:5px;cursor:pointer;color:var(--ink)}
+#nameBox button:hover{background:var(--bg)}
+#nameBox button.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+#nameBox button.pri:hover{filter:brightness(1.07)}
 
 /* ---------- 프로그램 화면 ---------- */
 #run{position:fixed;inset:0;display:none;flex-direction:column}
@@ -192,11 +201,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
 <body>
 
 <div id="home">
-  <div class="nameRow">
-    <input id="centerName" placeholder="어린이집 이름을 적으세요 (인쇄물 머리글에 찍힙니다)"
-           title="여기 적은 이름이 두 프로그램의 인쇄물에 모두 찍힙니다">
-    <span class="saved" id="nameSaved">저장됨</span>
-  </div>
+  <button id="btnName" class="corner">⚙ 어린이집 이름 설정</button>
   <h1>__NAME__</h1>
   <div class="lead">쓰실 프로그램을 고르세요.</div>
   <div class="cards">
@@ -215,6 +220,20 @@ __CARDS__
       로 알려 주세요.<br>
       의견을 주신 분, 그리고 앞으로 <b>고쳐 나온 것을 계속 받아보고 싶은 어린이집</b>도
       같은 주소로 연락 주시면 됩니다.
+    </div>
+  </div>
+</div>
+
+<!-- 어린이집 이름 — 두 프로그램이 함께 쓰므로 여기서 한 번만 정한다 -->
+<div id="nameMask" hidden>
+  <div id="nameBox">
+    <h2>어린이집 이름</h2>
+    <p>여기 적은 이름이 <b>물품대장·재물조사 조서·정산서·보고서</b> 인쇄물 머리글에
+      모두 찍힙니다. 한 번만 적어 두면 됩니다.</p>
+    <input id="centerName" placeholder="예) 여수시립 햇살어린이집">
+    <div class="btns">
+      <button id="nameCancel">취소</button>
+      <button id="nameSave" class="pri">저장</button>
     </div>
   </div>
 </div>
@@ -261,7 +280,6 @@ function goHome(){
   app.srcdoc = "";
   home.style.display = "";
   document.title = "__NAME__";
-  showCenterName();
   if (location.hash) history.replaceState(null, "", location.pathname);
 }
 
@@ -301,22 +319,31 @@ Array.prototype.forEach.call(document.querySelectorAll(".card"), function(el){
 
 /* 어린이집 이름은 여기서 한 번만 정한다.
    두 프로그램이 같은 자리를 보므로 양쪽 인쇄물에 모두 찍힌다. */
+var nameMask  = document.getElementById("nameMask");
 var nameInput = document.getElementById("centerName");
-var nameSaved = document.getElementById("nameSaved");
 
-function showCenterName(){
+function openNameBox(){
   var n = "";
   try { n = localStorage.getItem("centerName") || ""; } catch (e) {}
   nameInput.value = n;
+  nameMask.hidden = false;
+  nameInput.focus();
+  nameInput.select();
 }
+function closeNameBox(){ nameMask.hidden = true; }
 function saveCenterName(){
   try { localStorage.setItem("centerName", nameInput.value.trim()); } catch (e) {}
-  nameSaved.classList.add("on");
-  setTimeout(function(){ nameSaved.classList.remove("on"); }, 1200);
+  closeNameBox();
 }
-nameInput.addEventListener("change", saveCenterName);
-nameInput.addEventListener("keydown", function(e){ if (e.key === "Enter") nameInput.blur(); });
-showCenterName();
+
+document.getElementById("btnName").onclick   = openNameBox;
+document.getElementById("nameSave").onclick   = saveCenterName;
+document.getElementById("nameCancel").onclick = closeNameBox;
+nameMask.addEventListener("click", function(e){ if (e.target === nameMask) closeNameBox(); });
+nameInput.addEventListener("keydown", function(e){
+  if (e.key === "Enter")  saveCenterName();
+  if (e.key === "Escape") closeNameBox();
+});
 
 /* 새로고침해도 보던 프로그램으로 돌아온다 */
 var h = (location.hash || "").replace("#", "");

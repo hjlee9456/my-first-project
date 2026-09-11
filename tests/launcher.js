@@ -37,7 +37,24 @@ const flat = s => String(s || "").replace(/\s+/g, " ");
   await p.evaluate(() => localStorage.setItem("centerName", "여수시립 힐스테이트죽림젠트리스어린이집"));
   await p.reload();
   await p.waitForTimeout(300);
-  check("첫 화면에 어린이집 이름", /힐스테이트죽림젠트리스/.test(await p.inputValue("#centerName")));
+  // 이름은 좌상단 버튼으로 정한다 — 첫 화면 가운데에는 입력칸이 없다
+  check("첫 화면 가운데에 이름 입력칸이 없음", (await p.locator("#home input").count()) === 0);
+  check("좌상단에 이름 설정 버튼", /어린이집 이름 설정/.test(await p.textContent("#btnName")));
+  check("이름 창은 평소에 닫혀 있음", await p.locator("#nameMask").isHidden());
+  await p.click("#btnName");
+  await p.waitForTimeout(250);
+  check("버튼을 누르면 지금 이름이 담긴 창이 뜸",
+    /힐스테이트죽림젠트리스/.test(await p.inputValue("#centerName")));
+  await p.fill("#centerName", "여수시립 햇살어린이집");
+  await p.click("#nameSave");
+  await p.waitForTimeout(250);
+  check("저장하면 창이 닫히고 이름이 바뀜",
+    (await p.locator("#nameMask").isHidden()) &&
+    (await p.evaluate(() => localStorage.getItem("centerName"))) === "여수시립 햇살어린이집");
+  await p.click("#btnName");
+  await p.fill("#centerName", "여수시립 힐스테이트죽림젠트리스어린이집");
+  await p.click("#nameSave");
+  await p.waitForTimeout(250);
 
   // 버전·제작자·의견 주실 곳은 첫 화면 하나에만 둔다
   const about = flat(await p.textContent("#home .about"));
@@ -119,14 +136,15 @@ const flat = s => String(s || "").replace(/\s+/g, " ");
   check("물품관리 화면 위에 그 이름이 찍힘",
     /힐스테이트죽림젠트리스/.test(await g.locator("#center-name-display").textContent()));
 
-  // 이름을 정하는 자리는 첫 화면 하나뿐 — 물품관리 ⚙ 설정에서는 빠져 있어야 한다
+  // 이름을 정하는 자리는 첫 화면 하나뿐 — 물품관리 ⚙ 설정에서는 통째로 빠져 있어야 한다
   await g.locator(".btn-settings").click();
   await p.waitForTimeout(400);
   check("물품관리 ⚙ 설정에 이름 입력칸이 없음",
     (await g.locator("#inp-center-name").count()) === 0);
-  const st = flat(await g.locator("#screen-settings").textContent());
-  check("설정 화면이 첫 화면을 가리킴",
-    /맨 처음 화면/.test(st) && /시스템 초기화/.test(st), st.slice(0, 150));
+  const st = flat(await g.locator("#screen-settings .input-area").first().textContent());
+  check("물품관리 ⚙ 설정에는 시스템 초기화만 남음",
+    (await g.locator("#screen-settings .input-area").count()) === 1 && /시스템 초기화/.test(st),
+    st.slice(0, 100));
   await g.locator("#screen-settings .btn-home").click();
   await p.waitForTimeout(300);
 
