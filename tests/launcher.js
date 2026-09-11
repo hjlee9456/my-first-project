@@ -24,7 +24,7 @@ const flat = s => String(s || "").replace(/\s+/g, " ");
   p.on("pageerror", e => errs.push("PAGE ERROR: " + e.message));
   p.on("console", m => { if (m.type() === "error") errs.push("CONSOLE: " + m.text()); });
 
-  await p.goto("file:///home/user/my-first-project/index.html");
+  await p.goto("file:///home/user/my-first-project/어린이집살림도우미.html");
   await p.waitForTimeout(300);
 
   // ---- 첫 화면 ----
@@ -38,6 +38,13 @@ const flat = s => String(s || "").replace(/\s+/g, " ");
   await p.reload();
   await p.waitForTimeout(300);
   check("첫 화면에 어린이집 이름", /힐스테이트죽림젠트리스/.test(await p.inputValue("#centerName")));
+
+  // 버전·제작자·의견 주실 곳은 첫 화면 하나에만 둔다
+  const about = flat(await p.textContent("#home .about"));
+  check("첫 화면에 버전·제작자", /어린이집 살림도우미 v1\.0\.0 · 제작 이현재/.test(about), about.slice(0, 60));
+  check("첫 화면에 의견 주실 곳", /hjlee9446@korea\.kr/.test(about) && /받아보고 싶은 어린이집/.test(about), about);
+  check("메일 링크가 걸려 있음",
+    (await p.locator('#home .about a[href^="mailto:hjlee9446@korea.kr"]').count()) === 1);
 
   // ---- 정산 프로그램 ----
   await p.locator('.card[data-app="settle"]').click();
@@ -109,6 +116,23 @@ const flat = s => String(s || "").replace(/\s+/g, " ");
   // 물품관리도 같은 자리에 어린이집 이름을 적으므로 그대로 보여야 한다
   const gname = await p.frames().find(fr => fr !== p.mainFrame()).evaluate(() => localStorage.getItem("centerName"));
   check("물품관리도 같은 어린이집 이름을 봄", /힐스테이트죽림젠트리스/.test(gname || ""), gname);
+  check("물품관리 화면 위에 그 이름이 찍힘",
+    /힐스테이트죽림젠트리스/.test(await g.locator("#center-name-display").textContent()));
+
+  // 이름을 정하는 자리는 첫 화면 하나뿐 — 물품관리 ⚙ 설정에서는 빠져 있어야 한다
+  await g.locator(".btn-settings").click();
+  await p.waitForTimeout(400);
+  check("물품관리 ⚙ 설정에 이름 입력칸이 없음",
+    (await g.locator("#inp-center-name").count()) === 0);
+  const st = flat(await g.locator("#screen-settings").textContent());
+  check("설정 화면이 첫 화면을 가리킴",
+    /맨 처음 화면/.test(st) && /시스템 초기화/.test(st), st.slice(0, 150));
+  await g.locator("#screen-settings .btn-home").click();
+  await p.waitForTimeout(300);
+
+  // 물품관리 쪽 버전 표시는 첫 화면으로 옮겼으므로 통합본에는 없어야 한다
+  check("물품관리 화면에 버전 표시가 남아 있지 않음",
+    (await g.locator(".app-version").count()) === 0);
 
   // 두 프로그램의 저장 자리가 서로 섞이지 않는지
   const keys = await p.evaluate(() => Object.keys(localStorage).sort());

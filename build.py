@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-두 프로그램을 한 파일로 합쳐 index.html을 만든다.
+두 프로그램을 한 파일로 합쳐 「어린이집 살림도우미」를 만든다.
 
     python3 build.py
 
-어린이집에는 index.html 하나만 건네면 된다. 더블클릭하면 첫 화면이 뜨고
+어린이집에는 어린이집살림도우미.html 하나만 건네면 된다. 더블클릭하면 첫 화면이 뜨고
 「기타필요경비 정산」과 「물품관리」 중 하나를 골라 들어간다.
 
 각 프로그램은 손대지 않고 통째로 담는다. 서로 다른 화면틀에서 돌아가므로
@@ -14,8 +14,105 @@ CSS나 함수 이름이 부딪히지 않고, 저장 공간은 같은 자리를 �
 import base64
 import io
 import os
+from urllib.parse import quote
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+
+# 통합본의 버전. 두 프로그램을 한 파일로 묶으면서 새로 매긴다.
+# 고칠 일이 있으면 여기만 고치면 첫 화면에 그대로 나온다.
+NAME    = "어린이집 살림도우미"
+FILE    = "어린이집살림도우미.html"
+VERSION = "v1.0.0"
+MAKER   = "이현재"
+MAIL    = "hjlee9446@korea.kr"
+
+# ---------------------------------------------------------------------------
+# 통합본에서만 걷어내는 부분
+#
+# 물품관리시스템.html은 혼자서도 돌아가는 완성품이라 손대지 않는다. 다만 한
+# 파일로 합치면 어린이집 이름을 정하는 자리가 첫 화면과 물품관리 ⚙ 설정 두
+# 군데가 되어 헷갈린다. 그래서 담을 때만 물품관리 쪽 이름 설정을 들어내고
+# 첫 화면을 가리키게 한다. 원본 파일은 그대로 남는다.
+# ---------------------------------------------------------------------------
+PATCHES = {
+    "물품관리시스템.html": [
+        # ⚙ 설정 화면 — 이름 입력칸을 들어내고 어디서 정하는지 알려 준다
+        ("""    <!-- 어린이집 이름 -->
+    <div class="input-area">
+      <div>
+        <label style="width:100px; white-space:nowrap;">어린이집 이름</label>
+        <input type="text" id="inp-center-name" placeholder="예) 여수시립 햇살어린이집" style="width:280px;">
+        <button class="btn-blue" style="margin-left:10px;" onclick="saveCenterName()">저장</button>
+      </div>
+      <p style="margin:12px 0 0; font-size:13px; color:#888;">
+        여기서 정한 이름은 화면 상단과 물품대장·재물조사 조서 인쇄물에 함께 표시됩니다.
+      </p>
+    </div>""",
+         """    <!-- 어린이집 이름 — 통합본에서는 맨 처음 화면에서 정한다 -->
+    <div class="input-area">
+      <div style="font-size:15px; font-weight:bold; margin-bottom:10px;">어린이집 이름</div>
+      <p style="margin:0; font-size:13px; color:#555; line-height:1.9;">
+        어린이집 이름은 <b>맨 처음 화면</b>에서 정합니다.
+        위쪽 <b>「← 처음 화면」</b>을 누르면 나오는 화면 위쪽 칸에 적으세요.<br>
+        한 번만 적어 두면 <b>물품관리와 기타필요경비 정산</b>의 인쇄물에 모두 함께 찍힙니다.
+      </p>
+    </div>"""),
+
+        # 입력칸이 없어졌으므로 화면 상단 이름만 갱신한다
+        ("""      document.getElementById('center-name-display').textContent = name;
+      document.getElementById('inp-center-name').value = (name === 'OO어린이집') ? '' : name;""",
+         """      document.getElementById('center-name-display').textContent = name;
+      var inp = document.getElementById('inp-center-name');   // 통합본에는 없다
+      if (inp) inp.value = (name === 'OO어린이집') ? '' : name;"""),
+
+        # 설명서 — 설정 화면 소개
+        ("""        <li>화면 위쪽 <b>⚙ 설정</b> : 어린이집 이름 설정·시스템 초기화</li>""",
+         """        <li>화면 위쪽 <b>⚙ 설정</b> : 시스템 초기화</li>"""),
+
+        # 설명서 — 상세본 4장
+        ("""      <h2>4. 맨 처음 한 번만 — 어린이집 이름 넣기</h2>
+      <p>인쇄물에 어린이집 이름이 자동으로 찍히게 하려면, 처음에 한 번만 설정하면 됩니다.</p>
+      <ol>
+        <li>화면 위 <b>⚙ 설정</b>을 누릅니다.</li>
+        <li><b>「어린이집 이름」</b> 칸에 이름을 적습니다. (예: 여수시립 햇살어린이집)</li>
+        <li><b>「저장」</b>을 누릅니다.</li>
+      </ol>
+      <p>이제 물품대장·재물조사 서류를 인쇄하면, 어린이집 이름이 자동으로 들어갑니다.</p>""",
+         """      <h2>4. 맨 처음 한 번만 — 어린이집 이름 넣기</h2>
+      <p>인쇄물에 어린이집 이름이 자동으로 찍히게 하려면, 처음에 한 번만 적어 두면 됩니다.</p>
+      <ol>
+        <li>화면 위 <b>「← 처음 화면」</b>을 눌러 <b>맨 처음 화면</b>으로 나갑니다.</li>
+        <li>화면 위쪽 칸에 이름을 적습니다. (예: 여수시립 햇살어린이집)</li>
+        <li><b>Enter</b>를 누르거나 칸 밖을 누르면 저장됩니다.</li>
+      </ol>
+      <p>이제 물품대장·재물조사 서류를 인쇄하면, 어린이집 이름이 자동으로 들어갑니다.
+        <b>기타필요경비 정산</b>의 인쇄물에도 같은 이름이 함께 찍힙니다.</p>""") ,
+
+        # 설명서 — 빠르게본
+        ("""      <p><b>⚙ 설정 → 어린이집 이름 입력 → 「저장」.</b> (인쇄물에 자동으로 찍힙니다.)</p>""",
+         """      <p><b>「← 처음 화면」 → 위쪽 칸에 이름 적기 → Enter.</b>
+        (두 프로그램 인쇄물에 모두 자동으로 찍힙니다.)</p>"""),
+
+        # 시스템 초기화 안내 문구
+        ("""        &nbsp;&nbsp;※ 어린이집 이름 설정은 유지됩니다.<br>""",
+         """        &nbsp;&nbsp;※ 어린이집 이름은 유지됩니다.<br>"""),
+
+        # 버전·제작자 표시 — 통합본에서는 맨 처음 화면이 대신 갖는다
+        ("""  <div class="app-version no-print">물품관리 시스템 v1.0.1 · 제작 이현재</div>""",
+         """  <!-- 버전·제작자 표시는 통합본 맨 처음 화면에 있다 -->"""),
+    ],
+}
+
+
+def patch(filename, html):
+    """통합본에 담기 전에 손볼 것이 있으면 손본다. 못 찾으면 바로 멈춘다."""
+    for old, new in PATCHES.get(filename, []):
+        if old not in html:
+            raise SystemExit("build.py: %s 에서 고칠 자리를 찾지 못했습니다:\n%s"
+                             % (filename, old[:80]))
+        html = html.replace(old, new, 1)
+    return html
+
 
 APPS = [
     ("settle", "기타필요경비 정산", "💰", "기타필요경비정산.html",
@@ -29,7 +126,7 @@ PAGE = """<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>어린이집 관리</title>
+<title>__NAME__</title>
 <!--
   이 파일은 build.py가 만듭니다. 직접 고치지 마세요.
   고칠 것이 있으면 기타필요경비정산.html이나 물품관리시스템.html을 고친 뒤
@@ -69,6 +166,11 @@ body{margin:0;background:var(--bg);color:var(--ink);
 .card .tt{font-size:18px;font-weight:700;margin-top:14px}
 .card .ds{font-size:12.5px;color:var(--dim);margin-top:9px;line-height:1.7}
 #home .foot{margin-top:30px;font-size:12px;color:var(--faint);text-align:center;line-height:1.9}
+#home .about{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);
+  max-width:580px;font-size:11.5px;color:var(--faint);text-align:center;line-height:1.9}
+#home .about .ver{color:var(--dim);font-weight:600;margin-bottom:3px}
+#home .about a{color:var(--accent);text-decoration:none;font-weight:600}
+#home .about a:hover{text-decoration:underline}
 
 /* ---------- 프로그램 화면 ---------- */
 #run{position:fixed;inset:0;display:none;flex-direction:column}
@@ -95,7 +197,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
            title="여기 적은 이름이 두 프로그램의 인쇄물에 모두 찍힙니다">
     <span class="saved" id="nameSaved">저장됨</span>
   </div>
-  <h1>어린이집 관리</h1>
+  <h1>__NAME__</h1>
   <div class="lead">쓰실 프로그램을 고르세요.</div>
   <div class="cards">
 __CARDS__
@@ -103,6 +205,17 @@ __CARDS__
   <div class="foot">
     입력한 자료는 이 컴퓨터의 브라우저에만 저장됩니다.<br>
     각 프로그램 안에서 <b>가끔 백업 파일을 받아 두세요.</b>
+  </div>
+
+  <div class="about">
+    <div class="ver">__NAME__ __VERSION__ · 제작 이현재</div>
+    <div>
+      더 있었으면 하는 기능이나 고칠 점이 있으면
+      <a href="mailto:__MAIL__?subject=__SUBJECT__">__MAIL__</a>
+      로 알려 주세요.<br>
+      의견을 주신 분, 그리고 앞으로 <b>고쳐 나온 것을 계속 받아보고 싶은 어린이집</b>도
+      같은 주소로 연락 주시면 됩니다.
+    </div>
   </div>
 </div>
 
@@ -147,7 +260,7 @@ function goHome(){
   run.classList.remove("on");
   app.srcdoc = "";
   home.style.display = "";
-  document.title = "어린이집 관리";
+  document.title = "__NAME__";
   showCenterName();
   if (location.hash) history.replaceState(null, "", location.pathname);
 }
@@ -218,7 +331,7 @@ def main():
     cards, apps = [], []
     for key, name, icon, filename, desc in APPS:
         path = os.path.join(HERE, filename)
-        html = io.open(path, encoding="utf-8").read()
+        html = patch(filename, io.open(path, encoding="utf-8").read())
         b64 = base64.b64encode(html.encode("utf-8")).decode("ascii")
         apps.append('  "%s": { name: "%s", html: "%s" }' % (key, name, b64))
         cards.append(
@@ -231,10 +344,13 @@ def main():
 
     page = PAGE.replace("__CARDS__", "\n".join(cards))
     page = page.replace("__APPS__", "{\n" + ",\n".join(apps) + "\n}")
+    page = page.replace("__VERSION__", VERSION).replace("__MAIL__", MAIL)
+    page = page.replace("__NAME__", NAME)
+    page = page.replace("__SUBJECT__", quote(NAME + " 의견"))
 
-    out = os.path.join(HERE, "index.html")
+    out = os.path.join(HERE, FILE)
     io.open(out, "w", encoding="utf-8").write(page)
-    print("만듦: index.html  %.0f KB" % (os.path.getsize(out) / 1024))
+    print("만듦: %s  %.0f KB" % (FILE, os.path.getsize(out) / 1024))
 
 
 if __name__ == "__main__":
