@@ -786,7 +786,30 @@
         -webkit-print-color-adjust: exact; print-color-adjust: exact;
       }
     }
-  </style>
+  /* 인쇄 개정: 기존 출력 범위와 결재란은 유지 */
+th{text-align:center!important}
+#ledger-list td:nth-child(1),#ledger-list td:nth-child(2),#ledger-list td:nth-child(3),#ledger-list td:nth-child(6),#ledger-list td:nth-child(8){text-align:center}
+#ledger-list td:nth-child(4),#ledger-list td:nth-child(5),#ledger-list td:nth-child(10),#ledger-list td:nth-child(14){text-align:left}
+#ledger-list td:nth-child(7){text-align:right!important;font-variant-numeric:tabular-nums;white-space:nowrap}
+#survey-table td:nth-child(2),#survey-table td:nth-child(3),#survey-table td:nth-child(5){text-align:left}
+#disposal-doc-area table:first-of-type td:nth-child(5){text-align:right!important;font-variant-numeric:tabular-nums}
+@media screen{
+.ledger-table th{background:#e7eff5;color:#294b65;border-color:#bdcbd5}
+.ledger-table td{word-break:keep-all;line-height:1.6}
+}
+@media print{
+body{-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#263849;line-height:1.6}
+th,td{border:1px solid #bdcbd5!important;color:#263849!important}
+th{background:#e7eff5!important;color:#294b65!important;font-weight:700;text-align:center!important}
+tbody tr:nth-child(even)>td{background:#f7f9fb!important}
+.print-title{color:#294b65;font-size:24px;border-bottom:2px solid #7c9bb2;padding-bottom:12px;margin-bottom:12px}
+.print-centername,.print-datetime{color:#526777}
+.ledger-table th,.ledger-table td{font-size:11px;line-height:1.6;padding:5px 3px;word-break:keep-all}
+#survey-table th,#survey-table td{font-size:12px;padding:7px 6px;line-height:1.65}
+#disposal-doc-area th{background:#e7eff5!important;color:#294b65!important}
+#disposal-doc-area td{color:#263849!important;border-color:#bdcbd5!important}
+}
+</style>
 </head>
 <body>
 

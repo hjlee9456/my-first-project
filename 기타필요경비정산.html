@@ -183,6 +183,132 @@ table.ledger th,table.ledger td{padding:3px 5px}
   table.ledger{font-size:8px}
   table.ledger th,table.ledger td{padding:2px 3px;white-space:nowrap}
 }
+
+/* 화면 디자인 개정: 계산·저장 및 인쇄 스타일과 분리 */
+@media screen {
+:root{--bg:#f2f5f8;--panel:#fff;--ink:#202e40;--dim:#526176;--faint:#637185;--line:#d4dde6;--line2:#f0f4f8;--accent:#245c93;--accent-bg:#edf4fb;--radius:10px}
+body{font-size:15px;line-height:1.65;word-break:keep-all;overflow-wrap:anywhere}
+body>header{position:static;padding:16px 28px;gap:12px}
+header h1{font-size:19px;letter-spacing:-.5px}
+#saveState,.warnpill{font-size:13px}
+nav{top:0;padding:0 28px;gap:8px;box-shadow:0 3px 8px #20304406}
+nav button{padding:14px 16px;font-size:15px;border-bottom-width:3px}
+nav button.on{background:var(--accent-bg)}
+main{max-width:1480px;padding:28px}
+.panel{padding:28px;border-radius:12px;box-shadow:0 2px 8px #20304404}
+h2{font-size:23px;letter-spacing:-.5px;margin-bottom:10px;color:var(--ink)}
+h3{font-size:17px;font-weight:700;color:var(--ink);margin:28px 0 12px}
+.hint,.note{font-size:14px;line-height:1.75;color:var(--dim)}
+.hint{max-width:100ch}.note{padding:12px 16px;margin:14px 0}
+.row{gap:12px;row-gap:16px}.row>.grow:has(input){min-width:260px}
+label.f{font-size:14px;color:var(--ink);gap:7px}
+input,select,textarea{font-size:15px;line-height:1.5;padding:9px 10px;border-radius:6px;border-color:#bdcbd9;max-width:100%}
+input[type=date]{min-width:155px}input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);flex-shrink:0}
+input[readonly]{color:#425369;background:#edf1f5}
+input:focus,select:focus,textarea:focus{outline:3px solid #c6def5;outline-offset:1px}
+button.b{padding:9px 14px;font-size:14px;border-radius:6px;min-height:40px}
+button.b:focus-visible,nav button:focus-visible,button.link:focus-visible{outline:3px solid #84b3dd;outline-offset:3px}
+button.b:disabled{opacity:.58}button.b.danger{color:#aa352b;background:#fff;border-color:#dec3bf}
+button.b.pri{font-weight:700}.tag{font-size:12px;padding:2px 7px;border-radius:5px}
+table{font-size:14px;line-height:1.6;table-layout:auto}
+th,td{padding:10px 12px;border-color:#d9e1e9;vertical-align:middle}
+th{color:#394e65;background:#edf2f7;font-size:13px;font-weight:700}
+tbody tr:hover>td{background:#f5f9fd}tr.sum td{background:#eaf1f8;border-top:2px solid #a9bed3}
+td input,td select{font-size:14px;padding:7px 8px}td .b{padding:6px 9px;min-height:34px;font-size:13px}
+td.n,th.n{min-width:108px}td.c,th.c{white-space:nowrap}
+.scroll{max-height:65vh;border-radius:8px}.scroll th{box-shadow:0 1px 0 #ccd6e2}
+#classList{max-width:680px}#classList table{table-layout:fixed}#classList th:last-child{width:180px!important}
+#itemList,#childList,#rosterList,#rcf_body,#e_list,#rc_lines,#e_preview{overflow-x:auto}
+#itemList table{min-width:1130px;table-layout:fixed}
+#itemList th:nth-child(1){width:58px!important}#itemList th:nth-child(2){width:210px!important}
+#itemList th:nth-child(3){width:250px!important}#itemList th:nth-child(4){width:135px!important}
+#itemList th:nth-child(5){width:145px!important}#itemList th:nth-child(6){width:auto;min-width:160px}
+#itemList th:nth-child(7){width:76px!important}#itemList td:nth-child(3) .tag{display:block;white-space:normal;background:none;padding:5px 0 0;font-size:12px}
+#itemList td select{width:100%}
+#childList table{min-width:1060px}#childList th:last-child{width:220px!important}
+#childList td:nth-child(2),#childList td:nth-child(3){white-space:nowrap}
+#lg_body,#bk_body{overflow-x:auto}#bk_body table{min-width:1180px}#lg_kind{width:240px!important}#lg_body td[style],#bk_body td[style]{font-size:13px!important}.pk-head button.b{font-size:13px!important;padding:5px 9px!important}#rc_lines table{min-width:740px}#rcf_body table{min-width:1060px}#e_list table{min-width:1280px}
+#rcf_body th:nth-child(4){min-width:280px}#e_list th:nth-child(4){min-width:240px}
+#e_list th:nth-child(3){min-width:155px}#e_list th:last-child{min-width:200px}
+table.ledger{font-size:14px;min-width:1580px}table.ledger th,table.ledger td{padding:9px 10px;white-space:nowrap}
+.picker{padding:8px;max-height:380px;border-radius:8px;background:#fbfcfe}
+.pk-class{padding:10px}.pk-head{font-size:14px;margin-bottom:8px}.pk-list{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px}
+.pk-item{font-size:15px;padding:7px 9px;min-height:40px;border:1px solid transparent;border-radius:6px}
+.pk-item:has(input:checked){background:#e8f1fb;border-color:#b8d0e8;color:#194a79}
+.mask{padding:28px 16px;background:#16263880}.modal{max-width:820px;border-radius:12px}.modal .body{padding:24px}.modal .foot{padding:16px 24px}
+.grid2,.grid3{gap:18px}.empty{padding:28px;font-size:14px;background:#f7f9fb;border:1px dashed #cdd7e1;border-radius:8px;margin:12px 0}
+#secClass,#secChild,#secItem,#secRoster,#secRollover{margin-top:26px;padding:22px;border:1px solid var(--line);border-radius:10px}
+#secClass>h3,#secChild>h3,#secItem>h3,#secRoster>h3,#secRollover>h3{margin-top:0}
+.row:has(#rc_date),.row:has(#e_date){display:grid;grid-template-columns:165px 150px minmax(200px,240px) minmax(260px,1fr);padding:18px;background:#f5f8fb;border:1px solid #e0e7ef;border-radius:8px;margin:18px 0!important;align-items:end}
+.row:has(#rc_date) input,.row:has(#rc_date) select,.row:has(#e_date) input,.row:has(#e_date) select{width:100%!important}
+.row:has(#e_total){display:grid;grid-template-columns:160px 160px auto 145px 180px;align-items:end;padding:18px;border:1px solid #e0e7ef;border-radius:8px}
+.row:has(#e_total)>label:has(#e_memo){grid-column:1/-1}.row:has(#e_total) input{width:100%!important}
+.row:has(#rc_save),.row:has(#e_save){padding:16px 0;border-top:1px solid var(--line);margin-top:20px!important}
+.man{font-size:15px;max-width:960px}.man .law,.man code{font-size:13px}.faq>.summary,.faq>summary,.faq .ans{font-size:15px}.faq-search{top:56px}
+@media(max-width:1150px){main{padding:18px}.panel{padding:20px}.row:has(#rc_date),.row:has(#e_date){grid-template-columns:165px 150px minmax(200px,1fr)}.row:has(#rc_date)>.grow,.row:has(#e_date)>.grow{grid-column:1/-1}.row:has(#e_total){grid-template-columns:repeat(3,minmax(150px,1fr))}}
+@media(max-width:720px){body>header{padding:14px;gap:8px}header h1{width:100%}nav{padding:0 10px}main{padding:12px}.panel{padding:16px}.grid2,.grid3{grid-template-columns:1fr}#secClass,#secChild,#secItem,#secRoster,#secRollover{padding:14px}.row:has(#rc_date),.row:has(#e_date),.row:has(#e_total){grid-template-columns:1fr 1fr}.row:has(#rc_date)>label,.row:has(#e_date)>label{min-width:0}.row>.grow:has(input){min-width:0}.row:has(#rc_date)>label:has(select),.row:has(#e_date)>label:has(select){grid-column:1/-1}label.f:has(input[type=date]){min-width:0}input[type=date]{min-width:0}}
+}
+
+
+/* 화면과 출력물 공통: 열의 의미에 맞춘 정렬 */
+th,th.n,th.c{ text-align:center!important;vertical-align:middle }
+td{ text-align:left;word-break:keep-all;overflow-wrap:anywhere }
+td.ui-prose{text-align:justify;text-align-last:left;line-height:1.7}
+td.c,td.ui-center,td.ui-center input{ text-align:center!important }
+td.n,input.money{ text-align:right!important;font-variant-numeric:tabular-nums }
+#classList td:nth-child(2) input{text-align:center}
+tr.sum td[colspan]{text-align:center;font-weight:700}
+@media screen{
+th{background:#e7eff6;color:#324f69;border-bottom:2px solid #adc1d4}
+tbody tr:nth-child(even):not(.sum):not(.out):not(.hl)>td:not([rowspan]){background:#f8fafc}
+tbody tr:hover>td{background:#eef5fb!important}
+tr.sum td{background:#e8f2ee;color:#254d42;border-top:2px solid #97b9aa}
+table.ledger td[rowspan]{background:#f0f4f8}
+}
+@media print{
+@page{size:A4 portrait;margin:0}
+@page wide-ledger{size:A4 landscape;margin:0}
+body:has(#lg_body table.ledger),body:has(#bk_body table.sheet),body:has(#hp_body table.sheet){page:wide-ledger}
+:root{--ink:#263849;--dim:#4d6071;--line:#bdcbd5;--line2:#edf3f7;--accent:#315e7e;--faint:#596b7a}
+html,body{height:auto!important;overflow:visible!important}
+body{font-size:12.5px;line-height:1.6;padding:11mm 10mm;color:#263849;background:white;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+main,.panel{max-width:none;box-shadow:none}
+.printhead{padding:0 0 5mm;margin-bottom:5mm;border-bottom:2px solid #7c9bb2;break-inside:avoid;break-after:avoid}
+.printhead h1{font-size:23px;letter-spacing:.4px;color:#294b65;margin-bottom:6px;line-height:1.4}
+.printhead .sub{font-size:12px;color:#526777;line-height:1.7;margin-bottom:0}
+h3{font-size:14px;color:#315e7e;border-left:3px solid #8eadc2;padding-left:9px;margin:6mm 0 3mm;break-after:avoid}
+table{font-size:12px;line-height:1.65;width:100%;border-collapse:collapse}
+th,td{padding:6px 7px;border:1px solid #bdcbd5;vertical-align:middle}
+th,th.n,th.c{background:#e7eff5!important;color:#294b65!important;font-weight:700;white-space:normal;word-break:keep-all;text-align:center!important;border-bottom:1.2px solid #9fb5c6}
+td{color:#263849;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+td.c,td.n{white-space:nowrap}
+tbody tr:nth-child(even):not(.sum)>td:not([rowspan]){background:#f7f9fb}
+tr.sum td,tr.sum th{background:#e8f2ed!important;color:#254d42!important;border-top:1.5px solid #93b1a3;font-weight:700}
+td[rowspan]{background:#f1f5f8}
+.tag{font-size:10.5px;white-space:normal;border-radius:3px;padding:1px 4px}
+#lg_body,#bk_body,#hp_body,.scroll{overflow:visible!important;max-height:none!important;border:none}
+#bk_body table.sheet{table-layout:auto;font-size:11.5px}
+#bk_body table.sheet th{width:auto!important;max-width:110px}
+#bk_body table.sheet td{padding:6px 5px}
+#bk_body td[style]{font-size:10.5px!important}
+#hp_body table.sheet{font-size:11.5px}
+#hp_body table.sheet th{width:auto!important}
+#nt_body table,#st_sheet table{max-width:100%!important}
+#nt_body td,#st_sheet td{padding:6px 7px}
+table.ledger{table-layout:fixed;font-size:10.5px;min-width:0!important;width:100%;line-height:1.5}
+table.ledger th,table.ledger td{padding:5px 2px;min-width:0;white-space:nowrap}
+table.ledger th{white-space:normal;width:4.9%!important}
+table.ledger th:nth-child(1){width:5.5%!important}
+table.ledger th:nth-child(2){width:3%!important}
+table.ledger th:nth-child(3){width:6%!important}
+table.ledger th:nth-child(4){width:10%!important}
+table.ledger th:nth-last-child(2){width:7%!important}
+table.ledger th:last-child{width:9.7%!important}
+table.ledger td:not(.n):not(.c){white-space:normal;word-break:keep-all}
+table.ledger td[rowspan][style]{font-size:10.5px!important}
+thead{display:table-header-group}tr{break-inside:avoid}
+
+}
 </style>
 </head>
 <body>
@@ -197,7 +323,7 @@ table.ledger th,table.ledger td{padding:3px 5px}
   <span class="spacer"></span>
   <span id="backupWarn" class="warnpill"></span>
   <span id="saveState"></span>
-  <button class="b" id="btnExport">JSON 백업</button>
+  <button class="b" id="btnExport">자료 백업</button>
   <button class="b" id="btnImport">복원</button>
   <input type="file" id="fileImport" accept="application/json" hidden>
   <button class="b danger" id="btnReset">전체 초기화</button>
@@ -712,11 +838,11 @@ function render(){
 function renderSetup(root){
   root.innerHTML = `
     <h2>기초설정</h2>
-    <div class="hint">회계연도는 3월 1일부터 익년 2월 말일까지입니다. 반은 통계 단위가 아니라 원아를 빠르게 고르기 위한 도구입니다.<br>
+    <div class="hint">반과 원아를 등록한 뒤, 사용할 세목과 고정 명단을 설정하세요. 회계연도는 3월부터 다음 해 2월까지입니다.<br>
       어린이집 이름은 <b>첫 화면 왼쪽 위 「⚙ 어린이집 이름 설정」</b>에서 정합니다.${centerName() ? " 지금 이름은 <b>" + esc(centerName()) + "</b>입니다." : ""}</div>
     <div id="secClass"></div>
-    <div id="secItem"></div>
     <div id="secChild"></div>
+    <div id="secItem"></div>
     <div id="secRoster"></div>
     <div id="secRollover"></div>`;
   renderClasses($("#secClass", root));
@@ -728,7 +854,7 @@ function renderSetup(root){
 
 /* ---- 반 ---- */
 function renderClasses(root){
-  root.innerHTML = `<h3>반 구성</h3>
+  root.innerHTML = `<h3>1. 반 구성</h3>
     <div class="row" style="margin-bottom:8px">
       <input id="newClass" placeholder="반 이름 (예: 새싹반)" style="width:200px">
       <button class="b" id="addClass">반 추가</button>
@@ -755,7 +881,7 @@ function renderClasses(root){
     const count = S.children.filter(ch => (ch.classHistory || []).some(h => h.classId === c.id)).length;
     const tr = el(`<tr>
       <td class="c">${i + 1}</td>
-      <td><input value="${esc(c.name)}" data-k="name" style="width:100%"></td>
+      <td class="ui-center"><input value="${esc(c.name)}" data-k="name" style="width:100%"></td>
       <td class="c">${count}명</td>
       <td class="c">
         <button class="b" data-a="up" ${i === 0 ? "disabled" : ""}>↑</button>
@@ -777,9 +903,9 @@ function renderClasses(root){
 
 /* ---- 세목 ---- */
 function renderItems(root){
-  root.innerHTML = `<h3>세목</h3>
-    <div class="hint">쓰지 않는 세목은 꺼 두세요. 모든 계산은 세목 단위이며 세목 간 합산·상계는 하지 않습니다(재무회계규칙 제15조).<br>
-      <b>1인당 수납액</b>은 보호자에게 공지한 금액을 적어 두는 칸입니다. 수납결의서를 적을 때 이 금액이 자동으로 채워집니다.</div>
+  root.innerHTML = `<h3>3. 세목 설정</h3>
+    <div class="hint">사용할 세목만 체크하세요. 잔액은 세목별로 계산하며, 다른 세목의 잔액으로 충당하지 않습니다.<br>
+      <b>1인당 수납액</b>에 보호자에게 안내한 금액을 입력하면 수납 입력에 사용할 수 있습니다.</div>
     <div id="itemList" style="margin-top:8px"></div>
     <div class="row" style="margin-top:8px">
       <input id="newItem" placeholder="세목 추가 (예: 특별활동비-로봇과학)" style="width:260px">
@@ -844,7 +970,7 @@ function renderItems(root){
 /* ---- 원아 명부 ---- */
 function renderChildren(root){
   const showLeft = view.showLeft !== false;
-  root.innerHTML = `<h3>원아 명부</h3>
+  root.innerHTML = `<h3>2. 원아 명부</h3>
     <div class="row" style="margin-bottom:8px">
       <button class="b pri" id="addChild">원아 추가</button>
       <label class="f" style="flex-direction:row;align-items:center;gap:6px;font-size:13px;color:var(--ink)">
@@ -874,12 +1000,12 @@ function renderChildren(root){
     const out = !isEnrolled(c, todayISO());
     const tr = el(`<tr class="${out ? "out" : ""}">
       <td class="c">${i + 1}</td>
-      <td><b>${esc(c.name)}</b></td>
-      <td>${cls ? esc(cls.name) : '<span class="hint">미지정</span>'}</td>
-      <td class="c">${esc(c.admitDate || "-")}</td>
-      <td class="c">${esc(c.leaveDate || "-")}</td>
+      <td class="ui-center"><b>${esc(c.name)}</b></td>
+      <td class="ui-center">${cls ? esc(cls.name) : '<span class="hint">미지정</span>'}</td>
+      <td class="ui-center c">${esc(c.admitDate || "-")}</td>
+      <td class="ui-center c">${esc(c.leaveDate || "-")}</td>
       <td class="c">${consign ? '<span class="tag consign">위탁</span>' : '<span class="tag">일반</span>'}</td>
-      <td>${esc(c.memo || "")}</td>
+      <td class="ui-prose">${esc(c.memo || "")}</td>
       <td class="c">
         <button class="b" data-a="move">반 이동</button>
         <button class="b" data-a="edit">편집</button>
@@ -1017,7 +1143,7 @@ function openRolloverModal(){
       const n = kids.filter(k => (currentClass(k) || {}).id === cl.id).length;
       const tr = el(`<tr>
         <td class="c">${i + 1}</td>
-        <td><input value="${esc(cl.name)}" style="width:100%"></td>
+        <td class="ui-center"><input value="${esc(cl.name)}" style="width:100%"></td>
         <td class="c">${n ? n + "명" : "-"}</td>
         <td class="c"><button class="b danger">삭제</button></td></tr>`);
       $("input", tr).onchange = e => { cl.name = e.target.value.trim() || cl.name; };
@@ -1063,10 +1189,10 @@ function openRolloverModal(){
       const now = currentClass(c);
       const tr = el(`<tr class="${st.keep ? "" : "out"}">
         <td class="c">${i + 1}</td>
-        <td><b>${esc(c.name)}</b>${c.leaveDate ? ` <span class="tag">${esc(c.leaveDate)} 퇴소</span>` : ""}</td>
+        <td class="ui-center"><b>${esc(c.name)}</b>${c.leaveDate ? ` <span class="tag">${esc(c.leaveDate)} 퇴소</span>` : ""}</td>
         <td>${now ? esc(now.name) : "-"}</td>
         <td class="c"><input type="checkbox" ${st.keep ? "checked" : ""}></td>
-        <td><select ${st.keep ? "" : "disabled"} style="width:100%">
+        <td class="ui-center"><select ${st.keep ? "" : "disabled"} style="width:100%">
           ${newClasses.map(cl => `<option value="${cl.id}" ${cl.id === st.classId ? "selected" : ""}>${esc(cl.name)}</option>`).join("")}
         </select></td></tr>`);
       $('input[type="checkbox"]', tr).onchange = e => { st.keep = e.target.checked; drawKids(); };
@@ -1142,7 +1268,7 @@ function openRolloverModal(){
 
 /* ---- 고정 명단 ---- */
 function renderRosters(root){
-  root.innerHTML = `<h3>고정 명단</h3>
+  root.innerHTML = `<h3>4. 고정 명단</h3>
     <div class="hint">특별활동 과목별 참여자, 차량 이용 원아, 원복 신청 원아처럼 반복해서 쓰는 명단을 만들어 두면 지출 등록에서 한 번에 불러올 수 있습니다. 불러온 뒤 그 자리에서 빼거나 더할 수 있습니다.</div>
     <div class="row" style="margin:8px 0">
       <input id="newRoster" placeholder="명단 이름 (예: 차량 이용 원아)" style="width:240px">
@@ -1476,9 +1602,9 @@ function renderReceipt(root){
 
   root.innerHTML = `
     <h2>수납 입력 ${editing ? '<span class="tag ev">수정 중</span>' : ""}</h2>
-    <div class="hint">보호자가 여러 날짜에 나눠 입금하므로, <b>수납결의서 1건을 그대로 옮겨 적고</b> 그 건에 묶인 원아를 고르는 방식입니다.
-      한 결의서에 여러 원아가 섞여 있어도 됩니다.</div>
+    <div class="hint">결의서 내용을 입력하고 원아를 선택한 뒤 수납액을 확인하세요.</div>
 
+    <h3>1. 결의서 입력</h3>
     <div class="row" style="margin:12px 0">
       <label class="f">수납일<input type="date" id="rc_date" value="${esc(f.date)}"></label>
       <label class="f">수납결의서 번호<input id="rc_no" value="${esc(f.voucherNo)}" placeholder="예: 6" style="width:120px"></label>
@@ -1488,6 +1614,17 @@ function renderReceipt(root){
       <label class="f grow">적요<input id="rc_summary" value="${esc(f.summary)}" placeholder="예: 기타필요경비-현장학습비 1분기"></label>
     </div>
 
+    <div id="rc_note"></div>
+
+    <h3>2. 수납 대상 원아</h3>
+    <div class="row" style="margin-bottom:6px">
+      <select id="rc_roster" style="width:250px"></select>
+      <button class="b" id="rc_loadRoster">명단 불러오기</button>
+      <span class="grow"></span>
+      <button class="b" id="rc_saveRoster">선택 원아를 명단으로 저장</button>
+    </div>
+    <div id="rc_pick"></div>
+    <h3>3. 수납액 확인</h3>
     <div class="row">
       <label class="f">1인당 수납액<input class="money" id="rc_per" value="${won(f.perAmount)}" style="width:130px"></label>
       <button class="b" id="rc_apply" style="margin-bottom:1px">선택한 원아에게 일괄 적용</button>
@@ -1495,16 +1632,6 @@ function renderReceipt(root){
       <span class="grow"></span>
       <span class="hint" style="margin-bottom:6px">원아마다 금액이 다르면 아래 표에서 고치세요.</span>
     </div>
-    <div id="rc_note"></div>
-
-    <h3>이 결의서에 묶인 원아</h3>
-    <div class="row" style="margin-bottom:6px">
-      <select id="rc_roster" style="width:250px"></select>
-      <button class="b" id="rc_loadRoster">명단 불러오기</button>
-      <span class="grow"></span>
-      <button class="b" id="rc_saveRoster">지금 선택을 고정 명단으로 저장</button>
-    </div>
-    <div id="rc_pick"></div>
     <div id="rc_lines" style="margin-top:12px"></div>
 
     <div class="row" style="margin-top:12px">
@@ -1584,8 +1711,8 @@ function renderReceipt(root){
     const guard = $("#rc_guard", root), btn = $("#rc_save", root);
     const ordered = sortedChildren().filter(c => f.targets.has(c.id));
     if (!ordered.length) {
-      linesHost.innerHTML = `<div class="note warn">이 결의서에 묶인 원아를 골라야 저장할 수 있습니다.</div>`;
-      guard.textContent = "저장 차단 — 대상 원아 미지정";
+      linesHost.innerHTML = `<div class="note warn">수납 대상 원아를 선택하세요.</div>`;
+      guard.textContent = "대상 원아를 선택해야 등록할 수 있습니다.";
       btn.disabled = true; return;
     }
     const t = el(`<table><thead><tr>
@@ -1599,9 +1726,9 @@ function renderReceipt(root){
       sum += l.amount;
       const cls = classAt(c, f.date) || currentClass(c);
       const tr = el(`<tr>
-        <td class="c">${i + 1}</td><td><b>${esc(c.name)}</b></td><td>${cls ? esc(cls.name) : "-"}</td>
+        <td class="c">${i + 1}</td><td class="ui-center"><b>${esc(c.name)}</b></td><td class="ui-center">${cls ? esc(cls.name) : "-"}</td>
         <td class="n"><input class="money" value="${won(l.amount)}" style="width:120px"></td>
-        <td><input value="${esc(l.memo || "")}" style="width:100%" placeholder="—"></td>
+        <td class="ui-prose"><input value="${esc(l.memo || "")}" style="width:100%" placeholder="—"></td>
         <td class="c"><button class="b danger" title="이 결의서에서 빼기">×</button></td></tr>`);
       $("input.money", tr).onchange = e => { l.amount = num(e.target.value); e.target.value = won(l.amount); drawTotal(); };
       $$("input", tr)[1].onchange = e => { l.memo = e.target.value; };
@@ -1700,9 +1827,9 @@ function renderVoucherList(host){
     total += x.total;
     const names = x.lines.map(l => childName(l.childId)).join(", ");
     const tr = el(`<tr class="${x.id === highlightVoucherId ? "hl" : ""}">
-      <td class="c">${esc(x.date)}</td><td class="c">${esc(x.voucherNo || "-")}</td>
+      <td class="ui-center c">${esc(x.date)}</td><td class="ui-center c">${esc(x.voucherNo || "-")}</td>
       <td>${esc(itemName(x.itemId))}</td>
-      <td>${esc(x.summary || "-")}<div class="hint">${esc(names)}</div></td>
+      <td class="ui-prose">${esc(x.summary || "-")}<div class="hint">${esc(names)}</div></td>
       <td class="n">${won(x.total)}</td><td class="c">${x.lines.length}명</td>
       <td class="c">
         <button class="b" data-a="edit">수정</button>
@@ -1750,9 +1877,9 @@ function renderExpense(root){
 
   root.innerHTML = `
     <h2>지출 등록 ${editing ? '<span class="tag ev">수정 중</span>' : ""}</h2>
-    <div class="hint">지출결의서 1건을 그대로 옮겨 적고 대상 원아를 지정하면 개인별 대장·정산서·보고서가 모두 여기서 파생됩니다.
-      적요에 <b>인원수만</b> 남기는 대신 <b>명단</b>이 저장되므로, 담당자가 바뀌어도 계산 근거가 남습니다.</div>
+    <div class="hint">결의서와 부담 금액을 입력하고 대상 원아를 선택하세요. 배분 결과를 확인한 뒤 등록합니다.</div>
 
+    <h3>1. 결의서 입력</h3>
     <div class="row" style="margin:12px 0">
       <label class="f">지출일<input type="date" id="e_date" value="${esc(f.date)}"></label>
       <label class="f">지출결의서 번호<input id="e_no" value="${esc(f.voucherNo || "")}" placeholder="예: 32" style="width:120px"></label>
@@ -1771,17 +1898,18 @@ function renderExpense(root){
     </div>
     <div id="e_split"></div>
 
-    <h3>대상 원아</h3>
+    <h3>2. 지출 대상 원아</h3>
     <div class="row" style="margin-bottom:6px">
       <select id="e_roster" style="width:250px"></select>
       <button class="b" id="e_loadRoster">명단 불러오기</button>
       <label class="f" style="flex-direction:row;align-items:center;gap:5px;font-size:12.5px;color:var(--dim)">
-        <input type="checkbox" id="e_rosterAdd"> 지금 선택에 더하기
+        <input type="checkbox" id="e_rosterAdd"> 선택한 원아에 추가
       </label>
       <span class="grow"></span>
-      <button class="b" id="e_saveRoster">지금 선택을 고정 명단으로 저장</button>
+      <button class="b" id="e_saveRoster">선택 원아를 명단으로 저장</button>
     </div>
     <div id="e_pick"></div>
+    <h3>3. 배분 금액 확인</h3>
     <div id="e_preview" style="margin-top:12px"></div>
 
     <div class="row" style="margin-top:12px">
@@ -1842,7 +1970,7 @@ function renderExpense(root){
 
     if (n === 0) {
       prev.innerHTML = `<div class="note warn">대상 원아를 지정해야 저장할 수 있습니다.</div>`;
-      guard.textContent = "저장 차단 — 대상 원아 미지정";
+      guard.textContent = "대상 원아를 선택해야 등록할 수 있습니다.";
       btn.disabled = true; return;
     }
     if (operAmount() < 0) {
@@ -1958,10 +2086,10 @@ function renderExpenseList(host){
     const q = n ? Math.floor(ex.needAmount / n) : 0;
     const r = n ? ex.needAmount - q * n : 0;
     const tr = el(`<tr class="${ex.id === highlightExpenseId ? "hl" : ""}">
-      <td class="c">${esc(ex.date)}</td>
-      <td class="c">${esc(ex.voucherNo || "-")}</td>
+      <td class="ui-center c">${esc(ex.date)}</td>
+      <td class="ui-center c">${esc(ex.voucherNo || "-")}</td>
       <td>${esc(itemName(ex.itemId))}</td>
-      <td>${esc(ex.summary || "-")}${ex.cardFee ? ` <span class="tag">수수료 ${won(ex.cardFee)}</span>` : ""}</td>
+      <td class="ui-prose">${esc(ex.summary || "-")}${ex.cardFee ? ` <span class="tag">수수료 ${won(ex.cardFee)}</span>` : ""}</td>
       <td class="n">${won(ex.total)}</td>
       <td class="n">${won(ex.needAmount)}</td>
       <td class="n">${won(ex.operAmount || 0)}</td>
@@ -1998,25 +2126,25 @@ function openTargetListModal(expenseId, focusChildId){
     const cls = c ? classAt(c, ex.date) : null;
     const on = a.childId === focusChildId;
     return `<tr ${on ? 'class="hl"' : ""}><td class="c">${i + 1}</td>
-      <td>${on ? "<b>" : ""}${esc(childName(a.childId))}${on ? "</b>" : ""}</td>
-      <td>${cls ? esc(cls.name) : "-"}</td><td class="n">${won(a.amount)}</td></tr>`;
+      <td class="ui-center">${on ? "<b>" : ""}${esc(childName(a.childId))}${on ? "</b>" : ""}</td>
+      <td class="ui-center">${cls ? esc(cls.name) : "-"}</td><td class="n">${won(a.amount)}</td></tr>`;
   }).join("");
   const q = n ? Math.floor(ex.needAmount / n) : 0;
   const r = n ? ex.needAmount - q * n : 0;
   const body = el(`<div>
     <div class="hint no-print">이 표를 인쇄해 지출결의서에 첨부하면 배분 근거가 됩니다.</div>
     <table style="margin-top:10px">
-      <tr><th style="width:120px">지출일</th><td>${esc(ex.date)}</td>
-          <th style="width:120px">지출결의서 번호</th><td>${esc(ex.voucherNo || "-")}</td></tr>
+      <tr><th style="width:120px">지출일</th><td class="ui-center">${esc(ex.date)}</td>
+          <th style="width:120px">지출결의서 번호</th><td class="ui-center">${esc(ex.voucherNo || "-")}</td></tr>
       <tr><th>세목</th><td>${esc(itemName(ex.itemId))}</td>
           <th>대상 인원</th><td>${n}명</td></tr>
-      <tr><th>적요</th><td colspan="3">${esc(ex.summary || "-")}</td></tr>
+      <tr><th>적요</th><td colspan="3" class="ui-prose">${esc(ex.summary || "-")}</td></tr>
       <tr><th>지출결의서 총액</th><td class="n">${won(ex.total)}원</td>
           <th>필요경비 부담분</th><td class="n">${won(ex.needAmount)}원</td></tr>
       <tr><th>운영비 부담분</th><td class="n">${won(ex.operAmount || 0)}원</td>
           <th>카드수수료(어린이집 부담)</th><td class="n">${won(ex.cardFee || 0)}원</td></tr>
       <tr><th>1인당 배분</th><td colspan="3">${won(r > 0 ? q + 1 : q)}원${r > 0 ? ` (뒤 ${n - r}명은 ${won(q)}원)` : ""}</td></tr>
-      ${ex.memo ? `<tr><th>비고</th><td colspan="3">${esc(ex.memo)}</td></tr>` : ""}
+      ${ex.memo ? `<tr><th>비고</th><td colspan="3" class="ui-prose">${esc(ex.memo)}</td></tr>` : ""}
     </table>
     <table style="margin-top:12px"><thead><tr>
       <th class="c" style="width:60px">순번</th><th>성명</th><th style="width:120px">반</th>
@@ -2074,10 +2202,10 @@ function renderChild(root){
   const cps = consignPeriodsOf(c);
   $("#c_info", root).innerHTML = `
     <table style="max-width:760px"><tbody>
-      <tr><th style="width:110px">성명</th><td>${esc(c.name)}</td>
+      <tr><th style="width:110px">성명</th><td class="ui-center">${esc(c.name)}</td>
           <th style="width:110px">반</th><td>${(currentClass(c) || {}).name || "-"}</td></tr>
-      <tr><th>입소일</th><td>${esc(c.admitDate || "-")}</td>
-          <th>퇴소일</th><td>${esc(c.leaveDate || "재원 중")}</td></tr>
+      <tr><th>입소일</th><td class="ui-center">${esc(c.admitDate || "-")}</td>
+          <th>퇴소일</th><td class="ui-center">${esc(c.leaveDate || "재원 중")}</td></tr>
       <tr><th>위탁보육</th><td colspan="3">${cps.length
         ? cps.map(cp => `<span class="tag consign">위탁</span> ${esc(cp.startMonth || "")} ~ ${esc(cp.endMonth || "계속")}${cp.employer ? " · " + esc(cp.employer) : ""}`).join("<br>")
         : '<span class="tag">일반</span> 전 기간 일반 재원'}</td></tr>
@@ -2148,7 +2276,7 @@ function renderChild(root){
     const tr2 = el(`<tr>
       <td class="c">${esc(r.date)}</td><td class="c">${esc(r.voucherNo || "-")}</td>
       <td>${esc(itemName(r.itemId))}</td>
-      <td>${esc(r.summary || "-")}${r.consign ? ' <span class="tag consign">위탁 충당</span>' : ""}</td>
+      <td class="ui-prose">${esc(r.summary || "-")}${r.consign ? ' <span class="tag consign">위탁 충당</span>' : ""}</td>
       <td class="n">${won(r.needAmount)}</td><td class="c">${r.headcount}명</td>
       <td class="n"><button class="link">${won(r.amount)}</button></td></tr>`);
     $("button", tr2).onclick = () => openTargetListModal(r.expenseId, c.id);
@@ -2353,7 +2481,7 @@ function settleBack(host){
     if (cons) note.push("위탁");
     if (r.over) note.push(`초과 ${won(r.over)}원`);
     tb.appendChild(el(`<tr>
-      <td class="c">${i + 1}</td><td>${esc(r.c.name)}</td><td>${cls ? esc(cls.name) : "-"}</td>
+      <td class="c">${i + 1}</td><td class="ui-center">${esc(r.c.name)}</td><td class="ui-center">${cls ? esc(cls.name) : "-"}</td>
       <td class="c">${cons ? '<span class="tag consign">위탁</span>' : '<span class="tag">일반</span>'}</td>
       ${r.cells.map(x => `<td class="n">${x.back ? won(x.back) : ""}</td>`).join("")}
       <td class="n"><b>${won(r.back)}</b></td>
@@ -2477,9 +2605,9 @@ function drawMonthQuestions(host, child, asOf){
     const afterExit = ex.date > asOf;
 
     const tr = el(`<tr>
-      <td class="c">${esc(ex.date)}${afterExit ? ' <span class="tag ev">기준일 이후</span>' : ""}</td>
+      <td class="ui-center c">${esc(ex.date)}${afterExit ? ' <span class="tag ev">기준일 이후</span>' : ""}</td>
       <td>${esc(itemName(ex.itemId))}</td>
-      <td>${esc(ex.summary || "-")}</td>
+      <td class="ui-prose">${esc(ex.summary || "-")}</td>
       <td class="n">${won(ex.needAmount)}</td>
       <td class="c">${ex.allocations.length}명</td>
       <td class="n">${won(per)}</td>
@@ -2527,10 +2655,10 @@ function drawExitSheet(host, c, from, to, forcedTo, consign){
   host.innerHTML = printHead(v.reason + " 정산서", `${c.name} · 정산기간 ${from} ~ ${to}`) +
     `<div class="sheet">
       <table style="max-width:820px"><tbody>
-        <tr><th style="width:110px">성명</th><td>${esc(c.name)}</td>
-            <th style="width:110px">반</th><td>${(classAt(c, to) || currentClass(c) || {}).name || "-"}</td></tr>
-        <tr><th>입소일</th><td>${esc(c.admitDate || "-")}</td>
-            <th>${v.reason === "중간전환" ? "전환일" : "퇴소일"}</th><td>${esc(v.asOf)}</td></tr>
+        <tr><th style="width:110px">성명</th><td class="ui-center">${esc(c.name)}</td>
+            <th style="width:110px">반</th><td class="ui-center">${(classAt(c, to) || currentClass(c) || {}).name || "-"}</td></tr>
+        <tr><th>입소일</th><td class="ui-center">${esc(c.admitDate || "-")}</td>
+            <th>${v.reason === "중간전환" ? "전환일" : "퇴소일"}</th><td class="ui-center">${esc(v.asOf)}</td></tr>
       </tbody></table>
       <div id="ex_body"></div>
     </div>`;
@@ -2616,7 +2744,7 @@ function drawExitSheet(host, c, from, to, forcedTo, consign){
         tb2.appendChild(el(`<tr>
           ${i === 0 ? `<td rowspan="${r.usage.length + 1}" style="vertical-align:middle">${esc(r.it.name)}</td>` : ""}
           <td class="c">${esc(u.date)}</td>
-          <td>${esc(u.summary || "-")}${u.consign ? " (위탁보육료 충당)" : ""}</td>
+          <td class="ui-prose">${esc(u.summary || "-")}${u.consign ? " (위탁보육료 충당)" : ""}</td>
           <td class="n">${won(u.needAmount)}</td>
           <td class="c">${u.headcount}명</td>
           <td class="n">${won(u.amount)}</td></tr>`));
@@ -2777,9 +2905,9 @@ function settleHalf(host){
         const q = n ? Math.floor(ex.needAmount / n) : 0;
         const r = n ? ex.needAmount - q * n : 0;
         tb2.appendChild(el(`<tr>
-          <td class="c">${esc(ex.date)}</td><td class="c">${esc(ex.voucherNo || "-")}</td>
+          <td class="ui-center c">${esc(ex.date)}</td><td class="ui-center c">${esc(ex.voucherNo || "-")}</td>
           <td>${esc(itemName(ex.itemId))}</td>
-          <td>${esc(ex.summary || "-")}${ex.cardFee ? ` <span class="tag">수수료 ${won(ex.cardFee)}</span>` : ""}</td>
+          <td class="ui-prose">${esc(ex.summary || "-")}${ex.cardFee ? ` <span class="tag">수수료 ${won(ex.cardFee)}</span>` : ""}</td>
           <td class="n">${won(ex.total)}</td><td class="n">${won(ex.needAmount)}</td>
           <td class="n">${won(ex.operAmount || 0)}</td>
           <td class="c">${n}명</td><td class="n">${won(r > 0 ? q + 1 : q)}</td></tr>`));
@@ -2870,7 +2998,7 @@ function noticeSheet(c, spec, fy, withDetail){
       return `<tr class="sum"><td colspan="5">${esc(r.it.name)}</td></tr>` +
         use.map(u => `<tr>
           <td class="c">${esc(u.date)}</td>
-          <td>${esc(u.summary || "-")}${u.consign ? " (위탁보육료 충당)" : ""}</td>
+          <td class="ui-prose">${esc(u.summary || "-")}${u.consign ? " (위탁보육료 충당)" : ""}</td>
           <td class="n">${won(u.needAmount)}</td>
           <td class="c">${u.headcount}명</td>
           <td class="n">${won(u.amount)}</td></tr>`).join("") +
@@ -2891,8 +3019,8 @@ function noticeSheet(c, spec, fy, withDetail){
   node.innerHTML = printHead("필요경비 정산 안내문", `${fy}년도 ${spec.label} · ${spec.from} ~ ${spec.to}`) + `
     <div class="hint no-print" style="margin-bottom:6px">— 보호자용 개별 안내문 (${esc(c.name)}) —</div>
     <table style="max-width:820px"><tbody>
-      <tr><th style="width:110px">원아 성명</th><td>${esc(c.name)}</td>
-          <th style="width:110px">반</th><td>${(classAt(c, spec.to) || currentClass(c) || {}).name || "-"}</td></tr>
+      <tr><th style="width:110px">원아 성명</th><td class="ui-center">${esc(c.name)}</td>
+          <th style="width:110px">반</th><td class="ui-center">${(classAt(c, spec.to) || currentClass(c) || {}).name || "-"}</td></tr>
     </tbody></table>
     <table style="margin-top:10px"><thead><tr>
       <th style="width:170px">세목</th>
@@ -3042,13 +3170,13 @@ function renderLedger(root){
         grand += r.sum;
         const rowNote = ri === 0 ? note : "";
         const tr = el(`<tr>
-          ${!classCellDone ? `<td rowspan="${classRowCount}" style="vertical-align:middle;text-align:center">${esc(run.name)}</td>` : ""}
+          ${!classCellDone ? `<td rowspan="${classRowCount}" style="vertical-align:middle;text-align:center" class="ui-center">${esc(run.name)}</td>` : ""}
           ${ri === 0 ? `<td class="c" rowspan="${k.rows.length}" style="vertical-align:middle">${seq}</td>
-                        <td rowspan="${k.rows.length}" style="vertical-align:middle"><b>${esc(k.c.name)}</b></td>` : ""}
+                        <td rowspan="${k.rows.length}" style="vertical-align:middle" class="ui-center"><b>${esc(k.c.name)}</b></td>` : ""}
           <td>${esc(r.it.name)}</td>
           ${r.cells.map(x => `<td class="n" ${x < 0 ? 'style="color:var(--bad)"' : ""}>${x ? won(x) : ""}</td>`).join("")}
           <td class="n">${r.sum ? `<b>${won(r.sum)}</b>` : ""}</td>
-          ${ri === 0 ? `<td rowspan="${k.rows.length}" style="vertical-align:middle;font-size:11px;color:var(--warn)">${esc(rowNote)}</td>` : ""}
+          ${ri === 0 ? `<td rowspan="${k.rows.length}" style="vertical-align:middle;font-size:11px;color:var(--warn)" class="ui-prose">${esc(rowNote)}</td>` : ""}
         </tr>`);
         classCellDone = true;
         tb.appendChild(tr);
@@ -3405,13 +3533,13 @@ const FAQ = [
     k:"다른 컴퓨터 안보임 사라짐 옮기기 이사",
     a:`<div class="warn"><p>입력한 자료는 <b>그 컴퓨터의 그 브라우저 안에만</b> 저장됩니다. 인터넷 서버에 올라가지 않습니다. 아동 이름·계좌번호가 밖으로 나가지 않게 하려고 일부러 그렇게 만들었습니다.</p></div>
        <p>옮기려면 이렇게 하세요.</p>
-       <ol><li>원래 컴퓨터에서 화면 맨 위 <b>「JSON 백업」</b>을 눌러 파일을 받습니다.</li>
+       <ol><li>원래 컴퓨터에서 화면 맨 위 <b>「자료 백업」</b>을 눌러 파일을 받습니다.</li>
        <li>그 파일을 USB나 메일로 새 컴퓨터에 옮깁니다.</li>
        <li>새 컴퓨터에서 프로그램을 열고 <b>「복원」</b>을 눌러 그 파일을 고릅니다.</li></ol>` },
 
   { g:"프로그램·자료", q:"자료가 사라질까 봐 불안합니다.",
     k:"백업 보험 사라짐 안전 복원",
-    a:`<div class="warn"><p><b>일주일에 한 번, 그리고 큰 작업(수납 일괄 입력·반기 정산) 뒤에는 꼭 「JSON 백업」을 눌러 두세요.</b></p></div>
+    a:`<div class="warn"><p><b>일주일에 한 번, 그리고 큰 작업(수납 일괄 입력·반기 정산) 뒤에는 꼭 「자료 백업」을 눌러 두세요.</b></p></div>
        <p>브라우저 자료를 청소하거나, 컴퓨터를 바꾸거나, 시크릿 창에서 열면 내용이 비어 보일 수 있습니다. 백업 파일 하나만 있으면 <b>「복원」</b>으로 그대로 되살릴 수 있습니다.</p>
        <p>백업 파일 이름에 날짜가 들어가므로 덮어쓸 걱정 없이 그냥 계속 받아 두시면 됩니다.</p>` },
 
@@ -3446,12 +3574,12 @@ const FAQ = [
     k:"백업 알림 경고 며칠 지남",
     a:`<p>마지막으로 백업한 지 <b>일주일이 넘었다</b>는 알림입니다. 자료가 이 컴퓨터에만 있으므로
          가끔 파일로 받아 두시라는 뜻입니다.</p>
-       <p>화면 위 <b>「JSON 백업」</b>을 누르면 알림이 사라집니다.</p>` },
+       <p>화면 위 <b>「자료 백업」</b>을 누르면 알림이 사라집니다.</p>` },
 
   { g:"프로그램·자료", q:"「전체 초기화」를 눌러도 되나요?",
     k:"초기화 리셋 전부삭제 지우기",
     a:`<div class="warn"><p><b>함부로 누르지 마세요.</b> 원아·수납·지출·정산 기록을 <b>전부</b> 지웁니다. 되돌릴 수 없습니다.</p></div>
-       <p>정말 처음부터 다시 시작할 때만 쓰세요. 누르기 전에 <b>반드시 「JSON 백업」을 먼저</b> 받아 두시기 바랍니다.</p>` },
+       <p>정말 처음부터 다시 시작할 때만 쓰세요. 누르기 전에 <b>반드시 「자료 백업」을 먼저</b> 받아 두시기 바랍니다.</p>` },
 
   { g:"프로그램·자료", q:"엑셀로 열었더니 한글이 깨집니다.",
     k:"엑셀 csv 한글 깨짐 인코딩",
@@ -3613,8 +3741,8 @@ function manualFull(sources){
     <p><b>① 입력한 자료는 “이 컴퓨터의 이 브라우저 안에만” 저장됩니다.</b><br>
       아동 이름·계좌번호가 밖으로 나가지 않도록 인터넷 서버를 쓰지 않습니다.
       대신 다른 컴퓨터에서 열거나 브라우저 자료를 청소하면 보이지 않게 됩니다. → 그래서 ②번이 중요합니다.</p>
-    <p><b>② 가끔 「JSON 백업」을 꼭 하세요. (= 보험)</b><br>
-      화면 맨 위 <b>「JSON 백업」</b>을 누르면 그동안 입력한 자료가 파일 하나로 저장됩니다.
+    <p><b>② 가끔 「자료 백업」을 꼭 하세요. (= 보험)</b><br>
+      화면 맨 위 <b>「자료 백업」</b>을 누르면 그동안 입력한 자료가 파일 하나로 저장됩니다.
       이 파일만 잘 두면 컴퓨터를 바꿔도 <b>「복원」</b>으로 되살릴 수 있습니다.
       <b>일주일에 한 번, 그리고 반기 정산 뒤에는 꼭</b> 받아 두세요.</p>
     <p><b>③ 「전체 초기화」는 함부로 누르지 마세요.</b><br>
@@ -3850,7 +3978,7 @@ function manualQuick(sources){
 
   <h2>잊지 마세요</h2>
   <div class="warn">
-    <p><b>① 「JSON 백업」을 일주일에 한 번.</b> 자료는 이 컴퓨터에만 있습니다.
+    <p><b>① 「자료 백업」을 일주일에 한 번.</b> 자료는 이 컴퓨터에만 있습니다.
       밀리면 화면 위에 알림이 뜹니다.</p>
     <p><b>② 서류 뽑기 전에 「검증」 탭 한 번.</b></p>
     <p><b>③ 「전체 초기화」는 누르지 않기.</b></p>
@@ -3976,7 +4104,7 @@ function initHeader(){
     e.target.value = "";
   };
   $("#btnReset").onclick = () => {
-    if (!confirm("모든 데이터를 지웁니다. 먼저 JSON 백업을 받아 두었나요?")) return;
+    if (!confirm("모든 데이터를 지웁니다. 먼저 자료 백업을 받아 두었나요?")) return;
     if (!confirm("정말 초기화할까요? 되돌릴 수 없습니다.")) return;
     S = defaultStore(); save(); initHeader(); render();
   };

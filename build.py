@@ -112,9 +112,9 @@ def patch(filename, html):
 
 APPS = [
     ("settle", "기타필요경비 정산", "💰", "기타필요경비정산.html",
-     "받은 돈과 쓴 돈을 원아별로 맞춰<br>정산서·보고서를 뽑습니다"),
+     "원아별 수납·지출 관리<br>정산서·보호자 안내문·보고서 출력"),
     ("goods", "물품관리", "📦", "물품관리시스템.html",
-     "보유 물품을 등록하고<br>물품대장·재물조사 서류를 뽑습니다"),
+     "보유 물품 등록·관리<br>물품대장·재물조사 조서 출력"),
 ]
 
 PAGE = """<!doctype html>
@@ -196,6 +196,15 @@ body{margin:0;background:var(--bg);color:var(--ink);
   html,body{height:auto}
   #bar{display:none!important}
 }
+
+/* 화면 디자인 개정 — 인쇄 규칙과 분리해 화면에서만 덧칠한다 */
+@media screen{
+:root{--bg:#f2f5f8;--ink:#202e40;--dim:#526176;--faint:#637185;--accent:#245c93;--line:#d4dde6}
+body{font-size:15px}#home{gap:8px;padding:80px 24px 40px}#home h1{font-size:34px;letter-spacing:-1px}#home .lead{font-size:16px;margin-bottom:25px}
+.cards{gap:20px}.card{width:310px;text-align:left;padding:28px;border-radius:14px;box-shadow:0 4px 18px #26384a05}.card .ic{font-size:32px}.card .tt{font-size:21px;margin-top:20px}.card .ds{font-size:15px;line-height:1.8;margin-top:12px}.card:hover{transform:translateY(-2px)}
+#home .foot{font-size:14px;margin-top:28px}#home .about{font-size:13px;max-width:640px}#home .corner{font-size:14px;padding:10px 15px;top:20px;left:24px}#bar{padding:10px 20px}#bar button{padding:7px 12px;font-size:14px;border-radius:6px}#bar .name{font-size:14px}#nameBox p{font-size:14px}#nameBox input{font-size:16px}#nameBox h2{font-size:20px}button:focus-visible{outline:3px solid #84b3dd;outline-offset:3px}
+@media(max-width:700px){#home h1{font-size:27px}.card{width:min(100%,340px)}.cards{width:100%}}
+}
 </style>
 </head>
 <body>
@@ -203,23 +212,21 @@ body{margin:0;background:var(--bg);color:var(--ink);
 <div id="home">
   <button id="btnName" class="corner">⚙ 어린이집 이름 설정</button>
   <h1>__NAME__</h1>
-  <div class="lead">쓰실 프로그램을 고르세요.</div>
+  <div class="lead">사용할 업무를 선택하세요.</div>
   <div class="cards">
 __CARDS__
   </div>
   <div class="foot">
     입력한 자료는 이 컴퓨터의 브라우저에만 저장됩니다.<br>
-    각 프로그램 안에서 <b>가끔 백업 파일을 받아 두세요.</b>
+    각 프로그램 안에서 <b>정기적으로 자료를 백업하세요.</b>
   </div>
 
   <div class="about">
     <div class="ver">__NAME__ __VERSION__ · 제작 이현재</div>
     <div>
-      더 있었으면 하는 기능이나 고칠 점이 있으면
+      기능 제안·오류 신고:
       <a href="mailto:__MAIL__?subject=__SUBJECT__">__MAIL__</a>
-      로 알려 주세요.<br>
-      의견을 주신 분, 그리고 앞으로 <b>고쳐 나온 것을 계속 받아보고 싶은 어린이집</b>도
-      같은 주소로 연락 주시면 됩니다.
+      <br>개정본 수신 신청도 위 메일로 보내 주세요.
     </div>
   </div>
 </div>
@@ -228,8 +235,7 @@ __CARDS__
 <div id="nameMask" hidden>
   <div id="nameBox">
     <h2>어린이집 이름</h2>
-    <p>여기 적은 이름이 <b>물품대장·재물조사 조서·정산서·보고서</b> 인쇄물 머리글에
-      모두 찍힙니다. 한 번만 적어 두면 됩니다.</p>
+    <p><b>물품대장·재물조사 조서·정산서·보고서</b>에 표시할 어린이집 이름을 입력하세요.</p>
     <input id="centerName" placeholder="예) 여수시립 햇살어린이집">
     <div class="btns">
       <button id="nameCancel">취소</button>
