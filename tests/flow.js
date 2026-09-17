@@ -113,17 +113,17 @@ const flat = s => String(s||"").replace(/\s+/g," ");
   const elist = flat(await p.textContent("#e_list"));
   check("지출 목록에 결의서 번호 표시", /104/.test(elist), elist.slice(0,180));
 
-  // ---- 위탁 충당 확인: 최지안은 10월이 위탁월 ----
+  // ---- 전입금 충당 확인: 최지안은 10월이 위탁월 ----
   await p.click('nav button[data-tab="child"]');
   await p.selectOption("#c_pick", { label: "최지안" });
   await p.waitForTimeout(200);
   const cs = flat(await p.textContent("#c_sum"));
-  check("위탁 월 지출이 사용액이 아니라 「위탁 충당」으로 잡힘",
-    /위탁 충당/.test(cs) && /30,000 0 20,000/.test(cs.replace(/,(?=\d{3}\b)/g, m=>m)) || /20,000/.test(cs),
-    cs.slice(0,240));
+  check("위탁 월 지출이 「전입금 충당」으로 수입에도 잡힘",
+    /전입금 충당/.test(cs) && /20,000/.test(cs), cs.slice(0,240));
   const leftJ = await p.evaluate(() => balance(S.children.find(c=>c.name==="최지안").id, "it_field", "2026-03-01","2027-02-28"));
-  check("최지안 잔액 = 수납 30,000 − 사용 0 = 30,000 (위탁 충당 20,000 별도)",
-    leftJ.paid===30000 && leftJ.used===0 && leftJ.consign===20000 && leftJ.left===30000, JSON.stringify(leftJ));
+  check("최지안 — 전입금 20,000이 수입·지출 양쪽에 잡히고 남은 금액은 그대로 30,000",
+    leftJ.paid===30000 && leftJ.transferIn===20000 && leftJ.income===50000 &&
+    leftJ.totalUsed===20000 && leftJ.left===30000, JSON.stringify(leftJ));
   const leftS = await p.evaluate(() => balance(S.children.find(c=>c.name==="김서우").id, "it_field", "2026-03-01","2027-02-28"));
   check("김서우(일반) 잔액 = 30,000 − 20,000 = 10,000",
     leftS.used===20000 && leftS.left===10000, JSON.stringify(leftS));
@@ -142,7 +142,7 @@ const flat = s => String(s||"").replace(/\s+/g," ");
   check("시작월·마지막월을 골라 임의 기간으로 정산", /9월 ~ 11월/.test(rep) && /2026-09-01 ~ 2026-11-30/.test(rep), rep.slice(0,170));
   check("기간이 3월부터가 아니면 이월 열이 생김", /이월/.test(rep));
   check("본문 97p 인용문이 빠짐", !/본문 97p/.test(rep));
-  check("위탁 충당 열 표시", /위탁 충당/.test(rep));
+  check("전입금 충당 열 표시", /전입금 충당/.test(rep));
 
   // ---- 보호자용 안내문: 지출건별 내역 ----
   await p.click('[data-m="notice"]');

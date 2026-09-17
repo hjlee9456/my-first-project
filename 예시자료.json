@@ -865,11 +865,6 @@
      "memo": "원복+가방"
     },
     {
-     "childId": "ch19",
-     "amount": 59995,
-     "memo": "원복"
-    },
-    {
      "childId": "ch20",
      "amount": 89993,
      "memo": "원복+가방"
@@ -945,7 +940,7 @@
      "memo": "원복+전자출결"
     }
    ],
-   "total": 2337313
+   "total": 2277318
   },
   {
    "id": "vc002",
@@ -1162,11 +1157,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 49995,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 49995,
      "memo": ""
@@ -1182,7 +1172,7 @@
      "memo": ""
     }
    ],
-   "total": 299970
+   "total": 249975
   },
   {
    "id": "vc009",
@@ -1203,11 +1193,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 29997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 29997,
      "memo": ""
@@ -1223,7 +1208,7 @@
      "memo": ""
     }
    ],
-   "total": 179982
+   "total": 149985
   },
   {
    "id": "vc010",
@@ -1478,11 +1463,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 29997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 29997,
      "memo": ""
@@ -1568,7 +1548,7 @@
      "memo": ""
     }
    ],
-   "total": 899910
+   "total": 869913
   },
   {
    "id": "vc015",
@@ -1639,11 +1619,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 29997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 29997,
      "memo": ""
@@ -1734,7 +1709,7 @@
      "memo": ""
     }
    ],
-   "total": 929907
+   "total": 899910
   },
   {
    "id": "vc016",
@@ -1805,11 +1780,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 29997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 29997,
      "memo": ""
@@ -1821,11 +1791,6 @@
     },
     {
      "childId": "ch22",
-     "amount": 29997,
-     "memo": ""
-    },
-    {
-     "childId": "ch23",
      "amount": 29997,
      "memo": ""
     },
@@ -1895,7 +1860,7 @@
      "memo": ""
     }
    ],
-   "total": 899910
+   "total": 839916
   },
   {
    "id": "vc017",
@@ -1916,11 +1881,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 36997,
      "memo": ""
@@ -2006,7 +1966,7 @@
      "memo": ""
     }
    ],
-   "total": 739940
+   "total": 702943
   },
   {
    "id": "vc018",
@@ -2027,11 +1987,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 36997,
      "memo": ""
@@ -2117,7 +2072,7 @@
      "memo": ""
     }
    ],
-   "total": 739940
+   "total": 702943
   },
   {
    "id": "vc019",
@@ -2138,11 +2093,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 36997,
      "memo": ""
@@ -2228,7 +2178,7 @@
      "memo": ""
     }
    ],
-   "total": 739940
+   "total": 702943
   },
   {
    "id": "vc020",
@@ -2249,11 +2199,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 36997,
      "memo": ""
@@ -2339,7 +2284,7 @@
      "memo": ""
     }
    ],
-   "total": 739940
+   "total": 702943
   },
   {
    "id": "vc021",
@@ -2360,11 +2305,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 36997,
      "memo": ""
@@ -2450,7 +2390,7 @@
      "memo": ""
     }
    ],
-   "total": 739940
+   "total": 702943
   },
   {
    "id": "vc022",
@@ -2471,11 +2411,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 36997,
      "memo": ""
@@ -2566,7 +2501,7 @@
      "memo": ""
     }
    ],
-   "total": 776937
+   "total": 739940
   },
   {
    "id": "vc023",
@@ -2587,11 +2522,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 36997,
      "memo": ""
@@ -2682,7 +2612,7 @@
      "memo": ""
     }
    ],
-   "total": 776937
+   "total": 739940
   },
   {
    "id": "vc024",
@@ -2703,11 +2633,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 36997,
      "memo": ""
@@ -2719,11 +2644,6 @@
     },
     {
      "childId": "ch22",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
-     "childId": "ch23",
      "amount": 36997,
      "memo": ""
     },
@@ -2798,7 +2718,7 @@
      "memo": ""
     }
    ],
-   "total": 776937
+   "total": 702943
   },
   {
    "id": "vc025",
@@ -2819,11 +2739,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 36997,
      "memo": ""
@@ -2835,11 +2750,6 @@
     },
     {
      "childId": "ch22",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
-     "childId": "ch23",
      "amount": 36997,
      "memo": ""
     },
@@ -2909,7 +2819,7 @@
      "memo": ""
     }
    ],
-   "total": 739940
+   "total": 665946
   },
   {
    "id": "vc026",
@@ -2930,11 +2840,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 36997,
      "memo": ""
@@ -2946,11 +2851,6 @@
     },
     {
      "childId": "ch22",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
-     "childId": "ch23",
      "amount": 36997,
      "memo": ""
     },
@@ -3020,7 +2920,7 @@
      "memo": ""
     }
    ],
-   "total": 739940
+   "total": 665946
   },
   {
    "id": "vc027",
@@ -3041,11 +2941,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 36997,
      "memo": ""
@@ -3057,11 +2952,6 @@
     },
     {
      "childId": "ch22",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
-     "childId": "ch23",
      "amount": 36997,
      "memo": ""
     },
@@ -3131,7 +3021,7 @@
      "memo": ""
     }
    ],
-   "total": 739940
+   "total": 665946
   },
   {
    "id": "vc028",
@@ -3152,11 +3042,6 @@
      "memo": ""
     },
     {
-     "childId": "ch19",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
      "childId": "ch20",
      "amount": 36997,
      "memo": ""
@@ -3168,11 +3053,6 @@
     },
     {
      "childId": "ch22",
-     "amount": 36997,
-     "memo": ""
-    },
-    {
-     "childId": "ch23",
      "amount": 36997,
      "memo": ""
     },
@@ -3242,7 +3122,7 @@
      "memo": ""
     }
    ],
-   "total": 739940
+   "total": 665946
   },
   {
    "id": "vc029",

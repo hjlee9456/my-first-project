@@ -114,7 +114,7 @@ const SEED = {
   check("현장학습비 반환할 금액 95,000 (120,000 − 25,000)", /95,000/.test(sheet));
   check("입학준비금은 협의 표시", /협의/.test(sheet));
   check("정산 내역이 표로 맨 앞에 나옴",
-    /정산 내역 세목수납액 실 사용금액 반환할 금액/.test(sheet) && sheet.indexOf("정산 내역") < sheet.indexOf("산출 근거"),
+    /정산 내역 세목보호자 수납액 실 사용금액 반환할 금액/.test(sheet) && sheet.indexOf("정산 내역") < sheet.indexOf("산출 근거"),
     sheet.slice(sheet.indexOf("정산 내역"), sheet.indexOf("정산 내역") + 170));
   check("반환금 확정 버튼은 없음", (await p.locator("#ex_fix").count()) === 0);
 
@@ -147,7 +147,7 @@ const SEED = {
   rep = flat(await p.textContent("#hp_body"));
   check("하반기는 이월 열이 생김", /이월/.test(rep));
   check("미집행액 합계 행이 채워짐", /미집행액 합계/.test(rep));
-  check("위탁 충당 열 표시", /위탁 충당/.test(rep));
+  check("전입금 충당 열 표시", /전입금 충당/.test(rep));
 
   await p.selectOption("#hp_from", "2026-10");
   await p.selectOption("#hp_to", "2026-10");
@@ -156,13 +156,36 @@ const SEED = {
   check("시작월·마지막월을 골라 한 달만 정산", /10월 ~ 10월/.test(rep), rep.slice(0, 130));
 
   const cj = await p.evaluate(() => balance("k4", "it_field", "2026-10-01", "2026-10-31"));
-  check("위탁 원아의 10월 지출은 사용액 0, 위탁 충당 30,000",
-    cj.used === 0 && cj.consign === 30000, JSON.stringify(cj));
+  check("위탁 원아의 10월 — 전입금 30,000이 수입·지출 양쪽에 잡혀 남은 금액 0",
+    cj.used === 0 && cj.transferIn === 30000 && cj.income === 30000 &&
+    cj.totalUsed === 30000 && cj.left === 0, JSON.stringify(cj));
   const gen = await p.evaluate(() => balance("k1", "it_field", "2026-10-01", "2026-10-31"));
   check("일반 원아의 10월 지출은 그대로 사용액 30,000",
     gen.used === 30000 && gen.consign === 0, JSON.stringify(gen));
 
+  /* 위탁 원아 몫이 수입으로도 잡혀 수입과 지출이 맞아떨어지는지 (전 원아·전 세목) */
+  const rec = await p.evaluate(() => {
+    const from = fyStart(S.fiscalYear), to = fyEnd(S.fiscalYear);
+    let paid = 0, transfer = 0, spent = 0;
+    for (const c of S.children) for (const it of S.items) {
+      const b = balance(c.id, it.id, from, to);
+      paid += b.paid; transfer += b.transferIn; spent += b.totalUsed;
+    }
+    return { paid, transfer, spent, left: paid + transfer - spent };
+  });
+  check("전입금을 수입으로 잡으면 수입 − 지출 = 보호자에게 돌려줄 몫",
+    rec.transfer > 0 && rec.paid + rec.transfer - rec.spent === rec.left,
+    `수납 ${rec.paid} + 전입금 ${rec.transfer} − 배분 ${rec.spent} = ${rec.left}`);
+
+  await p.click('nav button[data-tab="check"]');
+  await p.waitForTimeout(400);
+  const recon = flat(await p.textContent("#panel"));
+  check("검증 대사에 전입금 충당 줄이 나옴",
+    /전입금 충당 \(위탁 원아 몫\)/.test(recon) && /수입 합계/.test(recon), recon.slice(0, 160));
+
   // ================= 반환 정산서 (전 원아) =================
+  await p.click('nav button[data-tab="settle"]');
+  await p.waitForTimeout(300);
   await p.click('[data-m="back"]');
   await p.click('[data-p="Y"]');
   await p.waitForTimeout(300);

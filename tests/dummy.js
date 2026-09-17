@@ -45,7 +45,7 @@ const OUT = process.env.SHOT_DIR || "./";
   await p.selectOption("#c_pick", { label: "김시원" });
   await p.waitForTimeout(250);
   const cs = flat(await p.textContent("#c_sum"));
-  check("위탁 전환 원아에 「위탁 충당」 열", /위탁 충당/.test(cs), cs.slice(0,200));
+  check("위탁 전환 원아에 「전입금 충당」 열", /전입금 충당/.test(cs), cs.slice(0,200));
   check("귀속액 문구", /원아 귀속액/.test(flat(await p.textContent("#c_use"))));
   await p.locator("#c_use button.link").first().click();
   await p.waitForTimeout(250);
@@ -95,7 +95,7 @@ const OUT = process.env.SHOT_DIR || "./";
   await p.waitForTimeout(350);
   const ex = flat(await p.textContent("#st_sheet"));
   check("중간퇴소 정산서 — 반환할 금액", /반환할 금액/.test(ex) && !/기 반환/.test(ex), ex.slice(0,200));
-  check("정산 내역이 표로 맨 앞에", /정산 내역 세목수납액 실 사용금액 반환할 금액/.test(ex) && ex.indexOf("정산 내역") < ex.indexOf("산출 근거"), ex.slice(ex.indexOf("정산 내역"), ex.indexOf("정산 내역")+150));
+  check("정산 내역이 표로 맨 앞에", /정산 내역 세목보호자 수납액 실 사용금액 반환할 금액/.test(ex) && ex.indexOf("정산 내역") < ex.indexOf("산출 근거"), ex.slice(ex.indexOf("정산 내역"), ex.indexOf("정산 내역")+150));
   await p.screenshot({ path: OUT+"d-exit.png", fullPage: true });
 
   // 대장
