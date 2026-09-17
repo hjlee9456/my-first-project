@@ -61,17 +61,20 @@ const flat = s => String(s||"").replace(/\s+/g," ");
     S.children.find(c=>c.name==="최지안").consignPeriods[0].startMonth === "2026-10"));
 
   // ---- 수납결의서 ----
+  /* 수납 입력은 세목 칸(.blk)이 여럿이다. 첫 칸을 집어 쓴다 */
+  const rcBlk = (i = 0) => p.locator("#rc_blocks > .blk").nth(i);
   await p.click('nav button[data-tab="receipt"]');
   await p.fill("#rc_date", "2026-03-20");
   await p.fill("#rc_no", "6");
-  await p.selectOption("#rc_item", { label: "현장학습비" });
+  await rcBlk().locator('[data-r="item"]').selectOption({ label: "현장학습비" });
   await p.fill("#rc_summary", "기타필요경비-현장학습비 1분기");
-  await p.locator("#rc_pick .pk-class", { hasText: "새싹반" }).locator('[data-a="g-all"]').click();
+  await rcBlk().locator(".pk-class", { hasText: "새싹반" }).locator('[data-a="g-all"]').click();
   await p.waitForTimeout(150);
-  await p.click("#rc_std");   // 기초설정 30,000원 쓰기
+  await rcBlk().locator('[data-r="std"]').click();   // 기초설정 30,000원 쓰기
   await p.waitForTimeout(150);
-  const amts = await p.$$eval("#rc_lines input.money", els => els.map(e => e.value));
-  const totalCell = flat(await p.textContent("#rc_total"));
+  const amts = await rcBlk().locator('[data-r="lines"] input.money')
+    .evaluateAll(els => els.map(e => e.value));
+  const totalCell = flat(await rcBlk().locator("tr.sum td.n").first().textContent());
   check("기초설정 1인당 수납액이 자동으로 채워짐",
     amts.length === 2 && amts.every(a => a === "30,000") && totalCell === "60,000",
     amts.join(" / ") + " 합계 " + totalCell);
@@ -86,10 +89,10 @@ const flat = s => String(s||"").replace(/\s+/g," ");
   // 두 번째 결의서 (풀잎반, 다른 날짜)
   await p.fill("#rc_date", "2026-03-21");
   await p.fill("#rc_no", "13");
-  await p.selectOption("#rc_item", { label: "현장학습비" });
-  await p.locator("#rc_pick .pk-class", { hasText: "풀잎반" }).locator('[data-a="g-all"]').click();
+  await rcBlk().locator('[data-r="item"]').selectOption({ label: "현장학습비" });
+  await rcBlk().locator(".pk-class", { hasText: "풀잎반" }).locator('[data-a="g-all"]').click();
   await p.waitForTimeout(150);
-  await p.click("#rc_std");
+  await rcBlk().locator('[data-r="std"]').click();
   await p.click("#rc_save");
   await p.waitForTimeout(300);
   check("여러 날짜에 나눠 들어온 수납이 각각 기록됨",

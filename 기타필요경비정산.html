@@ -151,6 +151,11 @@ table.ledger th,table.ledger td{padding:3px 5px}
 .faq .ans{padding:11px 13px 13px 30px;border-top:1px solid var(--line2);font-size:13.5px;line-height:1.85}
 .faq .ans ol,.faq .ans ul{margin:6px 0;padding-left:20px}
 
+/* 수납 입력의 세목 칸 — 한 결의서에 여러 세목이 섞일 때 칸마다 테두리로 나눈다 */
+.blk{border:1px solid var(--line);border-left:3px solid var(--accent);
+  border-radius:var(--radius);padding:14px 16px;background:#fcfdfe}
+.blk + .blk{margin-top:14px}
+
 /* 표 머리의 계산 기호 */
 .sym{display:block;font-weight:700;color:var(--accent);font-size:11px;
   margin-top:2px;letter-spacing:.2px;white-space:nowrap}
@@ -1875,65 +1880,70 @@ function buildPicker(host, opts){
    9. 수납 입력 — 수납결의서 1건 단위
    ========================================================================== */
 
+/**
+ * 수납 입력 — 수입결의서 1장을 그대로 옮겨 적는다.
+ *
+ * 실제 수입결의서는 한 장에 여러 세목이 섞여 있다. 관·항·목은 「수익자부담수입 /
+ * 기타필요경비 / 기타필요경비」로 하나이고, 입학준비금·현장학습비·행사비는
+ * 적요에 나란히 적힌다. 그래서 화면도 세목 칸을 여럿 둔다.
+ *
+ * 저장할 때는 세목마다 결의서 하나로 나눠 담되, 수납일·결의서 번호·적요를
+ * 같이 준다. 정산과 대장은 세목별로만 뜻이 있으므로(세목 간 상계 금지) 나눠
+ * 담는 편이 맞고, 화면과 목록에서는 같은 번호로 묶여 한 장처럼 보인다.
+ */
 function renderReceipt(root){
   const items = enabledItems();
   if (!items.length) { root.innerHTML = `<div class="empty">사용 중인 세목이 없습니다. 기초설정에서 세목을 켜 주세요.</div>`; return; }
   if (!S.children.length) { root.innerHTML = `<div class="empty">원아가 없습니다. 기초설정에서 원아를 등록하세요.</div>`; return; }
 
+  /* 고칠 때는 같은 날·같은 번호의 결의서를 통째로 불러온다 (한 장이었으므로) */
   const editing = view.receiptEditId ? S.vouchers.find(x => x.id === view.receiptEditId) : null;
-  const f = view.receiptForm = editing
-    ? { date: editing.date, voucherNo: editing.voucherNo, itemId: editing.itemId, summary: editing.summary,
-        perAmount: editing.perAmount || 0, cardFee: editing.cardFee || 0,
-        lines: editing.lines.map(l => Object.assign({}, l)),
-        targets: new Set(editing.lines.map(l => l.childId)) }
-    : Object.assign({ date: todayISO(), voucherNo: "", itemId: items[0].id, summary: "",
-                      perAmount: 0, cardFee: 0, lines: [], targets: new Set() },
-                    view.receiptForm && view.receiptForm.keep ? view.receiptForm : {});
-  if (!(f.targets instanceof Set)) f.targets = new Set(f.targets || []);
-  if (!Array.isArray(f.lines)) f.lines = [];
-  if (!items.some(i => i.id === f.itemId)) f.itemId = items[0].id;
-  delete f.keep;
+  const group = editing ? voucherGroup(editing) : [];
 
-  const it = itemById(f.itemId);
+  const blockOf = v => ({
+    itemId: v.itemId, perAmount: v.perAmount || 0, cardFee: v.cardFee || 0,
+    lines: v.lines.map(l => Object.assign({}, l)),
+    targets: new Set(v.lines.map(l => l.childId)),
+  });
+  const emptyBlock = () => ({ itemId: items[0].id, perAmount: 0, cardFee: 0, lines: [], targets: new Set() });
+
+  const f = view.receiptForm = editing
+    ? { date: editing.date, voucherNo: editing.voucherNo, summary: editing.summary,
+        editIds: group.map(v => v.id), blocks: group.map(blockOf) }
+    : Object.assign({ date: todayISO(), voucherNo: "", summary: "", editIds: [], blocks: [emptyBlock()] },
+                    view.receiptForm && view.receiptForm.keep ? view.receiptForm : {});
+  delete f.keep;
+  if (!Array.isArray(f.blocks) || !f.blocks.length) f.blocks = [emptyBlock()];
+  f.blocks.forEach(bk => {
+    if (!(bk.targets instanceof Set)) bk.targets = new Set(bk.targets || []);
+    if (!Array.isArray(bk.lines)) bk.lines = [];
+    if (!items.some(i => i.id === bk.itemId)) bk.itemId = items[0].id;
+  });
 
   root.innerHTML = `
     <h2>수납 입력 ${editing ? '<span class="tag ev">수정 중</span>' : ""}</h2>
-    <div class="hint">결의서 내용을 입력하고 원아를 선택한 뒤 수납액을 확인하세요.</div>
+    <div class="hint">수입결의서 <b>1장</b>을 그대로 옮겨 적습니다.
+      한 장에 <b>여러 세목</b>이 섞여 있으면 「세목 칸 추가」로 늘리세요.
+      저장하면 세목마다 나뉘어 담기되 <b>같은 결의서 번호</b>로 묶입니다.</div>
 
     <h3>1. 결의서 입력</h3>
     <div class="row" style="margin:12px 0">
       <label class="f">수납일<input type="date" id="rc_date" value="${esc(f.date)}"></label>
-      <label class="f">수납결의서 번호<input id="rc_no" value="${esc(f.voucherNo)}" placeholder="예: 6" style="width:120px"></label>
-      <label class="f">세목<select id="rc_item" style="width:190px">
-        ${items.map(i => `<option value="${i.id}" ${i.id === f.itemId ? "selected" : ""}>${esc(i.name)}</option>`).join("")}
-      </select></label>
-      <label class="f grow">적요<input id="rc_summary" value="${esc(f.summary)}" placeholder="예: 기타필요경비-현장학습비 1분기"></label>
+      <label class="f">수입결의서 번호<input id="rc_no" value="${esc(f.voucherNo)}" placeholder="예: 6" style="width:130px"></label>
+      <label class="f grow">적요<input id="rc_summary" value="${esc(f.summary)}" placeholder="예: 기타필요경비 아이행복카드 결제분"></label>
     </div>
 
-    <div id="rc_note"></div>
+    <div id="rc_blocks"></div>
 
-    <h3>2. 수납 대상 원아</h3>
-    <div class="row" style="margin-bottom:6px">
-      <select id="rc_roster" style="width:250px"></select>
-      <button class="b" id="rc_loadRoster">명단 불러오기</button>
-      <span class="grow"></span>
-      <button class="b" id="rc_saveRoster">선택 원아를 명단으로 저장</button>
+    <div class="row" style="margin-top:10px">
+      <button class="b" id="rc_addBlock">+ 세목 칸 추가</button>
+      <span class="hint" style="margin-bottom:6px">한 결의서에 여러 세목이 섞여 있을 때 누르세요.</span>
     </div>
-    <div id="rc_pick"></div>
-    <h3>3. 수납액 확인</h3>
-    <div class="row">
-      <label class="f">1인당 수납액<input class="money" id="rc_per" value="${won(f.perAmount)}" style="width:130px"></label>
-      <button class="b" id="rc_apply" style="margin-bottom:1px">선택한 원아에게 일괄 적용</button>
-      ${it && it.stdAmount ? `<button class="b" id="rc_std" style="margin-bottom:1px">기초설정 금액 ${won(it.stdAmount)}원 쓰기</button>` : ""}
-      <label class="f">카드수수료 (결의서 전체)<input class="money" id="rc_fee" value="${won(f.cardFee)}" style="width:130px"></label>
-      <span class="grow"></span>
-      <span class="hint" style="margin-bottom:6px">원아마다 금액이 다르면 아래 표에서 고치세요.</span>
-    </div>
-    <div id="rc_feeNote"></div>
-    <div id="rc_lines" style="margin-top:12px"></div>
+
+    <div id="rc_grand" style="margin-top:12px"></div>
 
     <div class="row" style="margin-top:12px">
-      <button class="b pri" id="rc_save">${editing ? "수정 저장" : "수납결의서 등록"}</button>
+      <button class="b pri" id="rc_save">${editing ? "수정 저장" : "수입결의서 등록"}</button>
       ${editing ? '<button class="b" id="rc_cancel">수정 취소</button>' : ""}
       <span class="grow"></span>
       <span class="hint" id="rc_guard"></span>
@@ -1942,174 +1952,253 @@ function renderReceipt(root){
     <h3>수납결의서 내역</h3>
     <div id="rc_list"></div>`;
 
-  if (it) $("#rc_note", root).innerHTML = `<div class="note"><b>${esc(it.name)}</b>
-    — 수납주기 <b>${esc(cycleLabel(it))}</b>${it.stdAmount ? ` · 1인당 수납액 <b>${won(it.stdAmount)}원</b>` : ""}
-    ${it.note ? `<br>${esc(it.note)}` : ""}</div>`;
+  $("#rc_date", root).onchange   = e => { f.date = e.target.value; f.keep = true; render(); };
+  $("#rc_no", root).oninput      = e => { f.voucherNo = e.target.value; };
+  $("#rc_summary", root).oninput = e => { f.summary = e.target.value; };
+  $("#rc_addBlock", root).onclick = () => { f.blocks.push(emptyBlock()); f.keep = true; render(); };
 
-  $("#rc_date", root).onchange     = e => { f.date = e.target.value; f.keep = true; render(); };
-  $("#rc_item", root).onchange     = e => { f.itemId = e.target.value; f.keep = true; render(); };
-  $("#rc_no", root).oninput        = e => { f.voucherNo = e.target.value; };
-  $("#rc_summary", root).oninput   = e => { f.summary = e.target.value; };
-  $("#rc_per", root).onchange      = e => { f.perAmount = num(e.target.value); e.target.value = won(f.perAmount); };
-  $("#rc_fee", root).onchange      = e => { f.cardFee = num(e.target.value); e.target.value = won(f.cardFee); drawLines(); };
+  const blocksHost = $("#rc_blocks", root);
+  const pickers = [];
+  f.blocks.forEach((bk, bi) => blocksHost.appendChild(receiptBlock(bk, bi)));
+  drawGrand();
 
-  /* 고정 명단 — 세목으로 거르지 않고 전부 보여 주되 어느 세목 것인지 함께 적는다 */
-  const rosterSel = $("#rc_roster", root);
-  rosterSel.innerHTML = S.rosters.length
-    ? S.rosters.map(r => `<option value="${r.id}">${esc(r.name)} (${r.childIds.length}명${r.itemId ? " · " + esc(itemName(r.itemId)) : ""})</option>`).join("")
-    : `<option value="">— 저장된 명단 없음 —</option>`;
+  /** 세목 칸 하나 — 세목·대상 원아·금액을 한 덩어리로 묶는다 */
+  function receiptBlock(bk, bi){
+    const it = itemById(bk.itemId);
+    const box = el(`<div class="blk" style="margin-top:14px">
+      <div class="row" style="margin-bottom:8px">
+        <label class="f">세목<select data-r="item" style="width:200px">
+          ${items.map(i => `<option value="${i.id}" ${i.id === bk.itemId ? "selected" : ""}>${esc(i.name)}</option>`).join("")}
+        </select></label>
+        <span class="hint" style="margin-bottom:6px">${it ? esc(cycleLabel(it)) : ""}${
+          it && it.stdAmount ? " · 1인당 " + won(it.stdAmount) + "원" : ""}</span>
+        <span class="grow"></span>
+        ${f.blocks.length > 1 ? `<button class="b danger" data-r="drop">이 세목 칸 빼기</button>` : ""}
+      </div>
+      ${it && it.note ? `<div class="note">${esc(it.name)} — ${esc(it.note)}</div>` : ""}
+      <div class="row" style="margin-bottom:6px">
+        <select data-r="roster" style="width:250px"></select>
+        <button class="b" data-r="loadRoster">명단 불러오기</button>
+        <span class="grow"></span>
+        <button class="b" data-r="saveRoster">선택 원아를 명단으로 저장</button>
+      </div>
+      <div data-r="pick"></div>
+      <div class="row" style="margin-top:10px">
+        <label class="f">1인당 수납액<input class="money" data-r="per" value="${won(bk.perAmount)}" style="width:130px"></label>
+        <button class="b" data-r="apply" style="margin-bottom:1px">선택한 원아에게 일괄 적용</button>
+        ${it && it.stdAmount ? `<button class="b" data-r="std" style="margin-bottom:1px">기초설정 금액 ${won(it.stdAmount)}원 쓰기</button>` : ""}
+        <label class="f">카드수수료<input class="money" data-r="fee" value="${won(bk.cardFee)}" style="width:120px"></label>
+      </div>
+      <div data-r="feeNote"></div>
+      <div data-r="lines" style="margin-top:10px"></div>
+    </div>`);
 
-  function lineOf(childId){
-    let l = f.lines.find(x => x.childId === childId);
-    if (!l) { l = { childId, amount: f.perAmount, memo: "" }; f.lines.push(l); }
-    return l;
-  }
-  function syncLines(){
-    f.lines = f.lines.filter(l => f.targets.has(l.childId));
-    for (const id of f.targets) lineOf(id);
-  }
+    $('[data-r="item"]', box).onchange = e => { bk.itemId = e.target.value; f.keep = true; render(); };
+    const dropBtn = $('[data-r="drop"]', box);
+    if (dropBtn) dropBtn.onclick = () => { f.blocks.splice(bi, 1); f.keep = true; render(); };
 
-  const picker = buildPicker($("#rc_pick", root), {
-    selected: f.targets, date: f.date,
-    onChange: () => { syncLines(); drawLines(); },
-  });
+    const rosterSel = $('[data-r="roster"]', box);
+    rosterSel.innerHTML = S.rosters.length
+      ? S.rosters.map(r => `<option value="${r.id}">${esc(r.name)} (${won(r.childIds.length)}명${r.itemId ? " · " + esc(itemName(r.itemId)) : ""})</option>`).join("")
+      : `<option value="">— 저장된 명단 없음 —</option>`;
 
-  $("#rc_loadRoster", root).onclick = () => {
-    const r = S.rosters.find(x => x.id === rosterSel.value);
-    if (!r) { alert("불러올 명단이 없습니다. 기초설정에서 고정 명단을 먼저 만드세요."); return; }
-    f.targets.clear();
-    r.childIds.forEach(id => { const c = childById(id); if (c && isEnrolled(c, f.date)) f.targets.add(id); });
-    syncLines(); picker.redraw(); drawLines();
-  };
-  $("#rc_saveRoster", root).onclick = () => {
-    if (!f.targets.size) { alert("선택된 원아가 없습니다."); return; }
-    askText("고정 명단으로 저장", "명단 이름", itemName(f.itemId) + " 수납 대상", name => {
-      S.rosters.push({ id: uid("rs"), name, itemId: f.itemId,
-                       childIds: sortedChildren().filter(c => f.targets.has(c.id)).map(c => c.id) });
-      f.keep = true; save(); render();
-    });
-  };
-
-  /** 1인당 수납액을 고른 원아에게 채운다.
-   *  순액 방식이면 카드수수료를 원아 수로 나눠(나머지는 앞에서부터 1원) 빼 준다.
-   *  30,000원을 3명이 결제하고 수수료가 9원이면 각자 29,997원이 수납액이 된다. */
-  function applyPer(per){
-    f.perAmount = per;
-    $("#rc_per", root).value = won(per);
-    syncLines();
-    const ids = sortedChildren().filter(c => f.targets.has(c.id)).map(c => c.id);
-    if (!isGross() && f.cardFee > 0 && ids.length) {
-      const share = new Map(allocate(f.cardFee, ids).map(a => [a.childId, a.amount]));
-      f.lines.forEach(l => l.amount = per - (share.get(l.childId) || 0));
-    } else {
-      f.lines.forEach(l => l.amount = per);
+    function lineOf(childId){
+      let l = bk.lines.find(x => x.childId === childId);
+      if (!l) { l = { childId, amount: bk.perAmount, memo: "" }; bk.lines.push(l); }
+      return l;
     }
+    function syncLines(){
+      bk.lines = bk.lines.filter(l => bk.targets.has(l.childId));
+      for (const id of bk.targets) lineOf(id);
+    }
+
+    const picker = buildPicker($('[data-r="pick"]', box), {
+      selected: bk.targets, date: f.date,
+      onChange: () => { syncLines(); drawLines(); },
+    });
+    pickers[bi] = picker;
+
+    $('[data-r="loadRoster"]', box).onclick = () => {
+      const r = S.rosters.find(x => x.id === rosterSel.value);
+      if (!r) { alert("불러올 명단이 없습니다. 기초설정에서 고정 명단을 먼저 만드세요."); return; }
+      bk.targets.clear();
+      r.childIds.forEach(id => { const c = childById(id); if (c && isEnrolled(c, f.date)) bk.targets.add(id); });
+      syncLines(); picker.redraw(); drawLines();
+    };
+    $('[data-r="saveRoster"]', box).onclick = () => {
+      if (!bk.targets.size) { alert("선택된 원아가 없습니다."); return; }
+      askText("고정 명단으로 저장", "명단 이름", itemName(bk.itemId) + " 수납 대상", name => {
+        S.rosters.push({ id: uid("rs"), name, itemId: bk.itemId,
+                         childIds: sortedChildren().filter(c => bk.targets.has(c.id)).map(c => c.id) });
+        f.keep = true; save(); render();
+      });
+    };
+
+    /* 1인당 수납액을 고른 원아에게 채운다.
+       순액 방식이면 카드수수료를 원아 수로 나눠(나머지는 앞에서부터 1원) 빼 준다. */
+    function applyPer(per){
+      bk.perAmount = per;
+      $('[data-r="per"]', box).value = won(per);
+      syncLines();
+      const ids = sortedChildren().filter(c => bk.targets.has(c.id)).map(c => c.id);
+      if (!isGross() && bk.cardFee > 0 && ids.length) {
+        const share = new Map(allocate(bk.cardFee, ids).map(a => [a.childId, a.amount]));
+        bk.lines.forEach(l => l.amount = per - (share.get(l.childId) || 0));
+      } else {
+        bk.lines.forEach(l => l.amount = per);
+      }
+      drawLines();
+    }
+    $('[data-r="per"]', box).onchange = e => { bk.perAmount = num(e.target.value); e.target.value = won(bk.perAmount); };
+    $('[data-r="fee"]', box).onchange = e => { bk.cardFee = num(e.target.value); e.target.value = won(bk.cardFee); drawLines(); };
+    $('[data-r="apply"]', box).onclick = () => applyPer(num($('[data-r="per"]', box).value));
+    const stdBtn = $('[data-r="std"]', box);
+    if (stdBtn) stdBtn.onclick = () => applyPer(it.stdAmount);
+
+    function drawLines(){
+      syncLines();
+      const host = $('[data-r="lines"]', box);
+      const ordered = sortedChildren().filter(c => bk.targets.has(c.id));
+      if (!ordered.length) {
+        host.innerHTML = `<div class="note warn">수납 대상 원아를 선택하세요.</div>`;
+        drawFeeNote(); drawGrand(); return;
+      }
+      const t = el(`<table><thead><tr>
+        <th class="c" style="width:50px">순번</th><th style="width:120px">성명</th><th style="width:100px">반</th>
+        <th class="n" style="width:140px">수납액</th><th>비고</th>
+        <th class="c" style="width:60px"></th></tr></thead><tbody></tbody></table>`);
+      const tb = $("tbody", t);
+      let sum = 0;
+      ordered.forEach((c, i) => {
+        const l = lineOf(c.id);
+        sum += l.amount;
+        const cls = classAt(c, f.date) || currentClass(c);
+        const tr = el(`<tr>
+          <td class="c">${i + 1}</td><td class="ui-center"><b>${esc(c.name)}</b></td><td class="ui-center">${cls ? esc(cls.name) : "-"}</td>
+          <td class="n"><input class="money" value="${won(l.amount)}" style="width:120px"></td>
+          <td class="ui-prose"><input value="${esc(l.memo || "")}" style="width:100%" placeholder="—"></td>
+          <td class="c"><button class="b danger" title="이 결의서에서 빼기">×</button></td></tr>`);
+        $("input.money", tr).onchange = e => { l.amount = num(e.target.value); e.target.value = won(l.amount); drawLines(); };
+        $$("input", tr)[1].onchange = e => { l.memo = e.target.value; };
+        $("button", tr).onclick = () => { bk.targets.delete(c.id); syncLines(); picker.redraw(); drawLines(); };
+        tb.appendChild(tr);
+      });
+      tb.appendChild(el(`<tr class="sum"><td colspan="3" class="c">${esc(itemName(bk.itemId))} 소계</td>
+        <td class="n">${won(sum)}</td><td colspan="2">${won(ordered.length)}명</td></tr>`));
+      host.innerHTML = "";
+      host.appendChild(t);
+      drawFeeNote(); drawGrand();
+    }
+
+    /** 카드 승인액 · 수수료 · 통장 입금액이 어떻게 맞물리는지 적어 준다 */
+    function drawFeeNote(){
+      const host = $('[data-r="feeNote"]', box);
+      const sum = bk.lines.filter(l => bk.targets.has(l.childId)).reduce((s2, l) => s2 + l.amount, 0);
+      const fee = bk.cardFee || 0;
+      const m = CARD_FEE_MODES[cardFeeMode()];
+      if (!fee) {
+        host.innerHTML = `<div class="hint" style="margin-top:6px">카드로 받은 건이면 <b>카드수수료</b>를 적어 두세요.
+          지금은 <b>${esc(m.label)}</b>(${esc(m.short)})으로 맞춰져 있습니다 — 기초설정에서 바꿉니다.</div>`;
+        return;
+      }
+      const gross = isGross() ? sum : sum + fee;
+      const bank  = isGross() ? sum - fee : sum;
+      host.innerHTML = `<div class="note" style="margin-top:8px">
+        <b>${esc(m.label)}</b> — 카드 승인액 <b>${won(gross)}원</b> − 수수료 <b>${won(fee)}원</b>
+        = 통장 입금 <b>${won(bank)}원</b> · 정산에 잡히는 <b>수납액은 ${won(sum)}원</b>입니다.
+        ${isGross() ? `수수료는 <b>운영비에서 따로 지출결의</b>로 빼세요.`
+                    : `「일괄 적용」을 누르면 1인당 수납액에서 수수료 몫을 빼서 채웁니다.`}</div>`;
+    }
+
     drawLines();
+    return box;
   }
-  $("#rc_apply", root).onclick = () => applyPer(num($("#rc_per", root).value));
-  const stdBtn = $("#rc_std", root);
-  if (stdBtn) stdBtn.onclick = () => applyPer(it.stdAmount);
 
-  function drawLines(){
-    syncLines();
-    const linesHost = $("#rc_lines", root);
+  /** 결의서 한 장의 총액 — 사진 속 수입결의서의 「금 ○○원정」 자리 */
+  function drawGrand(){
+    const host = $("#rc_grand", root);
     const guard = $("#rc_guard", root), btn = $("#rc_save", root);
-    const ordered = sortedChildren().filter(c => f.targets.has(c.id));
-    if (!ordered.length) {
-      linesHost.innerHTML = `<div class="note warn">수납 대상 원아를 선택하세요.</div>`;
-      guard.textContent = "대상 원아를 선택해야 등록할 수 있습니다.";
-      btn.disabled = true; return;
-    }
-    const t = el(`<table><thead><tr>
-      <th class="c" style="width:50px">순번</th><th style="width:120px">성명</th><th style="width:100px">반</th>
-      <th class="n" style="width:140px">수납액</th><th>비고</th>
-      <th class="c" style="width:60px"></th></tr></thead><tbody></tbody></table>`);
-    const tb = $("tbody", t);
-    let sum = 0;
-    ordered.forEach((c, i) => {
-      const l = lineOf(c.id);
-      sum += l.amount;
-      const cls = classAt(c, f.date) || currentClass(c);
-      const tr = el(`<tr>
-        <td class="c">${i + 1}</td><td class="ui-center"><b>${esc(c.name)}</b></td><td class="ui-center">${cls ? esc(cls.name) : "-"}</td>
-        <td class="n"><input class="money" value="${won(l.amount)}" style="width:120px"></td>
-        <td class="ui-prose"><input value="${esc(l.memo || "")}" style="width:100%" placeholder="—"></td>
-        <td class="c"><button class="b danger" title="이 결의서에서 빼기">×</button></td></tr>`);
-      $("input.money", tr).onchange = e => { l.amount = num(e.target.value); e.target.value = won(l.amount); drawTotal(); };
-      $$("input", tr)[1].onchange = e => { l.memo = e.target.value; };
-      $("button", tr).onclick = () => { f.targets.delete(c.id); syncLines(); picker.redraw(); drawLines(); };
-      tb.appendChild(tr);
-    });
-    tb.appendChild(el(`<tr class="sum"><td colspan="3" class="c">수납결의서 합계</td>
-      <td class="n" id="rc_total">${won(sum)}</td><td colspan="2">${won(ordered.length)}명</td></tr>`));
-    linesHost.innerHTML = "";
-    linesHost.appendChild(t);
-    drawTotal();
-    drawFeeNote();
-
-    const zero = f.lines.filter(l => l.amount === 0).length;
-    guard.textContent = zero ? `${zero}명의 수납액이 0원입니다 — 그대로 저장하면 그 원아는 기록되지 않습니다` : "";
-    btn.disabled = false;
-  }
-  function drawTotal(){
-    const cell = $("#rc_total", root);
-    if (cell) cell.textContent = won(f.lines.reduce((s, l) => s + l.amount, 0));
-    drawFeeNote();
-  }
-
-  /** 카드 승인액 · 수수료 · 통장 입금액이 어떻게 맞물리는지 적어 준다.
-   *  어느 쪽을 수납액으로 잡을지는 기초설정에서 정한 방식을 따른다. */
-  function drawFeeNote(){
-    const host = $("#rc_feeNote", root);
     if (!host) return;
-    const sum = f.lines.filter(l => f.targets.has(l.childId)).reduce((s, l) => s + l.amount, 0);
-    const fee = f.cardFee || 0;
-    const m = CARD_FEE_MODES[cardFeeMode()];
-    if (!fee) {
-      host.innerHTML = `<div class="hint" style="margin-top:6px">카드로 받은 건이면
-        <b>카드수수료</b>를 적어 두세요. 지금은 <b>${esc(m.label)}</b>(${esc(m.short)})으로 맞춰져 있습니다 — 기초설정에서 바꿉니다.</div>`;
+    const rows = f.blocks.map(bk => ({
+      name: itemName(bk.itemId),
+      n: bk.lines.filter(l => bk.targets.has(l.childId) && l.amount).length,
+      sum: bk.lines.filter(l => bk.targets.has(l.childId)).reduce((s2, l) => s2 + l.amount, 0),
+      fee: bk.cardFee || 0,
+    })).filter(r => r.n || r.sum);
+    const total = rows.reduce((s2, r) => s2 + r.sum, 0);
+    const feeAll = rows.reduce((s2, r) => s2 + r.fee, 0);
+
+    if (!rows.length) {
+      host.innerHTML = `<div class="note warn">수납 대상 원아를 선택해야 등록할 수 있습니다.</div>`;
+      if (guard) guard.textContent = "대상 원아를 선택해야 등록할 수 있습니다.";
+      if (btn) btn.disabled = true;
       return;
     }
-    const gross = isGross() ? sum : sum + fee;      // 카드 승인액
-    const bank  = isGross() ? sum - fee : sum;      // 통장에 찍히는 금액
-    host.innerHTML = `<div class="note" style="margin-top:8px">
-      <b>${esc(m.label)}</b> — 카드 승인액 <b>${won(gross)}원</b> − 수수료 <b>${won(fee)}원</b>
-      = 통장 입금 <b>${won(bank)}원</b><br>
-      정산에 잡히는 <b>수납액은 ${won(sum)}원</b>입니다.
-      ${isGross()
-        ? `수수료 ${won(fee)}원은 <b>운영비에서 따로 지출결의</b>로 빼세요.`
-        : `「일괄 적용」을 누르면 1인당 수납액에서 수수료 몫을 빼서 채웁니다.`}
-    </div>`;
+    const dup = f.blocks.map(b2 => b2.itemId).filter((v2, i, arr) => arr.indexOf(v2) !== i);
+    host.innerHTML = `
+      <table style="max-width:620px"><thead><tr>
+        <th>세목</th><th class="c" style="width:70px">인원</th><th class="n" style="width:140px">수납액</th>
+      </tr></thead><tbody>
+        ${rows.map(r => `<tr><td>${esc(r.name)}</td><td class="c">${won(r.n)}명</td>
+          <td class="n">${won(r.sum)}</td></tr>`).join("")}
+        <tr class="sum"><td class="c">이 결의서 합계</td><td class="c">${won(rows.length)}개 세목</td>
+          <td class="n"><b>${won(total)}원</b></td></tr>
+      </tbody></table>
+      ${feeAll ? `<div class="hint" style="margin-top:4px">카드수수료 합계 ${won(feeAll)}원</div>` : ""}
+      ${dup.length ? `<div class="note warn">같은 세목 칸이 두 번 있습니다 — <b>${esc(itemName(dup[0]))}</b>.
+        한 세목은 한 칸에 모아 적으세요.</div>` : ""}`;
+    const zero = f.blocks.reduce((s2, bk) =>
+      s2 + bk.lines.filter(l => bk.targets.has(l.childId) && l.amount === 0).length, 0);
+    if (guard) guard.textContent = dup.length ? "같은 세목 칸이 겹칩니다"
+      : zero ? `${won(zero)}명의 수납액이 0원입니다 — 그대로 저장하면 그 원아는 기록되지 않습니다` : "";
+    if (btn) btn.disabled = dup.length > 0;
   }
-  drawLines();
 
   $("#rc_save", root).onclick = () => {
     if (!f.date) { alert("수납일을 입력하세요."); return; }
-    const ordered = sortedChildren().filter(c => f.targets.has(c.id));
-    const lines = ordered.map(c => {
-      const l = f.lines.find(x => x.childId === c.id) || { amount: 0, memo: "" };
-      return { childId: c.id, amount: l.amount, memo: l.memo || "" };
-    }).filter(l => l.amount !== 0);
-    if (!lines.length) { alert("수납액이 0원이 아닌 원아가 하나도 없습니다."); return; }
+    const recs = [];
+    for (const bk of f.blocks) {
+      const ordered = sortedChildren().filter(c => bk.targets.has(c.id));
+      const lines = ordered.map(c => {
+        const l = bk.lines.find(x => x.childId === c.id) || { amount: 0, memo: "" };
+        return { childId: c.id, amount: l.amount, memo: l.memo || "" };
+      }).filter(l => l.amount !== 0);
+      if (!lines.length) continue;
+      recs.push({ id: uid("vc"), date: f.date, voucherNo: (f.voucherNo || "").trim(),
+                  itemId: bk.itemId, summary: (f.summary || "").trim(),
+                  perAmount: bk.perAmount, cardFee: bk.cardFee || 0, lines,
+                  total: lines.reduce((s2, l) => s2 + l.amount, 0) });
+    }
+    if (!recs.length) { alert("수납액이 0원이 아닌 원아가 하나도 없습니다."); return; }
 
-    const rec = {
-      id: editing ? editing.id : uid("vc"),
-      date: f.date, voucherNo: f.voucherNo.trim(), itemId: f.itemId,
-      summary: f.summary.trim(), perAmount: f.perAmount, cardFee: f.cardFee || 0, lines,
-      total: lines.reduce((s, l) => s + l.amount, 0),
-    };
-    if (editing) S.vouchers = S.vouchers.map(x => x.id === rec.id ? rec : x);
-    else S.vouchers.push(rec);
+    /* 고치던 중이면 그 묶음을 통째로 갈아 끼운다 */
+    const drop = new Set(f.editIds || []);
+    S.vouchers = S.vouchers.filter(v => !drop.has(v.id)).concat(recs);
     rebuildReceipts();
 
     view.receiptEditId = null;
     view.receiptForm = null;
-    highlightVoucherId = rec.id;
+    highlightVoucherId = recs[0].id;
     save(); render();
   };
   if (editing) $("#rc_cancel", root).onclick = () => { view.receiptEditId = null; view.receiptForm = null; render(); };
 
   renderVoucherList($("#rc_list", root));
+}
+
+/**
+ * 한 장이었던 결의서를 되찾는다 — 같은 날·같은 번호면 한 장에 적혀 있던 것이다.
+ * 번호를 비워 둔 것은 묶을 근거가 없으므로 그 건만 본다.
+ */
+function voucherGroup(v){
+  if (!v) return [];
+  const no = (v.voucherNo || "").trim();
+  if (!no) return [v];
+  const order = new Map(S.items.map((it, i) => [it.id, i]));
+  return S.vouchers
+    .filter(x => x.date === v.date && (x.voucherNo || "").trim() === no)
+    .sort((a, b) => (order.has(a.itemId) ? order.get(a.itemId) : 999)
+                  - (order.has(b.itemId) ? order.get(b.itemId) : 999));
 }
 
 /** 수납결의서에서 원아별 수납 기록을 다시 만든다. receipts는 결의서에서 파생된 값이다. */
@@ -2208,11 +2297,13 @@ function renderVoucherList(host){
       tb.appendChild(el(`<tr class="sum"><td colspan="6"><b>${esc(itemName(x.itemId))}</b>
         <span class="tag">${esc((GROUPS[(itemById(x.itemId) || {}).group] || {}).income || "")}</span></td></tr>`)); }
     total += x.total; groupSum += x.total; groupN++;
+    const mates = voucherGroup(x).filter(y => y.id !== x.id);
     const names = x.lines.map(l => childName(l.childId)).join(", ");
     const tr = el(`<tr class="${x.id === highlightVoucherId ? "hl" : ""}">
       <td class="ui-center c">${esc(x.date)}</td><td class="ui-center c">${esc(x.voucherNo || "-")}</td>
       <td class="ui-prose">${esc(x.summary || "-")}${x.cardFee
-        ? ` <span class="tag">카드수수료 ${won(x.cardFee)}</span>` : ""}<div class="hint">${esc(names)}</div></td>
+        ? ` <span class="tag">카드수수료 ${won(x.cardFee)}</span>` : ""}${mates.length
+        ? ` <span class="tag ev">같은 결의서 ${won(mates.length + 1)}개 세목</span>` : ""}<div class="hint">${esc(names)}</div></td>
       <td class="n">${won(x.total)}</td><td class="c">${won(x.lines.length)}명</td>
       <td class="c">
         <button class="b" data-a="edit">수정</button>
@@ -2220,7 +2311,12 @@ function renderVoucherList(host){
       </td></tr>`);
     $('[data-a="edit"]', tr).onclick = () => { view.receiptEditId = x.id; view.receiptForm = null; render(); window.scrollTo(0, 0); };
     $('[data-a="del"]', tr).onclick = () => {
-      if (!confirm(`${x.date} ${itemName(x.itemId)} 수납결의서${x.voucherNo ? " " + x.voucherNo + "번" : ""}을 삭제할까요?`)) return;
+      const mates2 = voucherGroup(x).filter(y => y.id !== x.id);
+      const msg = `${x.date} ${itemName(x.itemId)} 수납결의서${x.voucherNo ? " " + x.voucherNo + "번" : ""}을 삭제할까요?`
+        + (mates2.length ? `\n\n같은 결의서(${x.voucherNo}번)에 다른 세목 ${mates2.length}개가 더 있습니다.\n`
+            + `지금 고른 ${itemName(x.itemId)}만 지워지고 나머지는 남습니다.\n`
+            + `— ${mates2.map(y => itemName(y.itemId)).join(", ")}` : "");
+      if (!confirm(msg)) return;
       S.vouchers = S.vouchers.filter(y => y.id !== x.id);
       rebuildReceipts(); save(); render();
     };
@@ -3961,6 +4057,22 @@ const FAQ = [
     a:`<p><b>수납 입력</b> 화면 아래 <b>수납 내역</b>에서 그 날짜·세목 줄의 <b>「불러와 수정」</b>을 누르세요. 그때 입력한 내용이 그대로 올라옵니다. 고쳐서 다시 저장하면 덮어써집니다.</p>
        <p>그 날짜의 수납을 통째로 지우려면 같은 줄의 <b>「삭제」</b>를 누르세요.</p>` },
 
+  { g:"수납", q:"수입결의서 한 장에 여러 세목이 섞여 있습니다.",
+    k:"여러 세목 한 장 결의서 섞임 입학준비금 현장학습비 행사비 같이 한번에",
+    a:`<p>실제 수입결의서는 한 장에 여러 세목이 섞여 있는 것이 보통입니다.
+         관·항·목은 「수익자부담수입 / 기타필요경비 / 기타필요경비」로 하나이고,
+         적요에 <b>입학준비금 · 현장학습비 · 행사비</b>가 나란히 적힙니다.</p>
+       <p><b>수납 입력</b> 화면에서 <b>「+ 세목 칸 추가」</b>를 누르세요. 칸이 하나 더 생깁니다.
+         칸마다 세목·대상 원아·금액·카드수수료를 따로 적으면 됩니다.
+         수납일·결의서 번호·적요는 맨 위에 <b>한 번만</b> 적습니다.</p>
+       <p>맨 아래 <b>이 결의서 합계</b>가 결의서의 「금 ○○원정」과 맞는지 보세요.</p>
+       <p>저장하면 <b>세목마다 결의서 하나씩</b>으로 나뉘어 담깁니다.
+         정산·대장이 세목별로만 뜻이 있기 때문입니다 (세목 간 상계 금지).
+         목록에서는 같은 번호끼리 <b>「같은 결의서 ○개 세목」</b>으로 묶여 보이고,
+         그중 아무 줄이나 <b>「수정」</b>을 누르면 <b>그 번호의 세목 칸이 전부</b> 올라옵니다.</p>
+       <div class="warn"><p>결의서 번호를 비워 두면 묶을 근거가 없습니다.
+         한 장으로 묶으려면 <b>번호를 꼭 적어</b> 주세요.</p></div>` },
+
   { g:"수납", q:"카드로 받았더니 수수료가 빠지고 입금됐습니다.",
     k:"카드 수수료 결제 차감 승인액 순액 총액 통장",
     a:`<p>수수료는 <b>지출이 아니라 수납 쪽</b> 일입니다. <b>수납 입력</b> 화면
@@ -4506,8 +4618,29 @@ function manualFull(sources){
     화면이 1 → 2 → 3 순서로 되어 있으니 위에서부터 채우시면 됩니다.</p>
 
   <h3>1. 결의서 입력</h3>
-  <p>수납일 · 수납결의서 번호 · 세목 · 적요를 적습니다.
-    세목을 고르면 그 아래에 <b>수납주기와 1인당 수납액</b>이 함께 나옵니다.</p>
+  <p>수납일 · 수입결의서 번호 · 적요를 적습니다. <b>결의서 한 장에 한 번만</b> 적으면 됩니다.</p>
+
+  <h3>세목 칸 — 한 장에 여러 세목이 섞여 있을 때</h3>
+  <p>실제 수입결의서는 한 장에 여러 세목이 섞여 있습니다. 관·항·목은
+    「수익자부담수입 / 기타필요경비 / 기타필요경비」로 하나이고, 적요에
+    <b>입학준비금 · 현장학습비 · 행사비</b>가 나란히 적힙니다.</p>
+  <p>그래서 화면에도 <b>세목 칸</b>을 여럿 둘 수 있습니다.
+    <b>「+ 세목 칸 추가」</b>를 누르면 칸이 하나 더 생깁니다. 칸마다 세목·대상 원아·금액·카드수수료를
+    따로 적습니다. 맨 아래에 <b>이 결의서 합계</b>가 나오므로 결의서의 「금 ○○원정」과 맞춰 보면 됩니다.</p>
+  <table>
+    <thead><tr><th style="width:170px">무엇이</th><th>어떻게 되나</th></tr></thead>
+    <tbody>
+      <tr><td>저장</td><td><b>세목마다 결의서 하나씩</b>으로 나뉘어 담깁니다.
+        정산과 대장은 세목별로만 뜻이 있기 때문입니다 (세목 간 상계 금지).
+        수납일·결의서 번호·적요는 모두 같게 들어갑니다.</td></tr>
+      <tr><td>목록</td><td>세목별로 나뉘어 보이되, 같은 번호끼리 <b>「같은 결의서 ○개 세목」</b> 표시가 붙습니다.</td></tr>
+      <tr><td>수정</td><td>그중 <b>아무 줄이나</b> 「수정」을 누르면 <b>그 번호의 세목 칸이 전부</b> 올라옵니다.
+        한 장이었던 그대로 고쳐 다시 저장하면 됩니다.</td></tr>
+      <tr><td>삭제</td><td>고른 세목 하나만 지워집니다. 같은 번호에 다른 세목이 남아 있으면 지울 때 알려 줍니다.</td></tr>
+    </tbody>
+  </table>
+  <blockquote>결의서 번호를 비워 두면 묶을 근거가 없어 그 건만 따로 다룹니다.
+    한 장으로 묶으려면 <b>번호를 꼭 적어</b> 주세요.</blockquote>
 
   <h3>2. 수납 대상 원아</h3>
   <p>반별로 묶여 있습니다. <b>「이 반 전체」</b>로 한 번에 고르거나 <b>「명단 불러오기」</b>를 쓰세요.

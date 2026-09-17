@@ -33,7 +33,8 @@ const errs = [], ok = [];
     n.textContent + " " + Array.from(n.querySelectorAll("input")).map(i => i.value).join(" "))));
   확인("기초설정 고정 명단", flat(await p.textContent("#secRoster")));
   await p.click('nav button[data-tab="receipt"]'); await p.waitForTimeout(600);
-  확인("수납 입력 세목 드롭다운", flat(await p.textContent("#rc_item")));
+  확인("수납 입력 세목 드롭다운",
+    flat(await p.locator("#rc_blocks > .blk").first().locator('[data-r="item"]').textContent()));
   확인("수납결의서 내역", flat(await p.textContent("#rcf_body")));
   await p.click('nav button[data-tab="expense"]'); await p.waitForTimeout(600);
   확인("지출 등록 세목 드롭다운", flat(await p.textContent("#e_item")));

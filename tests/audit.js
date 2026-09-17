@@ -47,6 +47,7 @@ const flat = s => String(s || "").replace(/\s+/g, " ");
       (els, skip) => els.filter(el => {
         if (el.disabled || el.offsetParent === null) return false;
         if (skip.includes(el.id)) return false;
+        if (el.getAttribute("data-r") === "roster") return false;   /* 옆 버튼이 값을 읽어 간다 */
         return !el.onclick && !el.onchange && !el.oninput;
       }).map(el => el.id || (el.textContent || "").replace(/\s+/g, " ").trim().slice(0, 18) || el.tagName),
       READ_BY_BUTTON);
@@ -189,12 +190,13 @@ const flat = s => String(s || "").replace(/\s+/g, " ");
   await p.waitForTimeout(300);
   await p.fill("#rc_date", "2026-05-11");
   await p.fill("#rc_no", "999");
-  await p.selectOption("#rc_item", { label: "행사비" });
+  const rcBlk = (i = 0) => p.locator("#rc_blocks > .blk").nth(i);
+  await rcBlk().locator('[data-r="item"]').selectOption({ label: "행사비" });
   await p.fill("#rc_summary", "감사 시험용 수납");
-  await p.locator("#rc_pick .pk-class", { hasText: "햇살반" }).locator('[data-a="g-all"]').click();
+  await rcBlk().locator(".pk-class", { hasText: "햇살반" }).locator('[data-a="g-all"]').click();
   await p.waitForTimeout(200);
-  await p.fill("#rc_per", "10000");
-  await p.click("#rc_apply");
+  await rcBlk().locator('[data-r="per"]').fill("10000");
+  await rcBlk().locator('[data-r="apply"]').click();
   await p.waitForTimeout(200);
   await p.click("#rc_save");
   await p.waitForTimeout(400);

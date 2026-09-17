@@ -183,6 +183,49 @@ const SEED = {
   check("검증 대사에 전입금 충당 줄이 나옴",
     /전입금 충당 \(위탁 원아 몫\)/.test(recon) && /수입 합계/.test(recon), recon.slice(0, 160));
 
+  /* 수입결의서 한 장에 여러 세목 — 세목 칸을 늘려 한 번에 적는다 */
+  await p.click('nav button[data-tab="receipt"]');
+  await p.waitForTimeout(400);
+  const blk = i => p.locator("#rc_blocks > .blk").nth(i);
+  await p.fill("#rc_date", "2026-03-24");
+  await p.fill("#rc_no", "777");
+  await p.fill("#rc_summary", "기타필요경비 아이행복카드 결제분");
+  await p.waitForTimeout(300);
+  await blk(0).locator('[data-r="item"]').selectOption("it_prep");
+  await p.waitForTimeout(300);
+  await blk(0).locator(".pk-class").first().locator('[data-a="g-all"]').click();
+  await blk(0).locator('[data-r="per"]').fill("100000");
+  await blk(0).locator('[data-r="apply"]').click();
+  await p.waitForTimeout(300);
+  await p.click("#rc_addBlock");
+  await p.waitForTimeout(400);
+  await blk(1).locator('[data-r="item"]').selectOption("it_field");
+  await p.waitForTimeout(300);
+  await blk(1).locator(".pk-class").first().locator('[data-a="g-all"]').click();
+  await blk(1).locator('[data-r="per"]').fill("50000");
+  await blk(1).locator('[data-r="apply"]').click();
+  await p.waitForTimeout(400);
+  const grand = flat(await p.textContent("#rc_grand"));
+  check("한 결의서에 세목 칸을 여럿 두고 합계가 나옴",
+    /이 결의서 합계/.test(grand) && /2개 세목/.test(grand), grand.slice(0, 120));
+  await p.click("#rc_save");
+  await p.waitForTimeout(700);
+  const made = await p.evaluate(() => S.vouchers.filter(v => v.voucherNo === "777")
+    .map(v => ({ item: v.itemId, total: v.total, date: v.date })));
+  check("세목마다 결의서 하나씩으로 나뉘어 같은 번호로 담김",
+    made.length === 2 && made.every(m => m.date === "2026-03-24")
+    && made.some(m => m.item === "it_prep") && made.some(m => m.item === "it_field"),
+    JSON.stringify(made));
+  await p.locator("#rcf_body tbody tr", { hasText: "아이행복카드" }).first()
+    .locator('[data-a="edit"]').click();
+  await p.waitForTimeout(700);
+  check("아무 줄이나 고치면 그 번호의 세목 칸이 전부 올라옴",
+    (await p.locator("#rc_blocks > .blk").count()) === 2
+    && (await p.inputValue("#rc_no")) === "777",
+    (await p.locator("#rc_blocks > .blk").count()) + "칸");
+  await p.click("#rc_cancel");
+  await p.waitForTimeout(400);
+
   /* 4분기 잔액 부족 알림 — 12월부터만 뜨고, 등록을 막지는 않는다 */
   async function 부족알림(date, total){
     await p.click('nav button[data-tab="expense"]');
