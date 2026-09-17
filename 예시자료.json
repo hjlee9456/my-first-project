@@ -578,7 +578,8 @@
    "enabled": true,
    "special": "prep",
    "stdAmount": 0,
-   "note": "원복 60,000 / 가방 30,000 / 전자출결 2,500 — 부모가 신청한 항목만 수납"
+   "note": "원복 60,000 / 가방 30,000 / 전자출결 2,500 — 부모가 신청한 항목만 수납",
+   "cycle": "year"
   },
   {
    "id": "it_sa",
@@ -587,7 +588,8 @@
    "targetMode": "fixed",
    "enabled": true,
    "stdAmount": 36997,
-   "note": "만2세반만 해당. 교구스토리 25,000 + 체육 12,000 (오감 파티쏭은 여수시 지원금)"
+   "note": "만2세반만 해당. 교구스토리 25,000 + 체육 12,000 (오감 파티쏭은 여수시 지원금)",
+   "cycle": "monthly"
   },
   {
    "id": "it_field",
@@ -596,7 +598,8 @@
    "targetMode": "event",
    "enabled": true,
    "stdAmount": 29997,
-   "note": "분기 30,000 × 4회. 만1~2세 대상"
+   "note": "분기 30,000 × 4회. 만1~2세 대상",
+   "cycle": "adhoc"
   },
   {
    "id": "it_event",
@@ -605,7 +608,8 @@
    "targetMode": "event",
    "enabled": true,
    "stdAmount": 49995,
-   "note": "연 50,000 전체 납부"
+   "note": "연 50,000 전체 납부",
+   "cycle": "adhoc"
   },
   {
    "id": "it_bus",
@@ -614,7 +618,8 @@
    "targetMode": "fixed",
    "enabled": false,
    "stdAmount": 0,
-   "note": "통학차량 미운영"
+   "note": "통학차량 미운영",
+   "cycle": "monthly"
   },
   {
    "id": "it_album",
@@ -623,7 +628,8 @@
    "targetMode": "fixed",
    "enabled": false,
    "stdAmount": 0,
-   "note": "만2세까지라 졸업 앨범 없음"
+   "note": "만2세까지라 졸업 앨범 없음",
+   "cycle": "year"
   },
   {
    "id": "it_meal",
@@ -632,7 +638,8 @@
    "targetMode": "fixed",
    "enabled": false,
    "stdAmount": 0,
-   "note": ""
+   "note": "",
+   "cycle": "monthly"
   },
   {
    "id": "it_local",
@@ -641,7 +648,8 @@
    "targetMode": "fixed",
    "enabled": true,
    "stdAmount": 0,
-   "note": "어린이집 지원 — 보호자 수납 없음"
+   "note": "어린이집 지원 — 보호자 수납 없음",
+   "cycle": "monthly"
   }
  ],
  "rosters": [
@@ -940,7 +948,8 @@
      "memo": "원복+전자출결"
     }
    ],
-   "total": 2277318
+   "total": 2277318,
+   "cardFee": 0
   },
   {
    "id": "vc002",
@@ -966,7 +975,8 @@
      "memo": ""
     }
    ],
-   "total": 149985
+   "total": 149985,
+   "cardFee": 15
   },
   {
    "id": "vc003",
@@ -992,7 +1002,8 @@
      "memo": ""
     }
    ],
-   "total": 149985
+   "total": 149985,
+   "cardFee": 15
   },
   {
    "id": "vc004",
@@ -1028,7 +1039,8 @@
      "memo": ""
     }
    ],
-   "total": 249975
+   "total": 249975,
+   "cardFee": 25
   },
   {
    "id": "vc005",
@@ -1064,7 +1076,8 @@
      "memo": ""
     }
    ],
-   "total": 149985
+   "total": 149985,
+   "cardFee": 15
   },
   {
    "id": "vc006",
@@ -1100,7 +1113,8 @@
      "memo": ""
     }
    ],
-   "total": 249975
+   "total": 249975,
+   "cardFee": 25
   },
   {
    "id": "vc007",
@@ -1136,7 +1150,8 @@
      "memo": ""
     }
    ],
-   "total": 149985
+   "total": 149985,
+   "cardFee": 15
   },
   {
    "id": "vc008",
@@ -1172,7 +1187,8 @@
      "memo": ""
     }
    ],
-   "total": 249975
+   "total": 249975,
+   "cardFee": 25
   },
   {
    "id": "vc009",
@@ -1208,7 +1224,8 @@
      "memo": ""
     }
    ],
-   "total": 149985
+   "total": 149985,
+   "cardFee": 15
   },
   {
    "id": "vc010",
@@ -1254,7 +1271,8 @@
      "memo": ""
     }
    ],
-   "total": 349965
+   "total": 349965,
+   "cardFee": 35
   },
   {
    "id": "vc011",
@@ -1300,7 +1318,8 @@
      "memo": ""
     }
    ],
-   "total": 209979
+   "total": 209979,
+   "cardFee": 21
   },
   {
    "id": "vc012",
@@ -1346,7 +1365,8 @@
      "memo": ""
     }
    ],
-   "total": 349965
+   "total": 349965,
+   "cardFee": 35
   },
   {
    "id": "vc013",
@@ -1392,7 +1412,8 @@
      "memo": ""
     }
    ],
-   "total": 209979
+   "total": 209979,
+   "cardFee": 21
   },
   {
    "id": "vc014",
@@ -1548,7 +1569,8 @@
      "memo": ""
     }
    ],
-   "total": 869913
+   "total": 869913,
+   "cardFee": 87
   },
   {
    "id": "vc015",
@@ -1709,7 +1731,8 @@
      "memo": ""
     }
    ],
-   "total": 899910
+   "total": 899910,
+   "cardFee": 90
   },
   {
    "id": "vc016",
@@ -1860,7 +1883,8 @@
      "memo": ""
     }
    ],
-   "total": 839916
+   "total": 839916,
+   "cardFee": 84
   },
   {
    "id": "vc017",
@@ -1966,7 +1990,8 @@
      "memo": ""
     }
    ],
-   "total": 702943
+   "total": 702943,
+   "cardFee": 57
   },
   {
    "id": "vc018",
@@ -2072,7 +2097,8 @@
      "memo": ""
     }
    ],
-   "total": 702943
+   "total": 702943,
+   "cardFee": 57
   },
   {
    "id": "vc019",
@@ -2178,7 +2204,8 @@
      "memo": ""
     }
    ],
-   "total": 702943
+   "total": 702943,
+   "cardFee": 57
   },
   {
    "id": "vc020",
@@ -2284,7 +2311,8 @@
      "memo": ""
     }
    ],
-   "total": 702943
+   "total": 702943,
+   "cardFee": 57
   },
   {
    "id": "vc021",
@@ -2390,7 +2418,8 @@
      "memo": ""
     }
    ],
-   "total": 702943
+   "total": 702943,
+   "cardFee": 57
   },
   {
    "id": "vc022",
@@ -2501,7 +2530,8 @@
      "memo": ""
     }
    ],
-   "total": 739940
+   "total": 739940,
+   "cardFee": 60
   },
   {
    "id": "vc023",
@@ -2612,7 +2642,8 @@
      "memo": ""
     }
    ],
-   "total": 739940
+   "total": 739940,
+   "cardFee": 60
   },
   {
    "id": "vc024",
@@ -2718,7 +2749,8 @@
      "memo": ""
     }
    ],
-   "total": 702943
+   "total": 702943,
+   "cardFee": 57
   },
   {
    "id": "vc025",
@@ -2819,7 +2851,8 @@
      "memo": ""
     }
    ],
-   "total": 665946
+   "total": 665946,
+   "cardFee": 54
   },
   {
    "id": "vc026",
@@ -2920,7 +2953,8 @@
      "memo": ""
     }
    ],
-   "total": 665946
+   "total": 665946,
+   "cardFee": 54
   },
   {
    "id": "vc027",
@@ -3021,7 +3055,8 @@
      "memo": ""
     }
    ],
-   "total": 665946
+   "total": 665946,
+   "cardFee": 54
   },
   {
    "id": "vc028",
@@ -3122,7 +3157,8 @@
      "memo": ""
     }
    ],
-   "total": 665946
+   "total": 665946,
+   "cardFee": 54
   },
   {
    "id": "vc029",
@@ -3138,7 +3174,8 @@
      "memo": "7/12개월분"
     }
    ],
-   "total": 29163
+   "total": 29163,
+   "cardFee": 0
   },
   {
    "id": "vc030",
@@ -3154,7 +3191,8 @@
      "memo": "3·4분기분"
     }
    ],
-   "total": 59994
+   "total": 59994,
+   "cardFee": 6
   }
  ],
  "receipts": [],
@@ -6336,5 +6374,6 @@
    ],
    "overrides": []
   }
- ]
+ ],
+ "cardFeeMode": "net"
 }
