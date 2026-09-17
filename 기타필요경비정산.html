@@ -235,8 +235,8 @@ td.n,th.n{min-width:108px}td.c,th.c{white-space:nowrap}
 #childList table{min-width:1060px}#childList th:last-child{width:220px!important}
 #childList td:nth-child(2),#childList td:nth-child(3){white-space:nowrap}
 #lg_body,#bk_body{overflow-x:auto}#bk_body table{min-width:1180px}#lg_kind{width:240px!important}#lg_body td[style],#bk_body td[style]{font-size:13px!important}.pk-head button.b{font-size:13px!important;padding:5px 9px!important}#rc_lines table{min-width:740px}#rcf_body table{min-width:1060px}#e_list table{min-width:1280px}
-#rcf_body th:nth-child(4){min-width:280px}#e_list th:nth-child(4){min-width:240px}
-#e_list th:nth-child(3){min-width:155px}#e_list th:last-child{min-width:200px}
+#rcf_body th:nth-child(3){min-width:280px}#e_list th:nth-child(3){min-width:240px}
+#e_list th:last-child{min-width:200px}
 table.ledger{font-size:14px;min-width:1580px}table.ledger th,table.ledger td{padding:9px 10px;white-space:nowrap}
 .picker{padding:8px;max-height:380px;border-radius:8px;background:#fbfcfe}
 .pk-class{padding:10px}.pk-head{font-size:14px;margin-bottom:8px}.pk-list{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px}
@@ -394,6 +394,21 @@ const MARKS = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "�
  *   moneyCols(true, true) → [["이월","A"],["보호자 수납액","B"],["전입금 충당","C"],
  *                            ["실 사용금액","D"],["남은 금액","E = A + B + C − D"]]
  */
+/* 보호자용 서류는 「결제하신 금액 − 카드수수료 − 실 사용금액 = 남은 금액」으로 읽힌다 */
+function noticeCols(hasCarry, hasTransfer, hasFee){
+  const L = "ABCDEF".split("");
+  const out = [];
+  if (hasCarry)    out.push(["이월", L[out.length]]);
+  out.push(["수납액 (결제하신 금액)", L[out.length]]);
+  if (hasFee)      out.push(["카드수수료", L[out.length]]);
+  if (hasTransfer) out.push(["전입금 충당", L[out.length]]);
+  out.push(["실 사용금액", L[out.length]]);
+  const plus = out.filter(c => c[0] !== "카드수수료" && c[0] !== "실 사용금액").map(c => c[1]).join(" + ");
+  const minus = out.filter(c => c[0] === "카드수수료" || c[0] === "실 사용금액").map(c => c[1]).join(" − ");
+  out.push(["남은 금액", `${L[out.length]} = ${plus} − ${minus}`]);
+  return out;
+}
+
 function moneyCols(hasCarry, hasTransfer, paidLabel, usedLabel){
   const L = "ABCDE".split("");
   const out = [];
@@ -1486,8 +1501,65 @@ function renderCardFee(root){
       }).join("")}
     </tbody></table>`;
   $$('input[name="cardFeeMode"]', root).forEach(r => {
-    r.onchange = e => { S.cardFeeMode = e.target.value; save(); render(); };
+    r.onchange = e => {
+      const to = e.target.value;
+      const n = countFeeVouchers();
+      if (!n) { S.cardFeeMode = to; save(); render(); return; }
+      /* 수납액은 「수입결의서에 적은 금액」이다. 방식을 바꾸면 그 금액의 뜻이
+         달라지므로, 이미 적어 둔 결의서도 함께 환산할지 물어본다.
+         환산하지 않으면 예전 결의서는 예전 방식 그대로 남는다. */
+      const gross = to === "gross";
+      const ok = confirm(
+        `카드수수료 처리 방식을 「${CARD_FEE_MODES[to].label}」으로 바꿉니다.\n\n` +
+        `카드수수료가 적힌 수납결의서가 ${won(n)}건 있습니다.\n` +
+        `그 결의서의 수납액도 새 방식에 맞게 바꿀까요?\n\n` +
+        (gross
+          ? "  확인 — 수수료를 더해 카드 승인액으로 올립니다 (36,997 → 37,000)\n"
+          : "  확인 — 수수료를 빼서 통장 입금액으로 내립니다 (37,000 → 36,997)\n") +
+        "  취소 — 방식만 바꾸고 예전 결의서 금액은 그대로 둡니다\n\n" +
+        "보관 중인 모든 회계연도에 함께 적용됩니다.");
+      S.cardFeeMode = to;
+      if (ok) {
+        const done = convertCardFeeMode(to);
+        alert(`수납결의서 ${won(done)}건의 금액을 「${CARD_FEE_MODES[to].label}」에 맞게 바꿨습니다.`);
+      }
+      save(); render();
+    };
   });
+}
+
+/** 카드수수료가 적힌 수납결의서가 몇 건인가 (보관 중인 모든 연도) */
+function countFeeVouchers(){
+  syncYear();
+  return Object.keys(S.years).reduce((n, y) =>
+    n + (S.years[y].vouchers || []).filter(v => (v.cardFee || 0) > 0 && v.lines.length).length, 0);
+}
+
+/**
+ * 이미 적어 둔 수납결의서의 금액을 새 방식에 맞게 옮긴다.
+ *
+ *   gross — 수수료를 원아별로 나눠 더한다 (통장 입금액 → 카드 승인액)
+ *   net   — 수수료를 원아별로 나눠 뺀다   (카드 승인액 → 통장 입금액)
+ *
+ * 나누는 방법은 배분과 같다 — 몫을 고루 주고 나머지는 앞에서부터 1원씩.
+ * 그래야 합계가 수수료와 1원도 어긋나지 않는다.
+ */
+function convertCardFeeMode(to){
+  syncYear();
+  const sign = to === "gross" ? 1 : -1;
+  let done = 0;
+  for (const y of Object.keys(S.years)) {
+    for (const v of (S.years[y].vouchers || [])) {
+      const fee = v.cardFee || 0;
+      if (!fee || !v.lines.length) continue;
+      const share = new Map(allocate(fee, v.lines.map(l => l.childId)).map(a => [a.childId, a.amount]));
+      v.lines.forEach(l => l.amount += sign * (share.get(l.childId) || 0));
+      v.total = v.lines.reduce((s2, l) => s2 + l.amount, 0);
+      done++;
+    }
+  }
+  loadYear(S.fiscalYear);          // 파생 수납 기록을 다시 만든다
+  return done;
 }
 
 /* ---- 고정 명단 ---- */
@@ -2044,21 +2116,62 @@ function renderReceipt(root){
 function rebuildReceipts(){
   S.receipts = [];
   for (const v of S.vouchers) {
+    /* 결의서 전체 카드수수료를 원아별로 나눠 둔다. 보호자에게 보내는 서류는
+       통장에 들어온 금액이 아니라 「보호자가 실제로 결제한 금액」을 적어야 하는데,
+       그 금액이 곧 수납액 + 그 원아 몫의 수수료다. */
+    const fee = v.cardFee || 0;
+    const share = fee
+      ? new Map(allocate(fee, v.lines.map(l => l.childId)).map(a => [a.childId, a.amount]))
+      : null;
     for (const l of v.lines) {
       if (!l.amount) continue;
       S.receipts.push({ id: v.id + "_" + l.childId, voucherId: v.id, voucherNo: v.voucherNo,
                         childId: l.childId, itemId: v.itemId, date: v.date,
-                        amount: l.amount, memo: l.memo || "" });
+                        amount: l.amount, fee: share ? (share.get(l.childId) || 0) : 0,
+                        memo: l.memo || "" });
     }
   }
+}
+
+/**
+ * 보호자가 실제로 결제한 금액과 그중 카드수수료.
+ *
+ * 순액 방식에서는 수납액이 「통장에 들어온 돈」이라 보호자가 카드로 긁은 금액보다
+ * 수수료만큼 적다. 보호자에게 보내는 서류에 통장 금액을 적으면
+ * 「나는 37,000원을 냈는데 왜 36,997원이라고 적혀 있나」가 된다.
+ * 그래서 보호자용 서류에서는 결제액(= 수납액 + 수수료)을 적고 수수료를 따로 보여 준다.
+ *
+ * 총액 방식에서는 수납액 자체가 이미 결제액이므로 수수료 칸이 0이 된다.
+ */
+function parentCharge(childId, itemId, from, to){
+  let paid = 0, fee = 0;
+  for (const r of S.receipts) {
+    if (r.childId !== childId || (itemId && r.itemId !== itemId)) continue;
+    if (!inRange(r.date, from, to)) continue;
+    paid += r.amount;
+    if (!isGross()) fee += r.fee || 0;
+  }
+  return { paid, fee, charged: paid + fee };
+}
+
+/**
+ * 기록을 세목별로 묶고, 묶음 안에서는 최근 것부터 놓는다.
+ * 세목 순서는 기초설정에 적어 둔 차례를 그대로 따른다.
+ */
+function groupByItem(list){
+  const order = new Map(S.items.map((it, i) => [it.id, i]));
+  return list.slice().sort((a, b) =>
+    (order.has(a.itemId) ? order.get(a.itemId) : 999) - (order.has(b.itemId) ? order.get(b.itemId) : 999)
+    || b.date.localeCompare(a.date)
+    || (b.voucherNo || "").localeCompare(a.voucherNo || ""));
 }
 
 function renderVoucherList(host){
   const fy = S.fiscalYear, from = fyStart(fy), to = fyEnd(fy);
   const v = view.receiptFilter = Object.assign({ itemId: "" }, view.receiptFilter || {});
-  const rows = S.vouchers
-    .filter(x => inRange(x.date, from, to) && (!v.itemId || x.itemId === v.itemId))
-    .sort((a, b) => b.date.localeCompare(a.date) || (b.voucherNo || "").localeCompare(a.voucherNo || ""));
+  /* 세목별로 묶고, 그 안에서 최근 것부터 */
+  const rows = groupByItem(
+    S.vouchers.filter(x => inRange(x.date, from, to) && (!v.itemId || x.itemId === v.itemId)));
 
   host.innerHTML = `<div class="row no-print" style="margin-bottom:8px">
       <label class="f">세목으로 걸러 보기<select id="rcf_item" style="width:220px">
@@ -2076,19 +2189,28 @@ function renderVoucherList(host){
 
   const t = el(`<table><thead><tr>
     <th class="c" style="width:100px">수납일</th><th class="c" style="width:70px">번호</th>
-    <th style="width:140px">세목</th><th>적요 · 대상 원아</th>
+    <th>적요 · 대상 원아</th>
     <th class="n" style="width:120px">수입금액</th><th class="c" style="width:60px">인원</th>
     <th class="c" style="width:120px"></th></tr></thead><tbody></tbody></table>`);
   const tb = $("tbody", t);
   const csv = [["수납일", "결의서번호", "세목", "적요", "대상 원아", "수입금액", "인원"]];
-  let total = 0;
+  let total = 0, headItem = null, groupSum = 0, groupN = 0;
+  const closeGroup = () => {
+    if (!headItem) return;
+    tb.appendChild(el(`<tr class="sum"><td colspan="3" class="c">${esc(itemName(headItem))} 소계 (${won(groupN)}건)</td>
+      <td class="n">${won(groupSum)}</td><td colspan="2"></td></tr>`));
+    csv.push([itemName(headItem) + " 소계", "", "", "", "", groupSum, groupN]);
+    groupSum = 0; groupN = 0;
+  };
 
   for (const x of rows) {
-    total += x.total;
+    if (x.itemId !== headItem) { closeGroup(); headItem = x.itemId;
+      tb.appendChild(el(`<tr class="sum"><td colspan="6"><b>${esc(itemName(x.itemId))}</b>
+        <span class="tag">${esc((GROUPS[(itemById(x.itemId) || {}).group] || {}).income || "")}</span></td></tr>`)); }
+    total += x.total; groupSum += x.total; groupN++;
     const names = x.lines.map(l => childName(l.childId)).join(", ");
     const tr = el(`<tr class="${x.id === highlightVoucherId ? "hl" : ""}">
       <td class="ui-center c">${esc(x.date)}</td><td class="ui-center c">${esc(x.voucherNo || "-")}</td>
-      <td>${esc(itemName(x.itemId))}</td>
       <td class="ui-prose">${esc(x.summary || "-")}${x.cardFee
         ? ` <span class="tag">카드수수료 ${won(x.cardFee)}</span>` : ""}<div class="hint">${esc(names)}</div></td>
       <td class="n">${won(x.total)}</td><td class="c">${won(x.lines.length)}명</td>
@@ -2105,8 +2227,9 @@ function renderVoucherList(host){
     tb.appendChild(tr);
     csv.push([x.date, x.voucherNo, itemName(x.itemId), x.summary, names, x.total, x.lines.length]);
   }
-  tb.appendChild(el(`<tr class="sum"><td colspan="4" class="c">회계연도 수납 합계</td>
-    <td class="n">${won(total)}</td><td colspan="2"></td></tr>`));
+  closeGroup();
+  tb.appendChild(el(`<tr class="sum"><td colspan="3" class="c"><b>회계연도 수납 합계</b></td>
+    <td class="n"><b>${won(total)}</b></td><td colspan="2"></td></tr>`));
   body.appendChild(t);
   csv.push(["합계", "", "", "", "", total, ""]);
   $("#rcf_csv", host).onclick = () => downloadCSV(`수납결의서내역_${fy}.csv`, csv);
@@ -2354,33 +2477,45 @@ function renderExpense(root){
 
 function renderExpenseList(host){
   const fy = S.fiscalYear, from = fyStart(fy), to = fyEnd(fy);
-  const rows = S.expenses.filter(e => inRange(e.date, from, to)).sort((a, b) => b.date.localeCompare(a.date));
+  /* 세목별로 묶고, 그 안에서 최근 것부터 */
+  const rows = groupByItem(S.expenses.filter(e => inRange(e.date, from, to)));
   if (!rows.length) { host.innerHTML = `<div class="empty">이 회계연도의 지출 기록이 없습니다.</div>`; return; }
 
   const t = el(`<table><thead><tr>
     <th class="c" style="width:95px">지출일</th><th class="c" style="width:65px">번호</th>
-    <th style="width:135px">세목</th><th>적요</th>
+    <th>적요</th>
     <th class="n" style="width:105px">총액</th><th class="n" style="width:105px">필요경비</th>
     <th class="n" style="width:95px">운영비</th><th class="c" style="width:60px">인원</th>
     <th class="n" style="width:95px">1인당</th><th class="c" style="width:170px"></th>
   </tr></thead><tbody></tbody></table>`);
   const tb = $("tbody", t);
   let tTotal = 0, tNeed = 0, tOper = 0;
+  let headItem = null, gT = 0, gN = 0, gO = 0, gCnt = 0;
+  const closeGroup = () => {
+    if (!headItem) return;
+    tb.appendChild(el(`<tr class="sum"><td colspan="3" class="c">${esc(itemName(headItem))} 소계 (${won(gCnt)}건)</td>
+      <td class="n">${won(gT)}</td><td class="n">${won(gN)}</td><td class="n">${won(gO)}</td>
+      <td colspan="3"></td></tr>`));
+    gT = 0; gN = 0; gO = 0; gCnt = 0;
+  };
 
   for (const ex of rows) {
+    if (ex.itemId !== headItem) { closeGroup(); headItem = ex.itemId;
+      tb.appendChild(el(`<tr class="sum"><td colspan="9"><b>${esc(itemName(ex.itemId))}</b>
+        <span class="tag">${esc((GROUPS[(itemById(ex.itemId) || {}).group] || {}).expense || "")}</span></td></tr>`)); }
     tTotal += ex.total; tNeed += ex.needAmount; tOper += ex.operAmount || 0;
+    gT += ex.total; gN += ex.needAmount; gO += ex.operAmount || 0; gCnt++;
     const n = ex.allocations.length;
     const q = n ? Math.floor(ex.needAmount / n) : 0;
     const r = n ? ex.needAmount - q * n : 0;
     const tr = el(`<tr class="${ex.id === highlightExpenseId ? "hl" : ""}">
       <td class="ui-center c">${esc(ex.date)}</td>
       <td class="ui-center c">${esc(ex.voucherNo || "-")}</td>
-      <td>${esc(itemName(ex.itemId))}</td>
       <td class="ui-prose">${esc(ex.summary || "-")}</td>
       <td class="n">${won(ex.total)}</td>
       <td class="n">${won(ex.needAmount)}</td>
       <td class="n">${won(ex.operAmount || 0)}</td>
-      <td class="c">${n}명</td>
+      <td class="c">${won(n)}명</td>
       <td class="n">${won(r > 0 ? q + 1 : q)}</td>
       <td class="c">
         <button class="b" data-a="who">명단</button>
@@ -2395,8 +2530,9 @@ function renderExpenseList(host){
     };
     tb.appendChild(tr);
   }
-  tb.appendChild(el(`<tr class="sum"><td colspan="4" class="c">회계연도 합계</td>
-    <td class="n">${won(tTotal)}</td><td class="n">${won(tNeed)}</td><td class="n">${won(tOper)}</td>
+  closeGroup();
+  tb.appendChild(el(`<tr class="sum"><td colspan="3" class="c"><b>회계연도 합계</b></td>
+    <td class="n"><b>${won(tTotal)}</b></td><td class="n"><b>${won(tNeed)}</b></td><td class="n"><b>${won(tOper)}</b></td>
     <td colspan="3"></td></tr>`));
   host.innerHTML = "";
   host.appendChild(t);
@@ -2551,32 +2687,46 @@ function renderChild(root){
   }
   $("#c_csv", root).onclick = () => downloadCSV(`원아별현황_${c.name}_${fy}.csv`, csv);
 
-  /* 사용 건별 내역 */
+  /* 사용 건별 내역 — 세목별로 묶고, 그 안에서는 이른 날짜부터 (돈이 빠져나간 차례) */
   const useHost = $("#c_use", root);
-  const rows = usageRows(c.id, null, from, to);
+  const order = new Map(S.items.map((it, i) => [it.id, i]));
+  const rows = usageRows(c.id, null, from, to).sort((a, b) =>
+    (order.has(a.itemId) ? order.get(a.itemId) : 999) - (order.has(b.itemId) ? order.get(b.itemId) : 999)
+    || a.date.localeCompare(b.date)
+    || (a.voucherNo || "").localeCompare(b.voucherNo || ""));
   if (!rows.length) { useHost.innerHTML = `<div class="empty">사용 내역이 없습니다.</div>`; return; }
 
   const ut = el(`<table><thead><tr>
     <th class="c" style="width:95px">지출일</th><th class="c" style="width:70px">결의서</th>
-    <th style="width:140px">세목</th><th>적요</th>
+    <th>적요</th>
     <th class="n" style="width:105px">필요경비 부담분</th><th class="c" style="width:60px">인원</th>
     <th class="n" style="width:110px">원아 귀속액</th></tr></thead><tbody></tbody></table>`);
   const utb = $("tbody", ut);
+  let headItem = null, gSum = 0, gCnt = 0;
+  const closeUse = () => {
+    if (!headItem) return;
+    utb.appendChild(el(`<tr class="sum"><td colspan="5" class="c">${esc(itemName(headItem))} 소계 (${won(gCnt)}건)</td>
+      <td class="n">${won(gSum)}</td></tr>`));
+    gSum = 0; gCnt = 0;
+  };
   for (const r of rows) {
+    if (r.itemId !== headItem) { closeUse(); headItem = r.itemId;
+      utb.appendChild(el(`<tr class="sum"><td colspan="6"><b>${esc(itemName(r.itemId))}</b></td></tr>`)); }
+    gSum += r.amount; gCnt++;
     const tr2 = el(`<tr>
       <td class="c">${esc(r.date)}</td><td class="c">${esc(r.voucherNo || "-")}</td>
-      <td>${esc(itemName(r.itemId))}</td>
-      <td class="ui-prose">${esc(r.summary || "-")}${r.consign ? ' <span class="tag consign">위탁 충당</span>' : ""}</td>
-      <td class="n">${won(r.needAmount)}</td><td class="c">${r.headcount}명</td>
+      <td class="ui-prose">${esc(r.summary || "-")}${r.consign ? ' <span class="tag consign">전입금 충당</span>' : ""}</td>
+      <td class="n">${won(r.needAmount)}</td><td class="c">${won(r.headcount)}명</td>
       <td class="n"><button class="link">${won(r.amount)}</button></td></tr>`);
     $("button", tr2).onclick = () => openTargetListModal(r.expenseId, c.id);
     utb.appendChild(tr2);
   }
+  closeUse();
   const ownSum = rows.filter(r => !r.consign).reduce((s, r) => s + r.amount, 0);
   const cvSum  = rows.filter(r =>  r.consign).reduce((s, r) => s + r.amount, 0);
-  utb.appendChild(el(`<tr class="sum"><td colspan="6" class="c">보호자 부담 사용 합계</td>
-    <td class="n">${won(ownSum)}</td></tr>`));
-  if (cvSum) utb.appendChild(el(`<tr class="sum"><td colspan="6" class="c">위탁보육료 충당</td>
+  utb.appendChild(el(`<tr class="sum"><td colspan="5" class="c"><b>보호자 부담 사용 합계</b></td>
+    <td class="n"><b>${won(ownSum)}</b></td></tr>`));
+  if (cvSum) utb.appendChild(el(`<tr class="sum"><td colspan="5" class="c">전입금 충당</td>
     <td class="n" style="color:#5b3ca8">${won(cvSum)}</td></tr>`));
   useHost.appendChild(ut);
 }
@@ -2719,7 +2869,9 @@ function settleBack(host){
     </div>
     <div class="hint no-print">보통 <b>2월말에 한 번</b> 뽑아 반환 처리하는 표입니다.
       세목별로 <b>수납액 − 실 사용금액 = 반환할 금액</b>을 원아마다 계산합니다.
-      실제 반환·계좌 처리는 이 표를 보고 어린이집에서 진행하시면 됩니다.</div>
+      실제 반환·계좌 처리는 이 표를 보고 어린이집에서 진행하시면 됩니다.<br>
+      3월이 아닌 달부터 뽑으면 <b>이월</b> 열이 붙습니다. 이월은 <b>세목마다 따로</b> 계산해
+      그 세목 칸에 이미 더해 두었으므로, 반환 합계에 또 더하지 않습니다 (참고용 열입니다).</div>
     <div id="bk_body"></div>`;
 
   $("#bk_from", host).onchange = e => setPeriod(v, "from", e.target.value);
@@ -2729,8 +2881,15 @@ function settleBack(host){
   $("#bk_print", host).onclick = () => window.print();
 
   const body = $("#bk_body", host);
+  /* 3월부터가 아니면 그 앞 기간의 잔액을 이월로 끌어온다.
+     세목끼리 섞지 않으므로 이월도 세목별로 따로 계산해 그 세목 칸에 넣는다. */
+  const carryFrom = fyStart(fy), carryTo = addDays(spec.from, -1);
+  const carryOf = (childId, itemId) =>
+    spec.carry ? balance(childId, itemId, carryFrom, carryTo).left : 0;
+
   const items = S.items.filter(it =>
-    S.children.some(c => { const b = balance(c.id, it.id, spec.from, spec.to); return b.paid || b.used; }));
+    S.children.some(c => { const b = balance(c.id, it.id, spec.from, spec.to);
+                           return b.paid || b.used || carryOf(c.id, it.id); }));
 
   body.innerHTML = printHead("필요경비 반환 정산서",
     `${fy}년도 ${spec.label} · ${spec.from} ~ ${spec.to}`);
@@ -2740,12 +2899,15 @@ function settleBack(host){
   const rows = sortedChildren().map(c => {
     const cells = items.map(it => {
       const b = balance(c.id, it.id, spec.from, spec.to);
-      return { it, b, back: Math.max(0, b.left), over: Math.max(0, -b.left) };
+      const carry = carryOf(c.id, it.id);
+      const net = carry + b.left;
+      return { it, b, carry, back: Math.max(0, net), over: Math.max(0, -net) };
     });
     return { c, cells,
+             carry: cells.reduce((s, x) => s + x.carry, 0),
              back: cells.reduce((s, x) => s + x.back, 0),
              over: cells.reduce((s, x) => s + x.over, 0),
-             any:  cells.some(x => x.b.paid || x.b.used) };
+             any:  cells.some(x => x.b.paid || x.b.used || x.carry) };
   }).filter(r => r.any && (v.bkZero || r.back > 0));
 
   if (!rows.length) { body.appendChild(el(`<div class="empty">반환할 금액이 있는 원아가 없습니다.</div>`)); return; }
@@ -2753,20 +2915,22 @@ function settleBack(host){
   const t = el(`<table class="sheet"><thead><tr>
     <th class="c" style="width:42px">순번</th><th style="width:100px">성명</th><th style="width:88px">반</th>
     <th class="c" style="width:56px">재원</th>
+    ${spec.carry ? `<th class="n" style="width:105px">${col("이월", "참고")}</th>` : ""}
     ${items.map((it, i) => `<th class="n" style="width:110px">${col(it.name, MARKS[i] || String(i + 1))}</th>`).join("")}
     <th class="n" style="width:130px">${col("반환 합계",
       items.map((it, i) => MARKS[i] || String(i + 1)).join(" + "))}</th><th style="width:110px">비고</th>
   </tr></thead><tbody></tbody></table>`);
   const tb = $("tbody", t);
-  const csv = [["순번", "성명", "반", "재원"].concat(items.map(i => i.name), ["반환 합계", "비고"])];
+  const csv = [["순번", "성명", "반", "재원"]
+    .concat(spec.carry ? ["이월"] : [], items.map(i => i.name), ["반환 합계", "비고"])];
   const colTot = items.map(() => 0);
-  let grand = 0;
+  let grand = 0, carryTot = 0;
 
   rows.forEach((r, i) => {
     const cls = classAt(r.c, spec.to) || currentClass(r.c);
     const cons = isConsignMonth(r.c, spec.toM);
     r.cells.forEach((x, j) => colTot[j] += x.back);
-    grand += r.back;
+    grand += r.back; carryTot += r.carry;
     const note = [];
     if (r.c.leaveDate && inRange(r.c.leaveDate, spec.from, spec.to)) note.push(r.c.leaveDate.slice(5).replace("-", ".") + " 퇴소");
     if (cons) note.push("위탁");
@@ -2774,16 +2938,18 @@ function settleBack(host){
     tb.appendChild(el(`<tr>
       <td class="c">${i + 1}</td><td class="ui-center">${esc(r.c.name)}</td><td class="ui-center">${cls ? esc(cls.name) : "-"}</td>
       <td class="c">${cons ? '<span class="tag consign">위탁</span>' : '<span class="tag">일반</span>'}</td>
+      ${spec.carry ? `<td class="n" style="color:var(--dim)">${r.carry ? won(r.carry) : ""}</td>` : ""}
       ${r.cells.map(x => `<td class="n">${x.back ? won(x.back) : ""}</td>`).join("")}
       <td class="n"><b>${won(r.back)}</b></td>
       <td style="font-size:11px;color:var(--warn)">${esc(note.join(" / "))}</td></tr>`));
     csv.push([i + 1, r.c.name, cls ? cls.name : "", cons ? "위탁" : "일반"]
-      .concat(r.cells.map(x => x.back), [r.back, note.join(" / ")]));
+      .concat(spec.carry ? [r.carry] : [], r.cells.map(x => x.back), [r.back, note.join(" / ")]));
   });
-  tb.appendChild(el(`<tr class="sum"><td colspan="4" class="c">합계 (${rows.length}명)</td>
+  tb.appendChild(el(`<tr class="sum"><td colspan="4" class="c">합계 (${won(rows.length)}명)</td>
+    ${spec.carry ? `<td class="n">${won(carryTot)}</td>` : ""}
     ${colTot.map(x => `<td class="n">${won(x)}</td>`).join("")}
     <td class="n">${won(grand)}</td><td></td></tr>`));
-  csv.push(["합계", "", "", ""].concat(colTot, [grand, ""]));
+  csv.push(["합계", "", "", ""].concat(spec.carry ? [carryTot] : [], colTot, [grand, ""]));
 
   const wrap = el(`<div class="scroll" style="max-height:none"></div>`);
   wrap.appendChild(t);
@@ -2940,7 +3106,8 @@ function drawExitSheet(host, c, from, to, forcedTo, consign){
   for (const it of S.items) {
     const b = settleBalance(c.id, it.id, from, to, forcedTo);
     if (!b.paid && !b.used && !b.consign) continue;
-    rows.push({ it, b, usage: settleAllocRows(c.id, it.id, from, to, forcedTo) });
+    rows.push({ it, b, pc: parentCharge(c.id, it.id, from, to),
+                usage: settleAllocRows(c.id, it.id, from, to, forcedTo) });
   }
 
   host.innerHTML = printHead(v.reason + " 정산서", `${c.name} · 정산기간 ${from} ~ ${to}`) +
@@ -2958,28 +3125,29 @@ function drawExitSheet(host, c, from, to, forcedTo, consign){
   if (!rows.length) { body.innerHTML = `<div class="empty">정산할 수납·사용 기록이 없습니다.</div>`; return; }
 
   const anyConsign = rows.some(r => r.b.consign);
-  let tPaid = 0, tUsed = 0, tCons = 0, tBack = 0;
+  const anyFee = rows.some(r => r.pc.fee > 0);
+  let tPaid = 0, tUsed = 0, tCons = 0, tBack = 0, tFee = 0, tOver = 0;
 
   /* ── 정산 내역 ── 받은 돈, 쓴 돈, 돌려줄 돈. 보호자가 가장 먼저 봐야 할 표 */
   const t = el(`<h3>정산 내역</h3>
     <table><thead><tr>
-      <th style="width:200px">세목</th>
-      <th class="n" style="width:130px">${col("보호자 수납액", "A")}</th>
-      ${anyConsign ? `<th class="n" style="width:130px">${col("전입금 충당", "B")}</th>` : ""}
-      <th class="n" style="width:130px">${col("실 사용금액", anyConsign ? "C" : "B")}</th>
-      <th class="n" style="width:160px">${col("반환할 금액",
-        anyConsign ? "D = A + B − C" : "C = A − B")}</th>
+      <th style="width:190px">세목</th>
+      ${noticeCols(false, anyConsign, anyFee).map((c2, i, arr) =>
+        `<th class="n" style="width:${i === arr.length - 1 ? 160 : 125}px">${col(
+          i === arr.length - 1 ? "반환할 금액" : c2[0], c2[1])}</th>`).join("")}
     </tr></thead><tbody></tbody></table>`);
   const tb = $("tbody", t);
 
   for (const r of rows) {
     const prep = r.it.special === "prep";
     const auto = Math.max(0, r.b.left);
-    tPaid += r.b.paid; tUsed += r.b.totalUsed; tCons += r.b.transferIn;
+    tPaid += r.b.paid; tUsed += r.b.totalUsed; tCons += r.b.transferIn; tFee += r.pc.fee;
+    tOver += Math.max(0, -r.b.left);
 
     const tr = el(`<tr>
       <td>${esc(r.it.name)}</td>
-      <td class="n">${won(r.b.paid)}</td>
+      <td class="n">${won(r.pc.charged)}</td>
+      ${anyFee ? `<td class="n" style="color:var(--dim)">${r.pc.fee ? won(r.pc.fee) : ""}</td>` : ""}
       ${anyConsign ? `<td class="n">${r.b.transferIn ? won(r.b.transferIn) : ""}</td>` : ""}
       <td class="n">${won(r.b.totalUsed)}</td>
       <td class="n" data-r="back"></td>
@@ -3002,11 +3170,20 @@ function drawExitSheet(host, c, from, to, forcedTo, consign){
   }
 
   tb.appendChild(el(`<tr class="sum">
-    <td class="c">합계</td><td class="n">${won(tPaid)}</td>
+    <td class="c">합계</td><td class="n">${won(tPaid + tFee)}</td>
+    ${anyFee ? `<td class="n">${won(tFee)}</td>` : ""}
     ${anyConsign ? `<td class="n">${won(tCons)}</td>` : ""}
     <td class="n">${won(tUsed)}</td>
     <td class="n">${won(tBack)}</td></tr>`));
   body.appendChild(t);
+  if (anyFee) body.appendChild(el(`<div class="note">카드로 내신 금액은 <b>수수료를 떼고</b>
+    어린이집 통장에 들어옵니다. 위 표는 <b>보호자께서 결제하신 금액</b>을 적고,
+    떼인 수수료를 따로 보여 드립니다.</div>`));
+  if (tOver) body.appendChild(el(`<div class="note"><b>받은 돈보다 더 쓴 세목이 있습니다.</b>
+    실 사용금액이 수납액보다 <b>${won(tOver)}원</b> 많은데, 이 금액은
+    <b>어린이집 운영비에서 부담</b>했습니다. 보호자께 더 청구하지 않으며,
+    그 세목의 반환할 금액은 <b>0</b>으로 적습니다.
+    그래서 표의 「반환할 금액」이 「수납액 − 실 사용금액」과 맞지 않을 수 있습니다.</div>`));
   if (anyConsign) body.appendChild(el(`<div class="note">위탁보육료를 받는 달의 비용은
     <b>전입금으로 충당</b>되므로 같은 금액을 수입으로도 잡았습니다. 들어온 만큼 나간 것이라
     반환할 금액에는 영향이 없습니다.</div>`));
@@ -3288,19 +3465,21 @@ function settleNotice(host){
 function noticeSheet(c, spec, fy, withDetail){
   const carryFrom = fyStart(fy), carryTo = addDays(spec.from, -1);
   const rows = [];
-  let carryT = 0, paidT = 0, usedT = 0, consignT = 0, leftClamped = 0, overT = 0;
+  let carryT = 0, paidT = 0, usedT = 0, consignT = 0, leftClamped = 0, overT = 0, feeT = 0;
   for (const it of S.items) {
     const b = balance(c.id, it.id, spec.from, spec.to);
     const carry = spec.carry ? balance(c.id, it.id, carryFrom, carryTo).left : 0;
     if (!b.paid && !b.used && !b.consign && !carry) continue;
-    rows.push({ it, b, carry });
+    const pc = parentCharge(c.id, it.id, spec.from, spec.to);
+    rows.push({ it, b, carry, pc });
     leftClamped += Math.max(0, carry + b.paid - b.used);
     overT       += Math.max(0, -(carry + b.paid - b.used));
-    carryT += carry; paidT += b.paid; usedT += b.used; consignT += b.consign;
+    carryT += carry; paidT += b.paid; usedT += b.used; consignT += b.consign; feeT += pc.fee;
   }
   if (!rows.length) return null;
 
   const anyConsign = consignT > 0;
+  const anyFee = feeT > 0;          /* 순액 방식에서 카드로 받은 것이 있을 때만 */
   const node = el(`<div class="sheet" style="margin-top:18px"></div>`);
 
   /* 세목별 지출건 내역 — 어느 지출이 이 아이에게 얼마로 잡혔는지 날짜순으로 */
@@ -3340,7 +3519,7 @@ function noticeSheet(c, spec, fy, withDetail){
     </tbody></table>
     <table style="margin-top:10px"><thead><tr>
       <th style="width:170px">세목</th>
-      ${moneyCols(spec.carry, anyConsign).map((c2, i, arr) =>
+      ${noticeCols(spec.carry, anyConsign, anyFee).map((c2, i, arr) =>
         `<th class="n" style="width:${i === arr.length - 1 ? 145 : 108}px">${col(c2[0], c2[1])}</th>`).join("")}
     </tr></thead><tbody>
       ${rows.map(r => {
@@ -3351,21 +3530,28 @@ function noticeSheet(c, spec, fy, withDetail){
         const over = Math.max(0, -raw);
         return `<tr><td>${esc(r.it.name)}</td>
           ${spec.carry ? `<td class="n">${won(r.carry)}</td>` : ""}
-          <td class="n">${won(r.b.paid)}</td>
+          <td class="n">${won(r.pc.charged)}</td>
+          ${anyFee ? `<td class="n" style="color:var(--dim)">${r.pc.fee ? won(r.pc.fee) : ""}</td>` : ""}
           ${anyConsign ? `<td class="n" style="color:#5b3ca8">${r.b.consign ? won(r.b.consign) : ""}</td>` : ""}
           <td class="n">${won(r.b.used + r.b.consign)}</td>
           <td class="n">${won(left)}${over ? `<span class="hint" style="display:block">어린이집 부담 ${won(over)}원</span>` : ""}</td></tr>`;
       }).join("")}
       <tr class="sum"><td class="c">합계</td>
         ${spec.carry ? `<td class="n">${won(carryT)}</td>` : ""}
-        <td class="n">${won(paidT)}</td>
+        <td class="n">${won(paidT + feeT)}</td>
+        ${anyFee ? `<td class="n">${won(feeT)}</td>` : ""}
         ${anyConsign ? `<td class="n">${won(consignT)}</td>` : ""}
         <td class="n">${won(usedT + consignT)}</td>
         <td class="n">${won(leftClamped)}</td></tr>
     </tbody></table>
-    ${overT ? `<div class="note">받은 돈보다 더 쓴 세목이 있습니다. 넘긴 <b>${won(overT)}원</b>은
-      <b>어린이집 운영비</b>에서 부담했으므로 보호자께 더 청구하지 않습니다.
-      남은 금액은 0에서 멈춥니다.</div>` : ""}
+    ${anyFee ? `<div class="note">카드로 내신 금액은 <b>수수료를 떼고</b> 어린이집 통장에 들어옵니다.
+      그래서 <b>결제하신 금액</b>과 실제로 필요경비에 쓸 수 있었던 금액이 수수료만큼 다릅니다.
+      위 표는 <b>보호자께서 결제하신 금액</b>을 적고, 떼인 수수료를 따로 보여 드립니다.</div>` : ""}
+    ${overT ? `<div class="note"><b>받은 돈보다 더 쓴 세목이 있습니다.</b>
+      실 사용금액이 수납액보다 <b>${won(overT)}원</b> 많은데, 이 금액은
+      <b>어린이집 운영비에서 부담</b>했습니다. 보호자께 더 청구하지 않으며,
+      그 세목의 남은 금액은 <b>0</b>으로 적습니다.
+      그래서 표의 「남은 금액」이 「수납액 − 실 사용금액」과 맞지 않을 수 있습니다.</div>` : ""}
     ${anyConsign ? `<div class="note">위탁보육료를 받는 달의 비용은 보호자가 아니라 <b>회사 전입금으로 충당</b>되어, 같은 금액이 수입과 사용에 함께 잡힙니다. 보호자가 내실 몫에는 영향이 없습니다.</div>` : ""}
     ${detail}`;
   return node;
@@ -3961,6 +4147,34 @@ const FAQ = [
        </ol>
        <p>12월이 지나면 <b>검증</b> 탭에서도 세목별로 잔액이 모자란 원아를 한 번에 볼 수 있습니다.</p>` },
 
+  { g:"정산·보고", q:"보호자 안내문의 수납액이 통장 금액과 다릅니다.",
+    k:"안내문 수납액 결제하신 금액 승인액 카드수수료 통장 다름 보호자",
+    a:`<p><b>일부러 그렇게 적습니다.</b> 보호자께서 카드로 37,000원을 긁으셨다면
+         안내문에도 <b>37,000원</b>이 찍혀야 합니다. 통장에 들어온 36,997원을 적으면
+         「나는 37,000원 냈는데 왜 36,997원이라고 돼 있나」가 됩니다.</p>
+       <p>그래서 <b>보호자에게 가는 서류</b>(보호자용 개별 안내문 · 중간퇴소 정산서)는
+         <b>결제하신 금액</b>을 수납액으로 적고, 떼인 <b>카드수수료</b>를 따로 한 칸 보여 줍니다.
+         그러면 표가 그대로 맞아떨어집니다.</p>
+       <table><thead><tr><th>${col("수납액 (결제하신 금액)", "A")}</th><th>${col("카드수수료", "B")}</th>
+         <th>${col("실 사용금액", "C")}</th><th>${col("남은 금액", "D = A − B − C")}</th></tr></thead>
+         <tbody><tr><td class="n">444,000</td><td class="n">36</td>
+           <td class="n">444,000</td><td class="n">0</td></tr></tbody></table>
+       <p>수수료 칸은 <b>순액 방식</b>이면서 카드로 받은 결의서가 있을 때만 나옵니다.
+         총액 방식은 수납액 자체가 이미 결제액이라 칸이 생기지 않습니다.</p>
+       <p><b>운영위원회 보고서·대장·검증</b>은 회계 장부이므로 <b>통장에 들어온 금액</b> 그대로 씁니다.
+         보호자 서류와 숫자가 수수료만큼 다른 것이 정상입니다.</p>` },
+
+  { g:"정산·보고", q:"안내문에서 수납액 − 실 사용금액이 남은 금액과 맞지 않습니다.",
+    k:"안내문 계산 안맞음 남은 금액 0 초과 어린이집 부담 마이너스",
+    a:`<p>받은 돈보다 <b>더 쓴 세목</b>이 있을 때 그렇습니다.
+         모자란 몫은 보호자께 더 받을 수 없으므로 <b>어린이집 운영비에서 부담</b>합니다.
+         그래서 그 세목의 남은 금액은 <b>마이너스로 내려가지 않고 0에서 멈춥니다.</b></p>
+       <p>보호자 서류에 마이너스가 섞이면 읽기 어려워지기 때문입니다.
+         대신 그 줄에 <b>「어린이집 부담 ○○원」</b>이라고 적고, 표 아래에
+         <b>얼마를 어린이집이 부담했는지</b>와 <b>그래서 계산이 맞지 않아 보일 수 있다</b>는 설명을
+         함께 인쇄합니다. 보호자께서 그대로 읽으실 수 있습니다.</p>
+       <p>정확한 초과 금액은 <b>검증</b> 탭과 <b>반환 정산서</b>의 비고에서 볼 수 있습니다.</p>` },
+
   { g:"정산·보고", q:"표 머리의 (A) (B) (C)는 무슨 뜻인가요?",
     k:"기호 A B C 계산식 산식 머리칸 어떻게 나온 숫자",
     a:`<p>금액이 계산되어 나오는 표는 머리칸에 기호가 붙습니다.
@@ -4402,6 +4616,15 @@ function manualFull(sources){
   <p>원아 한 사람씩의 내역은 여기가 아니라 <b>보호자용 개별 안내문</b>에서 뽑습니다.</p>
 
   <h3>② 보호자용 개별 안내문</h3>
+  <div class="warn"><p><b>보호자에게 가는 서류는 숫자를 보호자 눈높이로 적습니다.</b></p>
+    <ul>
+      <li><b>수납액 = 보호자께서 결제하신 금액.</b> 카드 수수료를 떼기 전 금액입니다.
+        떼인 수수료는 바로 옆 칸에 따로 보여 줍니다. (순액 방식일 때만)</li>
+      <li><b>남은 금액은 0에서 멈춥니다.</b> 더 쓴 세목이 있으면 그 몫은 어린이집 운영비 부담이므로
+        마이너스를 적지 않고, 「어린이집 부담 ○○원」과 그 설명을 함께 인쇄합니다.</li>
+    </ul>
+    <p>같은 규칙이 <b>중간퇴소·중간전환 정산서</b>에도 그대로 적용됩니다.
+      운영위원회 보고서·대장·검증은 회계 장부이므로 통장 금액 그대로 씁니다.</p></div>
   <p>아이 한 명 것만 한 장으로 뽑습니다. 세목별 수납·사용·남은 금액과 함께,
     <b>어느 지출건이 이 아이에게 얼마로 잡혔는지</b> 날짜순 내역이 들어갑니다.</p>
   <p><b>「전체 원아 한 장씩」</b>을 체크하고 인쇄하면 아이마다 페이지가 나뉘어 한 번에 출력됩니다.</p>

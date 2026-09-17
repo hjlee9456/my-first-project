@@ -33,7 +33,7 @@ const flat = s => String(s || "").replace(/\s+/g, " ");
     kids: S.children.length, vouchers: S.vouchers.length,
   }));
   check("예전 자료가 연도 보관함으로 옮겨짐",
-    mig.ver === 2 && mig.years.join() === "2026" && mig.kids === 37 && mig.vouchers === 30,
+    mig.ver === 2 && mig.years.join() === "2026" && mig.kids === 37 && mig.vouchers === 55,
     JSON.stringify(mig));
 
   // 회계연도 목록에는 보관 중인 해만 나온다
@@ -113,7 +113,7 @@ const flat = s => String(s || "").replace(/\s+/g, " ");
 
   check("2027년도로 넘어감", after.fy === 2027 && after.years.join() === "2026,2027", JSON.stringify(after.years));
   check("지난 2026년도 자료가 그대로 남음",
-    after.prev.kids === 37 && after.prev.vouchers === 30 && after.prev.expenses === 27,
+    after.prev.kids === 37 && after.prev.vouchers === 55 && after.prev.expenses === 36,
     JSON.stringify(after.prev));
   check("지난 해 반 이름도 그대로", after.prev.classes.includes("풀잎반") && after.prev.classes[0] === "햇살반",
     after.prev.classes.join(", "));
@@ -139,7 +139,7 @@ const flat = s => String(s || "").replace(/\s+/g, " ");
     cls: S.classes.map(c => c.name).join(","),
   }));
   check("2026년도로 돌아가면 그때 자료가 그대로",
-    back.fy === 2026 && back.kids === 37 && back.vouchers === 30 && /풀잎반/.test(back.cls),
+    back.fy === 2026 && back.kids === 37 && back.vouchers === 55 && /풀잎반/.test(back.cls),
     JSON.stringify(back));
 
   // 그 해 대장도 그대로 나와야 한다
