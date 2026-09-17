@@ -898,6 +898,53 @@ function setExpenseTargets(ex, childIds){
   ex.overrides = (ex.overrides || []).filter(o => want.has(o.childId));
 }
 
+/**
+ * 4분기(12월·1월·2월)인가.
+ *
+ * 어린이집은 한 해를 통으로 정산하지 매달 세목별 잔액을 맞추지 않는다.
+ * 3월에 한 학기치를 걷어 두고 쓰다 보면 초반 몇 달은 잔액이 마이너스인 것이
+ * 오히려 흔하고, 다음 분기 수납이 들어오면 저절로 메워진다. 그래서 잔액이
+ * 모자라다는 알림을 일찍 띄우면 헛경고만 쌓인다.
+ *
+ * 그러나 4분기에 들어서면 더 들어올 수납이 사실상 없다. 이때부터 잔액이
+ * 모자라면 그 몫은 끝내 어린이집 운영비에서 나가야 한다. 그래서 12월부터만
+ * 알린다.
+ */
+function isLastQuarter(dateStr){
+  const m = +String(dateStr || "").slice(5, 7);
+  return m === 12 || m === 1 || m === 2;
+}
+
+/**
+ * 이 지출건까지 넣었을 때 잔액이 모자라는 원아를 찾는다.
+ * 모자란 몫은 보호자에게 더 받을 수 없으므로 어린이집 운영비 부담이 된다.
+ *
+ *   editingId — 고치는 중인 지출건. 이미 저장된 그 건의 배분은 빼고 센다.
+ */
+function shortfallRows(itemId, alloc, date, editingId){
+  const fy = S.fiscalYear, from = fyStart(fy), to = fyEnd(fy);
+  const out = [];
+  for (const a of alloc) {
+    const c = childById(a.childId);
+    if (!c) continue;
+    /* 위탁 월 지출은 전입금이 같은 금액으로 들어오므로 잔액에 영향이 없다 */
+    if (isConsignMonth(c, date)) continue;
+    const b = balance(a.childId, itemId, from, to);
+    let used = b.totalUsed;
+    if (editingId) {
+      const old = S.expenses.find(e => e.id === editingId);
+      if (old && old.itemId === itemId) {
+        const oa = (old.allocations || []).find(x => x.childId === a.childId);
+        if (oa) used -= oa.amount;
+      }
+    }
+    used += a.amount;
+    const short = used - b.income;
+    if (short > 0) out.push({ childId: a.childId, name: c.name, short });
+  }
+  return out;
+}
+
 /** 어린이집 부담 집계 — 운영비 부담분 · 카드수수료 · 배분 단수차
  *
  *  카드수수료는 수납결의서에 적힌다. 총액 방식이면 운영비에서 따로 나가므로
@@ -2204,11 +2251,33 @@ function renderExpense(root){
       ${outside.length ? `<div class="note bad">재원기간 밖 원아가 ${outside.length}명 포함되어 있습니다: ${outside.map(id => esc(childName(id))).join(", ")}</div>` : ""}
       ${kept.length ? `<div class="note warn">정산 화면에서 사유를 달아 포함한 재원기간 밖 원아 ${kept.length}명: ${
         kept.map(id => esc(childName(id)) + " — " + esc((f.overrides.find(o => o.childId === id) || {}).reason || "사유 없음")).join(" / ")}</div>` : ""}
+      ${shortfallNote()}
       <div class="hint">적요에 남는 형태 — <b>${esc(f.summary || "(적요)")} (${n}명 × ${won(r > 0 ? q + 1 : q)})</b></div>`;
 
     const bad = sum !== A || outside.length > 0;
     guard.textContent = bad ? "저장 차단 — 위 경고를 해소하세요" : "";
     btn.disabled = bad;
+
+    /* 4분기(12월~2월)에 잔액이 모자라면 알린다. 막지는 않는다 —
+       모자란 만큼 운영비에서 부담하면 되는 정상적인 처리다. */
+    function shortfallNote(){
+      if (!isLastQuarter(f.date)) return "";
+      const rows = shortfallRows(f.itemId, alloc, f.date, editing ? editing.id : null);
+      if (!rows.length) return "";
+      const tot = rows.reduce((s2, x) => s2 + x.short, 0);
+      const list = rows.sort((x, y) => y.short - x.short)
+        .map(x => `${esc(x.name)} ${won(x.short)}원`).join(" · ");
+      return `<div class="note warn">
+        <b>잔액이 모자랍니다 — 모자란 ${won(tot)}원은 어린이집 운영비에서 부담해야 합니다.</b><br>
+        이 지출건까지 넣으면 <b>${esc(itemName(f.itemId))}</b> 잔액이 원아 <b>${won(rows.length)}명</b>에게서
+        모자랍니다. 보호자에게 더 받을 수는 없으므로, 모자란 몫은 <b>어린이집 운영비</b>에서 나갑니다.
+        보호자 정산에서는 <b>잔액 0에서 멈추고 마이너스로 내려가지 않습니다.</b><br>
+        <span class="hint">${list}</span><br>
+        <span class="hint">그대로 등록해도 됩니다. 금액을 줄이거나 「필요경비 부담분」을 낮추고
+        그만큼을 운영비 부담분으로 돌리면 이 알림이 사라집니다.
+        12월(4분기)부터만 알리는 이유는, 그 전에는 다음 분기 수납으로 메워지는 것이 보통이기 때문입니다.</span>
+      </div>`;
+    }
   }
 
   /* 고정 명단 — 세목으로 거르지 않고 전부 보여 주되 어느 세목 것인지 함께 적는다 */
@@ -3108,14 +3177,15 @@ function settleHalf(host){
       </tbody></table>`));
   }
 
-  /* 지출 내역 — 운영위원회가 "무엇에 썼나"를 보는 자리 */
+  /* 지출 내역 — 운영위원회가 "무엇에 썼나"를 보는 자리.
+     세목별로 먼저 묶고, 그 안에서 날짜순으로 적는다. 세목마다 소계를 달아
+     위 통계표의 「실 사용금액」과 바로 맞춰 볼 수 있게 한다. */
   if (v.hpDetail !== false) {
-    const exps = S.expenses.filter(e => inRange(e.date, spec.from, spec.to))
-                           .sort((a, b) => a.date.localeCompare(b.date));
+    const exps = S.expenses.filter(e => inRange(e.date, spec.from, spec.to));
     if (exps.length) {
       const t2 = el(`<table class="sheet" style="margin-top:8px"><thead><tr>
         <th class="c" style="width:95px">지출일</th><th class="c" style="width:60px">결의서</th>
-        <th style="width:140px">세목</th><th>적요</th>
+        <th>적요</th>
         <th class="n" style="width:95px">총액</th>
         <th class="n" style="width:95px">필요경비</th>
         <th class="n" style="width:85px">운영비</th>
@@ -3123,23 +3193,36 @@ function settleHalf(host){
       </tr></thead><tbody></tbody></table>`);
       const tb2 = $("tbody", t2);
       let sT = 0, sN = 0, sO = 0;
-      for (const ex of exps) {
-        sT += ex.total; sN += ex.needAmount; sO += ex.operAmount || 0;
-        const n = ex.allocations.length;
-        const q = n ? Math.floor(ex.needAmount / n) : 0;
-        const r = n ? ex.needAmount - q * n : 0;
-        tb2.appendChild(el(`<tr>
-          <td class="ui-center c">${esc(ex.date)}</td><td class="ui-center c">${esc(ex.voucherNo || "-")}</td>
-          <td>${esc(itemName(ex.itemId))}</td>
-          <td class="ui-prose">${esc(ex.summary || "-")}</td>
-          <td class="n">${won(ex.total)}</td><td class="n">${won(ex.needAmount)}</td>
-          <td class="n">${won(ex.operAmount || 0)}</td>
-          <td class="c">${n}명</td><td class="n">${won(r > 0 ? q + 1 : q)}</td></tr>`));
+
+      /* 기초설정의 세목 순서를 그대로 따른다 */
+      for (const it of S.items) {
+        const group = exps.filter(e => e.itemId === it.id)
+                          .sort((a, b) => (a.date + (a.voucherNo || "")).localeCompare(b.date + (b.voucherNo || "")));
+        if (!group.length) continue;
+        let gT = 0, gN = 0, gO = 0;
+        tb2.appendChild(el(`<tr class="sum"><td colspan="8"><b>${esc(it.name)}</b>
+          <span class="tag">${esc((GROUPS[it.group] || {}).expense || it.group)}</span></td></tr>`));
+        for (const ex of group) {
+          gT += ex.total; gN += ex.needAmount; gO += ex.operAmount || 0;
+          const n = ex.allocations.length;
+          const q = n ? Math.floor(ex.needAmount / n) : 0;
+          const r = n ? ex.needAmount - q * n : 0;
+          tb2.appendChild(el(`<tr>
+            <td class="ui-center c">${esc(ex.date)}</td><td class="ui-center c">${esc(ex.voucherNo || "-")}</td>
+            <td class="ui-prose">${esc(ex.summary || "-")}</td>
+            <td class="n">${won(ex.total)}</td><td class="n">${won(ex.needAmount)}</td>
+            <td class="n">${won(ex.operAmount || 0)}</td>
+            <td class="c">${won(n)}명</td><td class="n">${won(r > 0 ? q + 1 : q)}</td></tr>`));
+        }
+        tb2.appendChild(el(`<tr class="sum"><td colspan="3" class="c">${esc(it.name)} 소계 (${won(group.length)}건)</td>
+          <td class="n">${won(gT)}</td><td class="n">${won(gN)}</td><td class="n">${won(gO)}</td>
+          <td colspan="2"></td></tr>`));
+        sT += gT; sN += gN; sO += gO;
       }
-      tb2.appendChild(el(`<tr class="sum"><td colspan="4" class="c">합계 (${exps.length}건)</td>
-        <td class="n">${won(sT)}</td><td class="n">${won(sN)}</td><td class="n">${won(sO)}</td>
+      tb2.appendChild(el(`<tr class="sum"><td colspan="3" class="c"><b>합계 (${won(exps.length)}건)</b></td>
+        <td class="n"><b>${won(sT)}</b></td><td class="n"><b>${won(sN)}</b></td><td class="n"><b>${won(sO)}</b></td>
         <td colspan="2"></td></tr>`));
-      body.appendChild(el(`<h3>지출 내역</h3>`));
+      body.appendChild(el(`<h3>지출 내역 <span class="hint">— 세목별로 묶고 그 안에서 날짜순</span></h3>`));
       body.appendChild(t2);
     }
   }
@@ -3197,17 +3280,18 @@ function settleNotice(host){
 function noticeSheet(c, spec, fy, withDetail){
   const carryFrom = fyStart(fy), carryTo = addDays(spec.from, -1);
   const rows = [];
-  let carryT = 0, paidT = 0, usedT = 0, consignT = 0;
+  let carryT = 0, paidT = 0, usedT = 0, consignT = 0, leftClamped = 0, overT = 0;
   for (const it of S.items) {
     const b = balance(c.id, it.id, spec.from, spec.to);
     const carry = spec.carry ? balance(c.id, it.id, carryFrom, carryTo).left : 0;
     if (!b.paid && !b.used && !b.consign && !carry) continue;
     rows.push({ it, b, carry });
+    leftClamped += Math.max(0, carry + b.paid - b.used);
+    overT       += Math.max(0, -(carry + b.paid - b.used));
     carryT += carry; paidT += b.paid; usedT += b.used; consignT += b.consign;
   }
   if (!rows.length) return null;
 
-  const leftT = carryT + paidT - usedT;
   const anyConsign = consignT > 0;
   const node = el(`<div class="sheet" style="margin-top:18px"></div>`);
 
@@ -3252,21 +3336,28 @@ function noticeSheet(c, spec, fy, withDetail){
         `<th class="n" style="width:${i === arr.length - 1 ? 145 : 108}px">${col(c2[0], c2[1])}</th>`).join("")}
     </tr></thead><tbody>
       ${rows.map(r => {
-        const left = r.carry + r.b.paid - r.b.used;
+        /* 쓴 돈이 받은 돈을 넘겨도 보호자에게 더 받지 않는다. 잔액은 0에서 멈추고
+           넘긴 몫은 어린이집 운영비 부담이므로, 보호자 서류에 마이너스를 적지 않는다. */
+        const raw  = r.carry + r.b.paid - r.b.used;
+        const left = Math.max(0, raw);
+        const over = Math.max(0, -raw);
         return `<tr><td>${esc(r.it.name)}</td>
           ${spec.carry ? `<td class="n">${won(r.carry)}</td>` : ""}
           <td class="n">${won(r.b.paid)}</td>
           ${anyConsign ? `<td class="n" style="color:#5b3ca8">${r.b.consign ? won(r.b.consign) : ""}</td>` : ""}
           <td class="n">${won(r.b.used + r.b.consign)}</td>
-          <td class="n" ${left < 0 ? 'style="color:var(--bad)"' : ""}>${won(left)}</td></tr>`;
+          <td class="n">${won(left)}${over ? `<span class="hint" style="display:block">어린이집 부담 ${won(over)}원</span>` : ""}</td></tr>`;
       }).join("")}
       <tr class="sum"><td class="c">합계</td>
         ${spec.carry ? `<td class="n">${won(carryT)}</td>` : ""}
         <td class="n">${won(paidT)}</td>
         ${anyConsign ? `<td class="n">${won(consignT)}</td>` : ""}
         <td class="n">${won(usedT + consignT)}</td>
-        <td class="n">${won(leftT)}</td></tr>
+        <td class="n">${won(leftClamped)}</td></tr>
     </tbody></table>
+    ${overT ? `<div class="note">받은 돈보다 더 쓴 세목이 있습니다. 넘긴 <b>${won(overT)}원</b>은
+      <b>어린이집 운영비</b>에서 부담했으므로 보호자께 더 청구하지 않습니다.
+      남은 금액은 0에서 멈춥니다.</div>` : ""}
     ${anyConsign ? `<div class="note">위탁보육료를 받는 달의 비용은 보호자가 아니라 <b>회사 전입금으로 충당</b>되어, 같은 금액이 수입과 사용에 함께 잡힙니다. 보호자가 내실 몫에는 영향이 없습니다.</div>` : ""}
     ${detail}`;
   return node;
@@ -3492,6 +3583,25 @@ function runChecks(){
     const spentAny = S.expenses.some(e => e.itemId === it.id && inRange(e.date, from, to));
     if (paidAny && !spentAny) {
       add("warn", `수납만 있고 지출이 없음 — ${it.name}`, "미집행 상태입니다. 집행하거나 정산해 돌려줘야 합니다.", null);
+  }
+
+  /* 4분기에 들어섰다면 잔액이 모자라는 원아를 짚어 준다.
+     그 전에는 다음 분기 수납으로 메워지는 것이 보통이라 알리지 않는다. */
+  if (todayISO() >= fy + "-12-01") {
+    for (const it of S.items) {
+      const short = [];
+      for (const c of S.children) {
+        const b = balance(c.id, it.id, from, to);
+        if (b.left < 0) short.push({ name: c.name, amount: -b.left });
+      }
+      if (!short.length) continue;
+      const tot = short.reduce((s2, x) => s2 + x.amount, 0);
+      add("warn", `잔액이 모자란 원아 — ${it.name}`,
+        `${short.length}명 · 모자란 금액 ${won(tot)}원. 보호자에게 더 받을 수 없으므로 ` +
+        `어린이집 운영비에서 부담한 것으로 봅니다. 보호자 정산에서는 잔액 0에서 멈춥니다. — ` +
+        short.sort((x, y) => y.amount - x.amount).map(x => `${x.name} ${won(x.amount)}원`).join(", "),
+        null);
+    }
     }
   }
 
@@ -3800,6 +3910,40 @@ const FAQ = [
     a:`<p><b>안 됩니다.</b> 예산의 목적 외 사용은 금지되어 있고, 221목↔421목·211목↔411목이 각각 연계되어 있습니다.</p>
        <p>그래서 이 프로그램은 <b>모든 계산을 세목 단위로만</b> 하고, 세목 간 합산이나 상계를 <b>구조적으로 불가능하게</b> 만들어 두었습니다. 잔액도 세목마다 따로 나옵니다.</p>`,
     law:"사회복지법인 및 사회복지시설 재무·회계 규칙 제15조 · 부록 47p" },
+
+  { g:"지출", q:"「잔액이 모자랍니다 — 운영비에서 부담해야 합니다」가 떴어요.",
+    k:"잔액 모자람 부족 초과 음수 마이너스 운영비 부담 12월 4분기 경고",
+    a:`<p><b>막는 경고가 아닙니다. 그대로 등록하셔도 됩니다.</b>
+         「이만큼은 보호자 돈이 아니라 어린이집 돈으로 나간다」고 미리 알려 드리는 것입니다.</p>
+
+       <h4 style="margin:12px 0 4px">왜 이런 일이 생기나</h4>
+       <p>보호자에게 30,000원을 받아 두고 35,000원을 썼다면 5,000원이 모자랍니다.
+         모자란 5,000원을 보호자에게 더 받을 수는 없습니다.
+         <b>그 몫은 어린이집 운영비에서 나갑니다.</b>
+         그래서 보호자 정산에서는 <b>잔액이 0에서 멈추고 마이너스로 내려가지 않습니다.</b>
+         (정산서에 마이너스가 섞이면 보호자도 어린이집도 읽기 어려워집니다)</p>
+
+       <h4 style="margin:12px 0 4px">왜 12월부터만 알리나</h4>
+       <p>어린이집은 <b>한 해를 통으로</b> 정산하지, 매달 세목별 잔액을 맞추지 않습니다.
+         3월에 한 학기치를 걷어 두고 쓰다 보면 <b>초반 몇 달은 잔액이 마이너스인 것이 오히려 흔하고</b>,
+         다음 분기 수납이 들어오면 저절로 메워집니다.
+         그때마다 경고를 띄우면 헛경고만 쌓여 아무도 보지 않게 됩니다.</p>
+       <p>그러나 <b>4분기(12월·1월·2월)</b>에 들어서면 더 들어올 수납이 사실상 없습니다.
+         이때부터 모자라면 그 몫은 끝내 어린이집이 부담하게 됩니다.
+         <b>그래서 12월 지출부터만 알립니다.</b></p>
+       <table><thead><tr><th style="width:150px">지출일</th><th>잔액이 모자랄 때</th></tr></thead><tbody>
+         <tr><td>3월 ~ 11월</td><td>알리지 않습니다. 다음 분기 수납으로 메워지는 것이 보통입니다.</td></tr>
+         <tr><td><b>12월 ~ 익년 2월</b></td><td><b>알립니다.</b> 모자란 금액과 그 원아를 짚어 줍니다.</td></tr>
+       </tbody></table>
+
+       <h4 style="margin:12px 0 4px">알림이 떴을 때 할 수 있는 것</h4>
+       <ol>
+         <li><b>그대로 등록한다</b> — 가장 흔합니다. 모자란 몫을 어린이집이 부담하는 것으로 정리됩니다.</li>
+         <li><b>「필요경비 부담분」을 낮춘다</b> — 모자란 만큼을 운영비 부담분으로 돌리면
+           그 금액이 애초에 원아에게 배분되지 않습니다. 회계상 더 깔끔한 쪽입니다.</li>
+         <li><b>지출 금액 자체를 다시 본다</b> — 잘못 적은 것은 아닌지 확인합니다.</li>
+       </ol>
+       <p>12월이 지나면 <b>검증</b> 탭에서도 세목별로 잔액이 모자란 원아를 한 번에 볼 수 있습니다.</p>` },
 
   { g:"정산·보고", q:"표 머리의 (A) (B) (C)는 무슨 뜻인가요?",
     k:"기호 A B C 계산식 산식 머리칸 어떻게 나온 숫자",
@@ -4181,7 +4325,34 @@ function manualFull(sources){
   <blockquote>100,000원을 3명에게 나누면 1인당 33,333원이고 남는 1원은 <b>앞 순번 1명에게 더</b> 붙습니다.
     그래서 <b>배분 합계가 필요경비 부담분과 1원도 어긋나지 않습니다.</b>
     어긋나거나 대상이 없으면 <b>저장 버튼 자체가 잠깁니다.</b></blockquote>
-  <h3>④ 나중에 고치기</h3>
+  <h3>④ 잔액이 모자랄 때 — 12월부터 알립니다</h3>
+  <p>보호자에게 받아 둔 돈보다 더 쓰는 일은 실무에서 자주 있습니다.
+    그 모자란 몫은 보호자에게 더 받을 수 없으므로 <b>어린이집 운영비에서 나갑니다.</b></p>
+  <div class="warn"><p><b>이 알림은 등록을 막지 않습니다.</b> 그대로 등록하셔도 됩니다.
+    「이만큼은 어린이집 돈으로 나간다」고 미리 알려 드리는 것뿐입니다.</p></div>
+  <table>
+    <thead><tr><th style="width:150px">지출일</th><th>잔액이 모자랄 때</th></tr></thead>
+    <tbody>
+      <tr><td>3월 ~ 11월</td><td><b>알리지 않습니다.</b> 3월에 한 학기치를 걷어 두고 쓰다 보면
+        초반에 잔액이 마이너스인 것은 오히려 흔하고, 다음 분기 수납이 들어오면 저절로 메워집니다.
+        그때마다 경고하면 헛경고만 쌓입니다.</td></tr>
+      <tr><td><b>12월 ~ 익년 2월</b><br><span class="hint">(4분기)</span></td>
+        <td><b>알립니다.</b> 이때부터는 더 들어올 수납이 사실상 없어, 모자라면 끝내 어린이집이
+        부담하게 되기 때문입니다. 모자란 금액과 그 원아를 짚어 줍니다.</td></tr>
+    </tbody>
+  </table>
+  <p>알림이 떴을 때 할 수 있는 것은 셋입니다.</p>
+  <ol>
+    <li><b>그대로 등록</b> — 가장 흔합니다. 모자란 몫을 어린이집이 부담하는 것으로 정리됩니다.</li>
+    <li><b>「필요경비 부담분」을 낮추기</b> — 모자란 만큼을 운영비 부담분으로 돌리면
+      그 금액이 애초에 원아에게 배분되지 않습니다. 회계상 더 깔끔한 쪽입니다.</li>
+    <li><b>지출 금액을 다시 보기</b> — 잘못 적은 것은 아닌지 확인합니다.</li>
+  </ol>
+  <blockquote>보호자 서류에는 <b>마이너스가 찍히지 않습니다.</b> 남은 금액은 0에서 멈추고,
+    넘긴 몫은 「어린이집 부담 ○○원」으로 따로 적힙니다.
+    정산서에 마이너스가 섞이면 보호자도 어린이집도 읽기 어려워지기 때문입니다.</blockquote>
+
+  <h3>⑤ 나중에 고치기</h3>
   <p>아래 <b>지출 내역</b>에서 <b>「수정」</b>을 누르면 그 건이 그대로 올라옵니다.
     <b>몇 번이든, 정산서를 뽑은 뒤라도</b> 고칠 수 있고, 고치면 대장·정산서·보고서가 전부 다시 계산됩니다.</p>
   <p><b>「명단」</b> 버튼을 누르면 그 건의 참여원아 명단이 나옵니다. <b>인쇄해서 지출결의서에 첨부</b>하면 배분 근거가 됩니다.</p>
@@ -4266,6 +4437,8 @@ function manualFull(sources){
       <tr><td><b>오류</b></td><td>반드시 고쳐야 합니다. 「이동」을 눌러 그 자리로 갑니다.</td></tr>
       <tr><td><b>주의</b></td><td>확인이 필요합니다. 사정에 따라 정상일 수도 있습니다.</td></tr>
       <tr><td><b>기록</b></td><td>정산 화면에서 사유를 달아 결정한 내용입니다. 근거로 남깁니다.</td></tr>
+      <tr><td colspan="2"><b>12월이 지나면</b> 세목별로 <b>잔액이 모자란 원아</b>가 「주의」로 함께 나옵니다.
+        모자란 몫은 어린이집 운영비 부담입니다.</td></tr>
     </tbody>
   </table>
   <p>대사는 이렇게 맞춰 봅니다.</p>
@@ -4354,6 +4527,9 @@ function manualQuick(sources){
   <blockquote>재원기간 밖인 아이는 <b>회색으로 잠겨</b> 고를 수 없습니다.<br>
     나눠떨어지지 않으면 <b>남는 1원을 앞 순번에 붙여</b> 합계를 정확히 맞춥니다.<br>
     등록한 건은 <b>언제든 「수정」</b>할 수 있습니다.</blockquote>
+  <div class="warn"><p><b>12월부터</b> 잔액이 모자라면 알림이 뜹니다.
+    <b>막는 것이 아니니 그대로 등록하셔도 됩니다.</b> 모자란 몫은 어린이집 운영비에서 나가고,
+    보호자 서류에는 마이너스가 찍히지 않습니다. (3~11월에는 다음 분기 수납으로 메워지므로 알리지 않습니다)</p></div>
 
   <h2>서류가 필요할 때</h2>
   <table>

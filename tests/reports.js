@@ -183,6 +183,34 @@ const SEED = {
   check("검증 대사에 전입금 충당 줄이 나옴",
     /전입금 충당 \(위탁 원아 몫\)/.test(recon) && /수입 합계/.test(recon), recon.slice(0, 160));
 
+  /* 4분기 잔액 부족 알림 — 12월부터만 뜨고, 등록을 막지는 않는다 */
+  async function 부족알림(date, total){
+    await p.click('nav button[data-tab="expense"]');
+    await p.waitForTimeout(300);
+    await p.fill("#e_date", date);
+    await p.waitForTimeout(250);
+    await p.selectOption("#e_item", "it_field");
+    await p.waitForTimeout(300);
+    await p.fill("#e_total", String(total));
+    await p.dispatchEvent("#e_total", "change");
+    await p.click("#e_allNeed");
+    await p.waitForTimeout(200);
+    await p.locator("#e_pick .pk-class").first().locator('[data-a="g-all"]').click();
+    await p.waitForTimeout(400);
+    return { 알림: /잔액이 모자랍니다/.test(await p.textContent("#e_preview")),
+             잠김: await p.locator("#e_save").isDisabled() };
+  }
+  const nov = await 부족알림("2026-11-20", 5000000);
+  check("3분기(11월)에는 잔액이 모자라도 알리지 않음", !nov.알림 && !nov.잠김,
+    JSON.stringify(nov));
+  const dec = await 부족알림("2026-12-20", 5000000);
+  check("4분기(12월)에는 잔액이 모자라면 알림", dec.알림, JSON.stringify(dec));
+  check("알림이 떠도 지출 등록을 막지 않음", !dec.잠김, JSON.stringify(dec));
+  const prev = flat(await p.textContent("#e_preview"));
+  check("모자란 몫이 운영비 부담이라고 알려 줌",
+    /어린이집 운영비에서 부담/.test(prev) && /그대로 등록해도 됩니다/.test(prev),
+    prev.slice(prev.indexOf("잔액이 모자랍니다"), prev.indexOf("잔액이 모자랍니다") + 120));
+
   // ================= 반환 정산서 (전 원아) =================
   await p.click('nav button[data-tab="settle"]');
   await p.waitForTimeout(300);
