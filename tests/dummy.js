@@ -95,7 +95,7 @@ const OUT = process.env.SHOT_DIR || "./";
   await p.waitForTimeout(350);
   const ex = flat(await p.textContent("#st_sheet"));
   check("중간퇴소 정산서 — 반환할 금액", /반환할 금액/.test(ex) && !/기 반환/.test(ex), ex.slice(0,200));
-  check("정산 내역이 표로 맨 앞에", /정산 내역 세목보호자 수납액 실 사용금액 반환할 금액/.test(ex) && ex.indexOf("정산 내역") < ex.indexOf("산출 근거"), ex.slice(ex.indexOf("정산 내역"), ex.indexOf("정산 내역")+150));
+  check("정산 내역이 표로 맨 앞에", /정산 내역 세목 ?보호자 수납액\(A\) 실 사용금액\(B\) 반환할 금액\(C = A − B\)/.test(ex) && ex.indexOf("정산 내역") < ex.indexOf("산출 근거"), ex.slice(ex.indexOf("정산 내역"), ex.indexOf("정산 내역")+150));
   await p.screenshot({ path: OUT+"d-exit.png", fullPage: true });
 
   // 대장

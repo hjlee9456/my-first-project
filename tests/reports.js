@@ -114,7 +114,7 @@ const SEED = {
   check("현장학습비 반환할 금액 95,000 (120,000 − 25,000)", /95,000/.test(sheet));
   check("입학준비금은 협의 표시", /협의/.test(sheet));
   check("정산 내역이 표로 맨 앞에 나옴",
-    /정산 내역 세목보호자 수납액 실 사용금액 반환할 금액/.test(sheet) && sheet.indexOf("정산 내역") < sheet.indexOf("산출 근거"),
+    /정산 내역 세목 ?보호자 수납액\(A\) 실 사용금액\(B\) 반환할 금액\(C = A − B\)/.test(sheet) && sheet.indexOf("정산 내역") < sheet.indexOf("산출 근거"),
     sheet.slice(sheet.indexOf("정산 내역"), sheet.indexOf("정산 내역") + 170));
   check("반환금 확정 버튼은 없음", (await p.locator("#ex_fix").count()) === 0);
 

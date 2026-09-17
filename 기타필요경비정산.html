@@ -151,6 +151,11 @@ table.ledger th,table.ledger td{padding:3px 5px}
 .faq .ans{padding:11px 13px 13px 30px;border-top:1px solid var(--line2);font-size:13.5px;line-height:1.85}
 .faq .ans ol,.faq .ans ul{margin:6px 0;padding-left:20px}
 
+/* 표 머리의 계산 기호 */
+.sym{display:block;font-weight:700;color:var(--accent);font-size:11px;
+  margin-top:2px;letter-spacing:.2px;white-space:nowrap}
+th .sym{opacity:.95}
+
 /* ---------- 인쇄 ---------- */
 .printhead{display:none}
 .printhead h1{font-size:19px;text-align:center;margin-bottom:6px}
@@ -372,6 +377,39 @@ const GROUPS = {
 };
 
 function uid(p){ return (p||"id") + "_" + Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-3); }
+
+/**
+ * 표 머리에 기호를 붙인다 — 어느 칸을 어떻게 더하고 뺀 값인지 눈으로 따라가라고.
+ *   col("수납액", "A")              → 수납액 (A)
+ *   col("남은 금액", "D = A + B − C") → 남은 금액 (D = A + B − C)
+ * 화면과 인쇄물에 똑같이 나온다.
+ */
+/* 세목처럼 개수가 정해지지 않은 칸에 붙이는 기호 */
+const MARKS = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨", "⑩", "⑪", "⑫"];
+
+/**
+ * 「이월 + 수납 + 전입금 − 사용 = 남은 금액」 꼴의 금액 칸에 A·B·C… 를 매긴다.
+ * 이월과 전입금 칸은 있을 때도 없을 때도 있어 글자가 밀리므로 여기서 한 번에 계산한다.
+ *
+ *   moneyCols(true, true) → [["이월","A"],["보호자 수납액","B"],["전입금 충당","C"],
+ *                            ["실 사용금액","D"],["남은 금액","E = A + B + C − D"]]
+ */
+function moneyCols(hasCarry, hasTransfer, paidLabel, usedLabel){
+  const L = "ABCDE".split("");
+  const out = [];
+  if (hasCarry)    out.push(["이월", L[out.length]]);
+  out.push([paidLabel || "수납액", L[out.length]]);
+  if (hasTransfer) out.push(["전입금 충당", L[out.length]]);
+  out.push([usedLabel || "실 사용금액", L[out.length]]);
+  const plus  = out.slice(0, out.length - 1).map(c => c[1]).join(" + ");
+  const minus = out[out.length - 1][1];
+  out.push(["남은 금액", `${L[out.length]} = ${plus} − ${minus}`]);
+  return out;
+}
+
+function col(label, sym){
+  return esc(label) + (sym ? `<span class="sym">(${esc(sym)})</span>` : "");
+}
 function won(n){ return (Number(n)||0).toLocaleString("ko-KR"); }
 function num(v){
   const s = String(v ?? "").replace(/[^0-9-]/g, "");
@@ -2065,10 +2103,10 @@ function renderExpense(root){
       <label class="f grow">적요<input id="e_summary" value="${esc(f.summary)}" placeholder="예: 곰돌이 상하세트 구입"></label>
     </div>
     <div class="row">
-      <label class="f">지출결의서 총액<input class="money" id="e_total" value="${won(f.total)}" style="width:130px"></label>
-      <label class="f">필요경비 부담분<input class="money" id="e_need" value="${won(f.needAmount)}" style="width:130px"></label>
+      <label class="f">지출결의서 총액 (A)<input class="money" id="e_total" value="${won(f.total)}" style="width:130px"></label>
+      <label class="f">필요경비 부담분 (B)<input class="money" id="e_need" value="${won(f.needAmount)}" style="width:130px"></label>
       <button class="b" id="e_allNeed" style="margin-bottom:1px">전액 필요경비</button>
-      <label class="f">운영비 부담분 (자동)<input class="money" id="e_oper" readonly style="width:130px"></label>
+      <label class="f">운영비 부담분 (C = A − B)<input class="money" id="e_oper" readonly style="width:150px"></label>
       <label class="f grow">비고<input id="e_memo" value="${esc(f.memo || "")}"></label>
     </div>
     <div id="e_split"></div>
@@ -2311,9 +2349,9 @@ function openTargetListModal(expenseId, focusChildId){
       <tr><th>세목</th><td>${esc(itemName(ex.itemId))}</td>
           <th>대상 인원</th><td>${n}명</td></tr>
       <tr><th>적요</th><td colspan="3" class="ui-prose">${esc(ex.summary || "-")}</td></tr>
-      <tr><th>지출결의서 총액</th><td class="n">${won(ex.total)}원</td>
-          <th>필요경비 부담분</th><td class="n">${won(ex.needAmount)}원</td></tr>
-      <tr><th>운영비 부담분</th><td class="n">${won(ex.operAmount || 0)}원</td>
+      <tr><th>${col("지출결의서 총액", "A")}</th><td class="n">${won(ex.total)}원</td>
+          <th>${col("필요경비 부담분", "B")}</th><td class="n">${won(ex.needAmount)}원</td></tr>
+      <tr><th>${col("운영비 부담분", "C = A − B")}</th><td class="n">${won(ex.operAmount || 0)}원</td>
           <th>1인당 배분</th><td class="n">${won(r > 0 ? q + 1 : q)}원${r > 0 ? ` (뒤 ${won(n - r)}명은 ${won(q)}원)` : ""}</td></tr>
       ${ex.memo ? `<tr><th>비고</th><td colspan="3" class="ui-prose">${esc(ex.memo)}</td></tr>` : ""}
     </table>
@@ -2390,10 +2428,10 @@ function renderChild(root){
   const hasConsign = cps.length > 0;
   const t = el(`<table style="margin-top:12px"><thead><tr>
     <th style="width:180px">세목</th><th style="width:180px">구분</th>
-    <th class="n" style="width:120px">보호자 수납</th>
-    ${hasConsign ? '<th class="n" style="width:120px">전입금 충당</th>' : ""}
-    <th class="n" style="width:120px">사용</th>
-    <th class="n" style="width:130px">남은 금액</th>
+    <th class="n" style="width:120px">${col("보호자 수납", "A")}</th>
+    ${hasConsign ? `<th class="n" style="width:120px">${col("전입금 충당", "B")}</th>` : ""}
+    <th class="n" style="width:120px">${col("사용", hasConsign ? "C" : "B")}</th>
+    <th class="n" style="width:150px">${col("남은 금액", hasConsign ? "D = A + B − C" : "C = A − B")}</th>
   </tr></thead><tbody></tbody></table>`);
   const tb = $("tbody", t);
   const csv = [["세목", "구분", "보호자 수납"]
@@ -2638,8 +2676,9 @@ function settleBack(host){
   const t = el(`<table class="sheet"><thead><tr>
     <th class="c" style="width:42px">순번</th><th style="width:100px">성명</th><th style="width:88px">반</th>
     <th class="c" style="width:56px">재원</th>
-    ${items.map(it => `<th class="n" style="width:105px">${esc(it.name)}</th>`).join("")}
-    <th class="n" style="width:115px">반환 합계</th><th style="width:110px">비고</th>
+    ${items.map((it, i) => `<th class="n" style="width:110px">${col(it.name, MARKS[i] || String(i + 1))}</th>`).join("")}
+    <th class="n" style="width:130px">${col("반환 합계",
+      items.map((it, i) => MARKS[i] || String(i + 1)).join(" + "))}</th><th style="width:110px">비고</th>
   </tr></thead><tbody></tbody></table>`);
   const tb = $("tbody", t);
   const csv = [["순번", "성명", "반", "재원"].concat(items.map(i => i.name), ["반환 합계", "비고"])];
@@ -2847,10 +2886,12 @@ function drawExitSheet(host, c, from, to, forcedTo, consign){
   /* ── 정산 내역 ── 받은 돈, 쓴 돈, 돌려줄 돈. 보호자가 가장 먼저 봐야 할 표 */
   const t = el(`<h3>정산 내역</h3>
     <table><thead><tr>
-      <th style="width:200px">세목</th><th class="n" style="width:130px">보호자 수납액</th>
-      ${anyConsign ? '<th class="n" style="width:130px">전입금 충당</th>' : ""}
-      <th class="n" style="width:130px">실 사용금액</th>
-      <th class="n" style="width:140px">반환할 금액</th>
+      <th style="width:200px">세목</th>
+      <th class="n" style="width:130px">${col("보호자 수납액", "A")}</th>
+      ${anyConsign ? `<th class="n" style="width:130px">${col("전입금 충당", "B")}</th>` : ""}
+      <th class="n" style="width:130px">${col("실 사용금액", anyConsign ? "C" : "B")}</th>
+      <th class="n" style="width:160px">${col("반환할 금액",
+        anyConsign ? "D = A + B − C" : "C = A − B")}</th>
     </tr></thead><tbody></tbody></table>`);
   const tb = $("tbody", t);
 
@@ -3005,18 +3046,16 @@ function settleHalf(host){
 
   const anyConsign = stats.some(x => x.s.consign);
   const cols = []
-    .concat(spec.carry ? ["이월"] : [])
-    .concat(["보호자 수납액"])
-    .concat(anyConsign ? ["전입금 충당"] : [])
-    .concat(["실 사용금액", "남은 금액"]);
+    /* 어느 칸을 더하고 빼서 「남은 금액」이 나오는지 기호로 적어 둔다 */
+    .concat(moneyCols(spec.carry, anyConsign, "보호자 수납액"));
 
   const t = el(`<table class="sheet"><thead><tr>
     <th style="width:170px">세목</th><th style="width:170px">계정과목</th>
     <th class="c" style="width:70px">수납 인원</th><th class="c" style="width:70px">지출 건수</th>
-    ${cols.map(c2 => `<th class="n" style="width:115px">${esc(c2)}</th>`).join("")}
+    ${cols.map(c2 => `<th class="n" style="width:130px">${col(c2[0], c2[1])}</th>`).join("")}
   </tr></thead><tbody></tbody></table>`);
   const tb = $("tbody", t);
-  const csv = [["세목", "계정과목", "수납 인원", "지출 건수"].concat(cols)];
+  const csv = [["세목", "계정과목", "수납 인원", "지출 건수"].concat(cols.map(c2 => c2[0]))];
   const tot = { carry: 0, paid: 0, used: 0, consign: 0, left: 0, count: 0 };
 
   for (const x of stats) {
@@ -3030,7 +3069,7 @@ function settleHalf(host){
       .concat([s.used + s.consign, s.left]);
     tb.appendChild(el(`<tr>
       <td>${esc(x.it.name)}</td><td><span class="tag">${esc(g.income || x.it.group)}</span></td>
-      <td class="c">${s.payers}명</td><td class="c">${s.count}건</td>
+      <td class="c">${won(s.payers)}명</td><td class="c">${won(s.count)}건</td>
       ${cells.map((n, j) => `<td class="n" ${j === cells.length - 1 && n < 0 ? 'style="color:var(--bad)"' : ""}>${won(n)}</td>`).join("")}
     </tr>`));
     csv.push([x.it.name, g.income || x.it.group, s.payers, s.count].concat(cells));
@@ -3041,7 +3080,7 @@ function settleHalf(host){
     .concat(anyConsign ? [tot.consign] : [])
     .concat([tot.used + tot.consign, tot.left]);
   tb.appendChild(el(`<tr class="sum"><td colspan="3" class="c">합계</td>
-    <td class="c">${tot.count}건</td>
+    <td class="c">${won(tot.count)}건</td>
     ${sumCells.map(n => `<td class="n">${won(n)}</td>`).join("")}</tr>`));
   csv.push(["합계", "", "", tot.count].concat(sumCells));
   body.appendChild(t);
@@ -3060,10 +3099,12 @@ function settleHalf(host){
   if (burden.total) {
     body.appendChild(el(`<h3>어린이집 부담</h3>
       <table class="sheet" style="max-width:520px"><tbody>
-        <tr><th style="width:280px">운영비 부담분</th><td class="n">${won(burden.oper)}원</td></tr>
-        ${burden.fee ? `<tr><th>카드수수료${burden.feeCounted ? "" : " (수납액에서 이미 뺀 몫)"}</th>
+        <tr><th style="width:300px">${col("운영비 부담분", "A")}</th><td class="n">${won(burden.oper)}원</td></tr>
+        ${burden.fee ? `<tr><th>${col("카드수수료" + (burden.feeCounted ? "" : " (수납액에서 이미 뺀 몫)"),
+          burden.feeCounted ? "B" : "참고")}</th>
           <td class="n">${won(burden.fee)}원</td></tr>` : ""}
-        <tr class="sum"><th>합계</th><td class="n">${won(burden.total)}원</td></tr>
+        <tr class="sum"><th>${col("합계", burden.fee && burden.feeCounted ? "A + B" : "")}</th>
+          <td class="n">${won(burden.total)}원</td></tr>
       </tbody></table>`));
   }
 
@@ -3207,11 +3248,8 @@ function noticeSheet(c, spec, fy, withDetail){
     </tbody></table>
     <table style="margin-top:10px"><thead><tr>
       <th style="width:170px">세목</th>
-      ${spec.carry ? '<th class="n" style="width:105px">이월</th>' : ""}
-      <th class="n" style="width:105px">수납액</th>
-      ${anyConsign ? '<th class="n" style="width:105px">전입금 충당</th>' : ""}
-      <th class="n" style="width:105px">실 사용금액</th>
-      <th class="n" style="width:115px">남은 금액</th>
+      ${moneyCols(spec.carry, anyConsign).map((c2, i, arr) =>
+        `<th class="n" style="width:${i === arr.length - 1 ? 145 : 108}px">${col(c2[0], c2[1])}</th>`).join("")}
     </tr></thead><tbody>
       ${rows.map(r => {
         const left = r.carry + r.b.paid - r.b.used;
@@ -3476,21 +3514,23 @@ function renderCheck(root){
     <h2>검증</h2>
     <h3>대사</h3>
     <table style="max-width:620px"><tbody>
-      <tr><th style="width:300px">보호자 수납 합계 (221목·211목)</th><td class="n">${won(paidTotal)}원</td></tr>
-      ${transferTotal ? `<tr><th>전입금 충당 (위탁 원아 몫)</th><td class="n">${won(transferTotal)}원</td></tr>
-      <tr><th>수입 합계</th><td class="n">${won(paidTotal + transferTotal)}원</td></tr>` : ""}
-      <tr><th>원아 배분 합계 (421목·411목 중 필요경비 부담분)</th><td class="n">${won(usedTotal)}원</td></tr>
-      <tr class="sum"><th>남은 금액 (보호자에게 돌려줄 몫)</th><td class="n">${won(paidTotal + transferTotal - usedTotal)}원</td></tr>
+      <tr><th style="width:330px">${col("보호자 수납 합계 (221목·211목)", "A")}</th><td class="n">${won(paidTotal)}원</td></tr>
+      ${transferTotal ? `<tr><th>${col("전입금 충당 (위탁 원아 몫)", "B")}</th><td class="n">${won(transferTotal)}원</td></tr>
+      <tr><th>${col("수입 합계", "C = A + B")}</th><td class="n">${won(paidTotal + transferTotal)}원</td></tr>` : ""}
+      <tr><th>${col("원아 배분 합계 (421목·411목 중 필요경비 부담분)", transferTotal ? "D" : "B")}</th><td class="n">${won(usedTotal)}원</td></tr>
+      <tr class="sum"><th>${col("남은 금액 (보호자에게 돌려줄 몫)",
+        transferTotal ? "E = C − D" : "C = A − B")}</th><td class="n">${won(paidTotal + transferTotal - usedTotal)}원</td></tr>
     </tbody></table>
     <div class="hint" style="margin-top:6px">위탁 원아는 보호자 대신 <b>전입금</b>이 들어오므로, 그 달 지출액과 같은 금액을 수입으로 잡습니다. 그래서 <b>수입 합계와 배분 합계의 차이가 곧 보호자에게 돌려줄 몫</b>이 됩니다.</div>
 
     <h3>어린이집 부담</h3>
     <table style="max-width:620px"><tbody>
-      <tr><th style="width:300px">운영비 부담분</th><td class="n">${won(cb.oper)}원</td></tr>
-      <tr><th>카드수수료 (${esc(CARD_FEE_MODES[cardFeeMode()].label)}${cb.feeCounted ? "" : " — 수납액에서 이미 뺀 몫"})</th>
+      <tr><th style="width:330px">${col("운영비 부담분", "A")}</th><td class="n">${won(cb.oper)}원</td></tr>
+      <tr><th>${col(`카드수수료 (${CARD_FEE_MODES[cardFeeMode()].label}${cb.feeCounted ? "" : " — 수납액에서 이미 뺀 몫"})`,
+        cb.feeCounted ? "B" : "참고")}</th>
           <td class="n">${won(cb.fee)}원</td></tr>
-      <tr><th>배분 단수차</th><td class="n">${won(cb.rounding)}원</td></tr>
-      <tr class="sum"><th>합계</th><td class="n">${won(cb.total)}원</td></tr>
+      <tr><th>${col("배분 단수차", cb.feeCounted ? "C" : "B")}</th><td class="n">${won(cb.rounding)}원</td></tr>
+      <tr class="sum"><th>${col("합계", cb.feeCounted ? "D = A + B + C" : "C = A + B")}</th><td class="n">${won(cb.total)}원</td></tr>
     </tbody></table>
     <div class="hint" style="margin-top:6px">${cb.feeCounted
       ? "총액 방식이므로 카드수수료는 운영비에서 따로 나간 몫으로 합계에 넣었습니다."
@@ -3761,6 +3801,17 @@ const FAQ = [
        <p>그래서 이 프로그램은 <b>모든 계산을 세목 단위로만</b> 하고, 세목 간 합산이나 상계를 <b>구조적으로 불가능하게</b> 만들어 두었습니다. 잔액도 세목마다 따로 나옵니다.</p>`,
     law:"사회복지법인 및 사회복지시설 재무·회계 규칙 제15조 · 부록 47p" },
 
+  { g:"정산·보고", q:"표 머리의 (A) (B) (C)는 무슨 뜻인가요?",
+    k:"기호 A B C 계산식 산식 머리칸 어떻게 나온 숫자",
+    a:`<p>금액이 계산되어 나오는 표는 머리칸에 기호가 붙습니다.
+         <b>어느 칸을 더하고 빼서 그 숫자가 나왔는지</b> 바로 알 수 있게 한 것입니다.</p>
+       <p>예를 들어 「남은 금액 <b>(D = A + B − C)</b>」이면
+         <b>수납액(A) + 전입금 충당(B) − 실 사용금액(C)</b>이라는 뜻입니다.</p>
+       <p>칸이 있을 때와 없을 때가 있습니다. <b>이월</b>은 3월이 아닌 달부터 정산할 때만,
+         <b>전입금 충당</b>은 위탁 원아가 있을 때만 나오고, 그에 맞춰 기호도 밀립니다.
+         반환 정산서처럼 세목이 가로로 늘어선 표는 세목마다 <b>① ② ③</b>이 붙습니다.</p>
+       <p>화면과 인쇄물에 똑같이 나오므로, 운영위원회나 감사에서 물어보면 그 표를 그대로 보여 주시면 됩니다.</p>` },
+
   { g:"정산·보고", q:"정산서·보고서를 인쇄하면 어린이집 이름이 안 나옵니다.",
     k:"기관명 어린이집 이름 인쇄 머리글 첫화면",
     a:`<p>어린이집 이름은 <b>맨 처음 화면</b>(프로그램을 고르는 화면)에서 정합니다.
@@ -3991,7 +4042,26 @@ function manualFull(sources){
       원아·수납·지출 기록을 전부 지웁니다. 되돌릴 수 없습니다.</p>
   </div>
 
-  <h2>3. 회계연도와 반기 — 날짜 기준</h2>
+  <h2>3. 표 머리의 (A) (B) (C) — 계산식 읽는 법</h2>
+  <p>금액이 계산되어 나오는 표는 <b>머리칸에 기호가 붙어</b> 있습니다.
+    어느 칸을 더하고 빼서 그 숫자가 나왔는지 눈으로 따라갈 수 있습니다.</p>
+  <table>
+    <thead><tr><th>${col("수납액", "A")}</th><th>${col("전입금 충당", "B")}</th>
+      <th>${col("실 사용금액", "C")}</th><th>${col("남은 금액", "D = A + B − C")}</th></tr></thead>
+    <tbody><tr><td class="n">2,277,318</td><td class="n">58,000</td>
+      <td class="n">2,248,400</td><td class="n">86,918</td></tr></tbody>
+  </table>
+  <p>위 표는 <code>2,277,318 + 58,000 − 2,248,400 = 86,918</code>이라는 뜻입니다.</p>
+  <ul>
+    <li>칸이 있을 때와 없을 때가 있습니다. <b>이월</b>은 3월이 아닌 달부터 정산할 때만,
+      <b>전입금 충당</b>은 위탁 원아가 있을 때만 나옵니다. 그에 맞춰 기호도 밀립니다.</li>
+    <li>반환 정산서처럼 세목이 가로로 늘어선 표는 세목마다 <b>① ② ③</b>이 붙고,
+      합계 칸에 <b>① + ② + ③</b>이라고 적힙니다.</li>
+  </ul>
+  <p><b>화면과 인쇄물에 똑같이 나옵니다.</b> 운영위원회나 감사에서 「이 숫자 어떻게 나온 거냐」는
+    물음에 표 하나로 답할 수 있습니다.</p>
+
+  <h2>4. 회계연도와 반기 — 날짜 기준</h2>
   <ul>
     <li><b>회계연도</b> : 3월 1일 ~ 익년 2월 말일</li>
     <li><b>상반기</b> : 3월 ~ 8월</li>
@@ -4001,7 +4071,7 @@ function manualFull(sources){
   <p>회계연도마다 장부가 <b>따로 보관</b>됩니다. 새 회계연도를 시작해도 지난 해 자료는 그대로 남고,
     맨 위 <b>회계연도</b>를 지난 해로 바꾸면 그때 대장·정산서를 언제든 다시 뽑을 수 있습니다.</p>
 
-  <h2>4. 맨 처음 한 번만 — 기초설정</h2>
+  <h2>5. 맨 처음 한 번만 — 기초설정</h2>
   <p><b>기초설정</b> 탭에서 위에서부터 차례로 채우시면 됩니다.</p>
 
   <h3>① 어린이집 이름</h3>
@@ -4057,7 +4127,7 @@ function manualFull(sources){
     수납 입력·지출 등록에서 <b>「명단 불러오기」</b> 한 번이면 체크가 끝납니다.
     불러온 뒤 그 건에서만 빼거나 더할 수 있습니다.</p>
 
-  <h2>5. 수납 입력 — 받은 돈 적기</h2>
+  <h2>6. 수납 입력 — 받은 돈 적기</h2>
   <p><b>수납결의서 1건을 그대로 옮겨 적는</b> 화면입니다. 한 결의서에 여러 원아가 섞여 있어도 됩니다.
     화면이 1 → 2 → 3 순서로 되어 있으니 위에서부터 채우시면 됩니다.</p>
 
@@ -4092,7 +4162,7 @@ function manualFull(sources){
   <p>이미 저장한 것은 아래 <b>수납결의서 내역</b>에서 <b>「수정」</b>으로 언제든 고칠 수 있습니다.
     결의서를 지우면 거기서 파생된 원아별 수납 기록도 함께 사라집니다.</p>
 
-  <h2>6. 지출 등록 — 이 프로그램의 심장</h2>
+  <h2>7. 지출 등록 — 이 프로그램의 심장</h2>
   <p><b>대장을 채우는 곳은 여기 하나뿐입니다.</b> 지출결의서 1건을 그대로 옮겨 적으면 나머지는 전부 자동입니다.</p>
   <h3>① 금액 나누기</h3>
   <table>
@@ -4116,7 +4186,7 @@ function manualFull(sources){
     <b>몇 번이든, 정산서를 뽑은 뒤라도</b> 고칠 수 있고, 고치면 대장·정산서·보고서가 전부 다시 계산됩니다.</p>
   <p><b>「명단」</b> 버튼을 누르면 그 건의 참여원아 명단이 나옵니다. <b>인쇄해서 지출결의서에 첨부</b>하면 배분 근거가 됩니다.</p>
 
-  <h2>7. 원아별 현황 — 이 아이는 얼마가 남았나</h2>
+  <h2>8. 원아별 현황 — 이 아이는 얼마가 남았나</h2>
   <p><b>반을 먼저 고르고 그 반의 아이를 고르면</b> 세목별로 수납·사용·남은 금액이 나옵니다.</p>
   <table>
     <thead><tr><th style="width:140px">칸</th><th>무엇인가</th></tr></thead>
@@ -4132,7 +4202,7 @@ function manualFull(sources){
   <blockquote>세목 간 상계는 하지 않습니다. 현장학습비가 남았다고 행사비 부족분에 쓸 수 없습니다.
     (재무회계규칙 제15조 — 예산의 목적 외 사용 금지)</blockquote>
 
-  <h2>8. 정산·보고 — 서류 뽑기</h2>
+  <h2>9. 정산·보고 — 서류 뽑기</h2>
   <div class="intro">이 프로그램은 <b>반환할 금액을 계산해 정산서를 뽑는 데까지</b>가 역할입니다.
     실제 계좌 이체와 회계 처리는 정산서를 보고 어린이집에서 진행하시면 됩니다.</div>
 
@@ -4168,7 +4238,7 @@ function manualFull(sources){
   <div class="warn"><p><b>위탁 원아는 정반대입니다.</b> 남은 돈을 보호자에게 반환하지 않고
     <b>보육교사 인건비·운영비로 충당</b>합니다. 이용을 중단한 경우에도 같습니다. 프로그램이 자동으로 안내합니다.</p></div>
 
-  <h2>9. 대장 — 기존 양식 그대로</h2>
+  <h2>10. 대장 — 기존 양식 그대로</h2>
   <p>가로줄이 아이와 계정과목, 세로줄이 3월부터 익년 2월까지 12개월입니다.
     구분 드롭다운에서 <b>세 가지</b> 중 하나를 고릅니다.</p>
   <table>
@@ -4187,7 +4257,7 @@ function manualFull(sources){
   <blockquote>인쇄하면 <b>가로 용지</b>로 나갑니다. 장이 넘어가도 머리행과 <b>반·순번·아동</b>이
     새 장에 다시 찍히므로, 뒷장만 봐도 누구 것인지 알 수 있습니다.</blockquote>
 
-  <h2>10. 검증 — 뽑기 전에 한 번 보기</h2>
+  <h2>11. 검증 — 뽑기 전에 한 번 보기</h2>
   <p>서류를 내기 전에 <b>검증</b> 탭을 한 번 눌러 보세요. 대사 숫자와 어린이집 부담이 나오고,
     걸리는 것이 있으면 목록으로 알려 줍니다.</p>
   <table>
@@ -4212,7 +4282,7 @@ function manualFull(sources){
   <blockquote>위탁 원아가 있어도 <b>수입과 지출이 맞아떨어집니다.</b>
     전입금이 수입과 지출 양쪽에 같은 금액으로 들어가 서로 상쇄되기 때문입니다.</blockquote>
 
-  <h2>11. 새 학년도 시작 — 마감과 승계</h2>
+  <h2>12. 새 학년도 시작 — 마감과 승계</h2>
   <p>3월이 되면 <b>기초설정 맨 아래 「새 회계연도 시작」</b>을 누르세요. 두 단계로 진행됩니다.</p>
   <ol>
     <li><b>1단계 — 반 구성.</b> 올해 반이 그대로 복사되어 있습니다. 어린이집은 해마다 반 이름과 구성이
@@ -4236,7 +4306,7 @@ function manualFull(sources){
   <blockquote>회계연도 중간에 이 프로그램을 도입한다면, <b>지나간 수납결의서와 지출을 그대로 입력</b>하시면 됩니다.
     그래야 개인별 대장과 정산서가 온전히 맞습니다.</blockquote>
 
-  <h2>12. 자주 겪는 상황</h2>
+  <h2>13. 자주 겪는 상황</h2>
   <p>구체적인 상황별 대처는 <b>사용설명서 → 🧭 상황별 안내</b>에서 검색해 보세요.
     중간입소·중간퇴소·위탁 전환·카드수수료·수납주기·나눠떨어지지 않는 금액 등
     ${FAQ.length}가지 상황을 정리해 두었습니다.</p>
