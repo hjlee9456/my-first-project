@@ -208,7 +208,8 @@ const SEED = {
   check("알림이 떠도 지출 등록을 막지 않음", !dec.잠김, JSON.stringify(dec));
   const prev = flat(await p.textContent("#e_preview"));
   check("모자란 몫이 운영비 부담이라고 알려 줌",
-    /어린이집 운영비에서 부담/.test(prev) && /그대로 등록해도 됩니다/.test(prev),
+    /어린이집 운영비에서 나가야 합니다/.test(prev) && /그대로 등록해도 됩니다/.test(prev)
+      && /대상 원아/.test(prev),
     prev.slice(prev.indexOf("잔액이 모자랍니다"), prev.indexOf("잔액이 모자랍니다") + 120));
 
   // ================= 반환 정산서 (전 원아) =================
