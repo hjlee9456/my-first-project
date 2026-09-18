@@ -116,7 +116,8 @@ const SEED = {
   check("정산 내역이 표로 맨 앞에 나옴",
     /정산 내역 세목 ?수납액 \(결제하신 금액\)\(A\)/.test(sheet) && /반환할 금액\(C = A − B\)/.test(sheet) && sheet.indexOf("정산 내역") < sheet.indexOf("산출 근거"),
     sheet.slice(sheet.indexOf("정산 내역"), sheet.indexOf("정산 내역") + 170));
-  check("반환금 확정 버튼은 없음", (await p.locator("#ex_fix").count()) === 0);
+  check("옛 「반환금 확정」 버튼은 없고 「반환 완료로 표시」가 그 자리에 있음",
+    (await p.locator("#ex_fix").count()) === 0 && (await p.locator("#ex_mark").count()) === 1);
 
   // 6월 유류비를 사유와 함께 포함시킨다
   const row = p.locator("#st_month tbody tr", { hasText: "6월 유류비" });

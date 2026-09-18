@@ -420,16 +420,19 @@ function noticeCols(hasCarry, hasTransfer, hasFee){
   return out;
 }
 
-function moneyCols(hasCarry, hasTransfer, paidLabel, usedLabel){
-  const L = "ABCDE".split("");
+function moneyCols(hasCarry, hasTransfer, paidLabel, usedLabel, hasRefund){
+  const L = "ABCDEF".split("");
   const out = [];
   if (hasCarry)    out.push(["이월", L[out.length]]);
   out.push([paidLabel || "수납액", L[out.length]]);
   if (hasTransfer) out.push(["전입금 충당", L[out.length]]);
   out.push([usedLabel || "실 사용금액", L[out.length]]);
-  const plus  = out.slice(0, out.length - 1).map(c => c[1]).join(" + ");
-  const minus = out[out.length - 1][1];
-  out.push(["남은 금액", `${L[out.length]} = ${plus} − ${minus}`]);
+  /* 이미 돌려준 돈(622목)은 수입에 남아 있으면 안 되므로 빼는 칸으로 붙인다 */
+  if (hasRefund)   out.push(["반환액", L[out.length]]);
+  const back  = hasRefund ? 2 : 1;
+  const plus  = out.slice(0, out.length - back).map(c => c[1]).join(" + ");
+  const minus = out.slice(out.length - back).map(c => c[1]).join(" − ");
+  out.push([hasRefund ? "미집행액" : "남은 금액", `${L[out.length]} = ${plus} − ${minus}`]);
   return out;
 }
 
@@ -555,7 +558,7 @@ function defaultItems(){
  * 그대로 남고, 화면 위 회계연도에서 언제든 오갈 수 있다.
  * 지금 보고 있는 연도의 자료는 S에 펼쳐 두어 코드가 S.children처럼 바로 쓴다.
  */
-const YEAR_FIELDS = ["classes", "children", "items", "rosters", "vouchers", "receipts", "expenses"];
+const YEAR_FIELDS = ["classes", "children", "items", "rosters", "vouchers", "receipts", "expenses", "refunds"];
 
 function emptyYear(){
   return {
@@ -566,6 +569,10 @@ function emptyYear(){
     vouchers: [],   // 수납결의서 1건 = { date, voucherNo, itemId, summary, lines[] }
     receipts: [],   // 결의서에서 파생된 원아별 수납 기록
     expenses: [],
+    /* 실제로 돌려준 기록. 이 프로그램이 이체를 하는 것은 아니고,
+       「언제 누구에게 얼마를 돌려줬다」만 적어 둔다. 적어 두지 않으면
+       연말 정산에서 이미 돌려준 돈이 또 「돌려줄 돈」으로 잡힌다. */
+    refunds: [],    // { id, date, childId, itemId, amount, reason, memo }
   };
 }
 
@@ -692,12 +699,12 @@ function fixYear(d){
     delete ex.cardFee;
   }
   for (const x of d.vouchers) if (typeof x.cardFee !== "number") x.cardFee = 0;
+  if (!Array.isArray(d.refunds)) d.refunds = [];
   for (const it of d.items) {
     if (!CYCLES[it.cycle]) it.cycle = defaultCycle(it);
     delete it.limit; delete it.yearLimit;
   }
   delete d.consignPays;
-  delete d.refunds;
 }
 
 function save(){
@@ -798,6 +805,67 @@ function sumReceipts(childId, itemId, from, to){
   return S.receipts.reduce((s, r) =>
     (r.childId === childId && r.itemId === itemId && inRange(r.date, from, to)) ? s + r.amount : s, 0);
 }
+/**
+ * 그 기간에 이미 돌려준 금액.
+ *
+ * 반환은 수입도 지출도 아니다. 보호자가 낸 돈(221목)을 622목 보호자반환금으로
+ * 내보내는 것이라, 수납액·사용액은 그대로 두고 「돌려줄 몫」에서만 뺀다.
+ */
+function sumRefunds(childId, itemId, from, to){
+  const end = refundTo(to);
+  return (S.refunds || []).reduce((s, r) =>
+    (r.childId === childId && (!itemId || r.itemId === itemId) && inRange(r.date, from, end))
+      ? s + r.amount : s, 0);
+}
+
+/**
+ * 반환은 정산이 끝난 뒤에 실행하므로 기간 마지막 날을 며칠 넘겨 나가는 일이 흔하다.
+ * (2월말 정산 → 3월 초 반환) 회계연도 끝까지 보는 표라면 그 뒤에 찍힌 반환도
+ * 그 해의 반환으로 본다. 반기 보고처럼 중간을 끊어 보는 표는 그대로 날짜로 자른다.
+ */
+function refundTo(to){
+  return to >= fyEnd(S.fiscalYear) ? "9999-12-31" : to;
+}
+
+/**
+ * 「반환 완료로 표시」 — 세목별 반환액을 기록으로 남긴다.
+ * 돈을 실제로 옮기는 것은 어린이집이 하고, 이 프로그램은 「언제 누구에게 얼마를
+ * 돌려줬다」는 사실만 적어 둔다. 적어 두지 않으면 연말 반환 정산서에서 이미
+ * 돌려준 돈이 또 「돌려줄 돈」으로 잡힌다.
+ */
+function markRefund(childId, date, rows, reason){
+  for (const r of rows) {
+    if (!r.amount) continue;
+    S.refunds.push({ id: uid("rf"), date, childId, itemId: r.itemId,
+                     amount: r.amount, reason: reason || "", memo: "" });
+  }
+  save();
+}
+
+/** 「반환 완료 취소」 — 잘못 눌렀거나 반환이 미뤄졌을 때 되돌린다 */
+function clearRefund(childId, from, to){
+  S.refunds = (S.refunds || []).filter(r =>
+    !(r.childId === childId && inRange(r.date, from, to)));
+  save();
+}
+
+/** 그 원아의 반환 기록들 (최근 것부터) */
+function refundRows(childId, from, to){
+  const end = refundTo(to);
+  return (S.refunds || [])
+    .filter(r => r.childId === childId && inRange(r.date, from, end))
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+/** 그 기간에 반환 기록이 있는 원아인가 — 표의 비고에 적는다 */
+function refundMark(childId, from, to){
+  const rows = refundRows(childId, from, to);
+  if (!rows.length) return "";
+  const d = rows[0].date.slice(5).replace("-", ".");
+  const tot = rows.reduce((s, r) => s + r.amount, 0);
+  return `${d} 반환완료 ${won(tot)}원`;
+}
+
 /** 그 기간에 수납한 날짜들 — 수입부 대장의 「월별 징수실적(날인)」 칸에 쓴다 */
 function receiptDates(childId, itemId, from, to){
   return S.receipts
@@ -2741,22 +2809,22 @@ function renderChild(root){
     || S.expenses.some(e => e.itemId === i.id && e.allocations.some(a => a.childId === c.id)));
 
   const hasConsign = cps.length > 0;
+  /* 중간퇴소 정산에서 이미 돌려준 돈이 있으면 「반환액」 열을 붙인다 */
+  const hasRefund = refundRows(c.id, from, to).length > 0;
+  const cols = moneyCols(false, hasConsign, "보호자 수납", "사용", hasRefund);
   const t = el(`<table style="margin-top:12px"><thead><tr>
     <th style="width:180px">세목</th><th style="width:180px">구분</th>
-    <th class="n" style="width:120px">${col("보호자 수납", "A")}</th>
-    ${hasConsign ? `<th class="n" style="width:120px">${col("전입금 충당", "B")}</th>` : ""}
-    <th class="n" style="width:120px">${col("사용", hasConsign ? "C" : "B")}</th>
-    <th class="n" style="width:150px">${col("남은 금액", hasConsign ? "D = A + B − C" : "C = A − B")}</th>
+    ${cols.map((c2, i) => `<th class="n" style="width:${i === cols.length - 1 ? 150 : 120}px">${col(c2[0], c2[1])}</th>`).join("")}
   </tr></thead><tbody></tbody></table>`);
   const tb = $("tbody", t);
-  const csv = [["세목", "구분", "보호자 수납"]
-    .concat(hasConsign ? ["전입금 충당"] : [], ["사용", "남은 금액"])];
-  let tp = 0, tu = 0, tc = 0;
+  const csv = [["세목", "구분"].concat(cols.map(c2 => c2[0]))];
+  let tp = 0, tu = 0, tc = 0, tg = 0;
 
   for (const it of items) {
     const b = balance(c.id, it.id, from, to);
-    if (!b.paid && !b.used && !b.consign) continue;
-    tp += b.paid; tu += b.totalUsed; tc += b.transferIn;
+    const gave = sumRefunds(c.id, it.id, from, to);
+    if (!b.paid && !b.used && !b.consign && !gave) continue;
+    tp += b.paid; tu += b.totalUsed; tc += b.transferIn; tg += gave;
     const over = b.used > b.paid;
     const g = GROUPS[it.group] || {};
     tb.appendChild(el(`<tr>
@@ -2765,9 +2833,12 @@ function renderChild(root){
       <td class="n">${won(b.paid)}</td>
       ${hasConsign ? `<td class="n" style="color:#5b3ca8">${b.transferIn ? won(b.transferIn) : ""}</td>` : ""}
       <td class="n">${won(b.totalUsed)}</td>
-      <td class="n" style="${over ? "color:var(--bad);font-weight:600" : ""}">${won(b.left)}${over ? " ⚠" : ""}</td>
+      ${hasRefund ? `<td class="n" style="color:var(--ok)">${gave ? won(gave) : ""}</td>` : ""}
+      <td class="n" style="${over ? "color:var(--bad);font-weight:600" : ""}">${won(b.left - gave)}${over ? " ⚠" : ""}</td>
     </tr>`));
-    csv.push([it.name, it.group, b.paid].concat(hasConsign ? [b.transferIn] : [], [b.totalUsed, b.left]));
+    csv.push([it.name, it.group, b.paid]
+      .concat(hasConsign ? [b.transferIn] : [], [b.totalUsed],
+              hasRefund ? [gave] : [], [b.left - gave]));
   }
   if (tb.children.length === 0) {
     $("#c_sum", root).innerHTML = `<div class="empty">이 원아의 수납·사용 기록이 없습니다.</div>`;
@@ -2776,9 +2847,16 @@ function renderChild(root){
       <td class="n">${won(tp)}</td>
       ${hasConsign ? `<td class="n">${won(tc)}</td>` : ""}
       <td class="n">${won(tu)}</td>
-      <td class="n">${won(tp + tc - tu)}</td></tr>`));
-    csv.push(["합계", ""].concat([tp], hasConsign ? [tc] : [], [tu, tp + tc - tu]));
+      ${hasRefund ? `<td class="n">${won(tg)}</td>` : ""}
+      <td class="n">${won(tp + tc - tu - tg)}</td></tr>`));
+    csv.push(["합계", ""].concat([tp], hasConsign ? [tc] : [], [tu],
+                                 hasRefund ? [tg] : [], [tp + tc - tu - tg]));
     $("#c_sum", root).appendChild(t);
+    if (hasRefund) $("#c_sum", root).appendChild(el(
+      `<div class="note ok">${refundRows(c.id, from, to).map(r =>
+        esc(r.date) + " " + esc(itemName(r.itemId)) + " " + won(r.amount) + "원").join(" · ")}
+       — <b>622목 보호자반환금</b>으로 이미 돌려준 금액입니다. 되돌리려면
+       <b>정산·보고 → 중간퇴소 정산</b>이나 <b>반환 정산서</b>에서 「반환 완료 취소」를 누르세요.</div>`));
     if (hasConsign) $("#c_sum", root).appendChild(el(
       `<div class="note">위탁보육료를 받는 달의 비용은 <b>보호자가 아니라 전입금으로 충당</b>됩니다.
        그래서 그 달 지출액과 같은 금액을 <b>「전입금 충당」에 수입으로도</b> 잡았습니다 — 들어온 만큼 나간 것이므로
@@ -2965,13 +3043,16 @@ function settleBack(host){
       <label class="f" style="flex-direction:row;align-items:center;gap:6px;font-size:13px;color:var(--ink)">
         <input type="checkbox" id="bk_zero" ${v.bkZero ? "checked" : ""}> 반환할 금액이 없는 원아도 표시
       </label>
+      <label class="f">반환일<input type="date" id="bk_date" value="${esc(v.bkDate || todayISO())}" style="width:150px"></label>
       <span class="grow"></span>
       <button class="b" id="bk_print">인쇄</button>
       <button class="b" id="bk_csv">CSV 저장</button>
     </div>
     <div class="hint no-print">보통 <b>2월말에 한 번</b> 뽑아 반환 처리하는 표입니다.
       세목별로 <b>수납액 − 실 사용금액 = 반환할 금액</b>을 원아마다 계산합니다.
-      실제 반환·계좌 처리는 이 표를 보고 어린이집에서 진행하시면 됩니다.<br>
+      실제 반환·계좌 처리는 이 표를 보고 어린이집에서 진행하시면 됩니다.
+      돌려준 뒤 줄 끝의 <b>반환 완료로 표시</b>를 누르면 그 금액이 이 표에서 빠지고
+      보고서의 <b>반환액</b>으로 잡힙니다. <b>반환 완료 취소</b>로 되돌릴 수 있습니다.<br>
       3월이 아닌 달부터 뽑으면 <b>이월</b> 열이 붙습니다. 이월은 <b>세목마다 따로</b> 계산해
       그 세목 칸에 이미 더해 두었으므로, 반환 합계에 또 더하지 않습니다 (참고용 열입니다).</div>
     <div id="bk_body"></div>`;
@@ -2979,6 +3060,7 @@ function settleBack(host){
   $("#bk_from", host).onchange = e => setPeriod(v, "from", e.target.value);
   $("#bk_to", host).onchange   = e => setPeriod(v, "to", e.target.value);
   $("#bk_zero", host).onchange = e => { v.bkZero = e.target.checked; render(); };
+  $("#bk_date", host).onchange = e => { v.bkDate = e.target.value; };
   wirePeriodButtons(host, v, months);
   $("#bk_print", host).onclick = () => window.print();
 
@@ -3002,15 +3084,18 @@ function settleBack(host){
     const cells = items.map(it => {
       const b = balance(c.id, it.id, spec.from, spec.to);
       const carry = carryOf(c.id, it.id);
-      const net = carry + b.left;
-      return { it, b, carry, back: Math.max(0, net), over: Math.max(0, -net) };
+      /* 이미 돌려준 몫은 「돌려줄 돈」에서 뺀다 — 안 빼면 두 번 돌려주게 된다 */
+      const gave = sumRefunds(c.id, it.id, spec.from, spec.to);
+      const net = carry + b.left - gave;
+      return { it, b, carry, gave, back: Math.max(0, net), over: Math.max(0, -net) };
     });
     return { c, cells,
              carry: cells.reduce((s, x) => s + x.carry, 0),
              back: cells.reduce((s, x) => s + x.back, 0),
+             gave: cells.reduce((s, x) => s + x.gave, 0),
              over: cells.reduce((s, x) => s + x.over, 0),
              any:  cells.some(x => x.b.paid || x.b.used || x.carry) };
-  }).filter(r => r.any && (v.bkZero || r.back > 0));
+  }).filter(r => r.any && (v.bkZero || r.back > 0 || r.gave > 0));
 
   if (!rows.length) { body.appendChild(el(`<div class="empty">반환할 금액이 있는 원아가 없습니다.</div>`)); return; }
 
@@ -3021,6 +3106,7 @@ function settleBack(host){
     ${items.map((it, i) => `<th class="n" style="width:110px">${col(it.name, MARKS[i] || String(i + 1))}</th>`).join("")}
     <th class="n" style="width:130px">${col("반환 합계",
       items.map((it, i) => MARKS[i] || String(i + 1)).join(" + "))}</th><th style="width:110px">비고</th>
+    <th class="c no-print" style="width:118px">처리</th>
   </tr></thead><tbody></tbody></table>`);
   const tb = $("tbody", t);
   const csv = [["순번", "성명", "반", "재원"]
@@ -3037,20 +3123,25 @@ function settleBack(host){
     if (r.c.leaveDate && inRange(r.c.leaveDate, spec.from, spec.to)) note.push(r.c.leaveDate.slice(5).replace("-", ".") + " 퇴소");
     if (cons) note.push("위탁");
     if (r.over) note.push(`초과 ${won(r.over)}원`);
-    tb.appendChild(el(`<tr>
+    const mark = refundMark(r.c.id, spec.from, spec.to);
+    if (mark) note.push(mark);
+    const tr = el(`<tr>
       <td class="c">${i + 1}</td><td class="ui-center">${esc(r.c.name)}</td><td class="ui-center">${cls ? esc(cls.name) : "-"}</td>
       <td class="c">${cons ? '<span class="tag consign">위탁</span>' : '<span class="tag">일반</span>'}</td>
       ${spec.carry ? `<td class="n" style="color:var(--dim)">${r.carry ? won(r.carry) : ""}</td>` : ""}
       ${r.cells.map(x => `<td class="n">${x.back ? won(x.back) : ""}</td>`).join("")}
       <td class="n"><b>${won(r.back)}</b></td>
-      <td style="font-size:11px;color:var(--warn)">${esc(note.join(" / "))}</td></tr>`));
+      <td style="font-size:11px;color:${mark ? "var(--ok)" : "var(--warn)"}">${esc(note.join(" / "))}</td>
+      <td class="c no-print" data-r="act"></td></tr>`);
+    drawRefundButton($('[data-r="act"]', tr), r, spec, v);
+    tb.appendChild(tr);
     csv.push([i + 1, r.c.name, cls ? cls.name : "", cons ? "위탁" : "일반"]
       .concat(spec.carry ? [r.carry] : [], r.cells.map(x => x.back), [r.back, note.join(" / ")]));
   });
   tb.appendChild(el(`<tr class="sum"><td colspan="4" class="c">합계 (${won(rows.length)}명)</td>
     ${spec.carry ? `<td class="n">${won(carryTot)}</td>` : ""}
     ${colTot.map(x => `<td class="n">${won(x)}</td>`).join("")}
-    <td class="n">${won(grand)}</td><td></td></tr>`));
+    <td class="n">${won(grand)}</td><td></td><td class="no-print"></td></tr>`));
   csv.push(["합계", "", "", ""].concat(spec.carry ? [carryTot] : [], colTot, [grand, ""]));
 
   const wrap = el(`<div class="scroll" style="max-height:none"></div>`);
@@ -3068,7 +3159,43 @@ function settleBack(host){
   if (anyOver) body.appendChild(el(`<div class="note">수납액을 넘겨 쓴 세목은
     반환할 금액을 0으로 두고 비고에 초과액만 적었습니다. 초과분은 어린이집 운영비로 처리합니다.</div>`));
 
+  const gaveTot = rows.reduce((s2, r) => s2 + r.gave, 0);
+  if (gaveTot) body.appendChild(el(`<div class="note ok">이미 <b>${won(gaveTot)}원</b>을
+    보호자반환금(622목)으로 돌려준 것으로 기록되어 있습니다. 그 금액은 위 표의
+    <b>반환 합계</b>에서 이미 빠져 있고, 비고에 반환일을 적었습니다.
+    잘못 표시했다면 줄 끝의 <b>반환 완료 취소</b>를 누르세요.</div>`));
+
   $("#bk_csv", host).onclick = () => downloadCSV(`반환정산서_${fy}_${spec.fromM}_${spec.toM}.csv`, csv);
+}
+
+/**
+ * 반환 정산서 한 줄의 「반환 완료로 표시」 / 「반환 완료 취소」 버튼.
+ * 표시하면 그 줄의 세목별 금액이 그대로 반환 기록으로 남고,
+ * 취소하면 기록만 지운다 (수납·사용 금액은 건드리지 않는다).
+ */
+function drawRefundButton(host, r, spec, v){
+  if (!host) return;
+  if (r.gave > 0) {
+    const b = el(`<button class="b danger" style="font-size:11px;padding:3px 7px">반환 완료 취소</button>`);
+    b.onclick = () => {
+      if (!confirm(`${r.c.name} 원아의 반환 완료 기록 (${won(r.gave)}원)을 지웁니다.\n`
+                 + `다시 「돌려줄 금액」으로 잡힙니다. 취소할까요?`)) return;
+      clearRefund(r.c.id, spec.from, refundTo(spec.to));
+      render();
+    };
+    host.appendChild(b);
+    return;
+  }
+  if (r.back <= 0) return;
+  const b = el(`<button class="b" style="font-size:11px;padding:3px 7px">반환 완료로 표시</button>`);
+  b.onclick = () => {
+    const d = v.bkDate || todayISO();
+    if (!confirm(`${r.c.name} 원아에게 ${won(r.back)}원을 ${d}에 돌려준 것으로 기록합니다.\n`
+               + `되돌리려면 같은 자리의 「반환 완료 취소」를 누르세요.`)) return;
+    markRefund(r.c.id, d, r.cells.map(x => ({ itemId: x.it.id, amount: x.back })), "연말 반환");
+    render();
+  };
+  host.appendChild(b);
 }
 
 /* ---------------- 중간퇴소 · 중간전환 정산 ---------------- */
@@ -3230,6 +3357,7 @@ function drawExitSheet(host, c, from, to, forcedTo, consign){
   const anyFee = rows.some(r => r.pc.fee > 0);
   let tPaid = 0, tUsed = 0, tCons = 0, tBack = 0, tFee = 0, tOver = 0;
   const overList = [];          /* 어느 세목에서 얼마를 어린이집이 부담했나 */
+  const backList = [];          /* 「반환 완료로 표시」를 누르면 그대로 기록에 남는다 */
 
   /* ── 정산 내역 ── 받은 돈, 쓴 돈, 돌려줄 돈. 보호자가 가장 먼저 봐야 할 표 */
   const t = el(`<h3>정산 내역</h3>
@@ -3260,16 +3388,18 @@ function drawExitSheet(host, c, from, to, forcedTo, consign){
 
     const backCell = $('[data-r="back"]', tr);
     if (prep) {
-      /* 입학준비금은 물품 지급 여부·상태를 종합 고려해 보호자와 협의한다 (본문 97p) */
-      const key = "prep_" + c.id;
-      const st = v[key] = Object.assign({ given: false, amount: auto }, v[key] || {});
-      backCell.innerHTML = `<input class="money no-print" style="width:110px" value="${won(st.amount)}">`
-        + `<span class="print-only">${won(st.amount)}</span>`;
-      $("input", backCell).onchange = e => { st.amount = num(e.target.value); e.target.value = won(st.amount); render(); };
-      tBack += st.amount;
+      /* 입학준비금은 물품 지급 여부·상태를 종합 고려해 보호자와 협의한다 (본문 97p).
+         협의한 금액은 원아 기록에 저장한다 — 화면에만 들고 있으면 새로고침에 사라진다. */
+      const amt = typeof c.prepBack === "number" ? c.prepBack : auto;
+      backCell.innerHTML = `<input class="money no-print" style="width:110px" value="${won(amt)}">`
+        + `<span class="print-only">${won(amt)}</span>`;
+      $("input", backCell).onchange = e => { c.prepBack = num(e.target.value); save(); render(); };
+      tBack += amt;
+      backList.push({ itemId: r.it.id, amount: amt });
     } else {
       backCell.textContent = won(auto);
       tBack += auto;
+      backList.push({ itemId: r.it.id, amount: auto });
     }
     tb.appendChild(tr);
   }
@@ -3298,16 +3428,52 @@ function drawExitSheet(host, c, from, to, forcedTo, consign){
   /* 입학준비금 입력 도움말 — 화면에서만 */
   const prepRow = rows.find(r => r.it.special === "prep");
   if (prepRow) {
-    const key = "prep_" + c.id;
-    const st = v[key];
     const help = el(`<div class="note no-print">
       <b>${esc(prepRow.it.name)}</b>은 자동으로 계산하지 않습니다.
       물품을 이미 지급했는지와 그 상태를 함께 고려해 <b>보호자와 협의한 금액</b>을 위 칸에 직접 적으세요.
       입학 전에 취소했다면 전액 반환입니다.
-      <label style="display:block;margin-top:6px"><input type="checkbox" ${st.given ? "checked" : ""}> 물품을 이미 지급함</label>
+      <label style="display:block;margin-top:6px"><input type="checkbox" ${c.prepGiven ? "checked" : ""}> 물품을 이미 지급함</label>
       <div class="law">근거 — 본문 97p</div></div>`);
-    $("input", help).onchange = e => { st.given = e.target.checked; save(); };
+    $("input", help).onchange = e => { c.prepGiven = e.target.checked; save(); };
     body.appendChild(help);
+  }
+
+  /* ── 반환 처리 ──
+     실제로 돈을 옮기는 것은 어린이집이 하고, 이 프로그램은 「돌려줬다」는 사실만 적는다.
+     적어 두지 않으면 연말 반환 정산서가 이미 돌려준 돈을 또 「돌려줄 돈」으로 잡는다. */
+  const fyTo = fyEnd(S.fiscalYear);
+  const done = refundRows(c.id, from, fyTo);
+  if (done.length) {
+    const backTot = done.reduce((s2, r) => s2 + r.amount, 0);
+    body.appendChild(el(`<div class="note ok show-print">
+      <b>반환 완료</b> — ${esc(done[done.length - 1].date)}에 보호자반환금(622목)으로
+      <b>${won(backTot)}원</b>을 돌려준 것으로 기록되어 있습니다.<br>
+      <span class="hint">${done.map(r => esc(itemName(r.itemId)) + " " + won(r.amount) + "원").join(" · ")}</span></div>`));
+    const undo = el(`<div class="row no-print" style="margin-top:6px">
+      <button class="b danger" id="ex_unmark">반환 완료 취소</button>
+      <span class="hint">잘못 눌렀거나 반환이 미뤄졌다면 취소하세요.
+        기록만 지우고 수납·사용 금액은 건드리지 않습니다.</span></div>`);
+    $("#ex_unmark", undo).onclick = () => {
+      if (!confirm(`${c.name} 원아의 반환 완료 기록 ${done.length}건 (${won(backTot)}원)을 지웁니다.\n`
+                 + `반환 정산서에 다시 「돌려줄 금액」으로 잡힙니다. 취소할까요?`)) return;
+      clearRefund(c.id, from, fyTo);
+      render();
+    };
+    body.appendChild(undo);
+  } else if (tBack > 0) {
+    const bar = el(`<div class="row no-print" style="margin-top:6px;align-items:flex-end">
+      <label class="f">반환일<input type="date" id="ex_rdate" value="${esc(v.asOf)}" style="width:150px"></label>
+      <button class="b pri" id="ex_mark">반환 완료로 표시</button>
+      <span class="hint" style="max-width:520px">보호자에게 <b>${won(tBack)}원</b>을 실제로 돌려준 뒤 눌러 주세요.
+        위 표의 <b>세목별 금액이 그대로</b> 기록에 남아, 연말 <b>반환 정산서</b>와
+        <b>운영위원회 보고서</b>에서 이 금액이 빠집니다. 되돌리려면 <b>반환 완료 취소</b>를 누르세요.</span></div>`);
+    $("#ex_mark", bar).onclick = () => {
+      const d = $("#ex_rdate", bar).value;
+      if (!d) { alert("반환일을 적어 주세요."); return; }
+      markRefund(c.id, d, backList, v.reason);
+      render();
+    };
+    body.appendChild(bar);
   }
 
   /* ── 산출 근거 ── 어느 지출건에서 얼마가 나왔는지 */
@@ -3349,15 +3515,16 @@ function drawExitSheet(host, c, from, to, forcedTo, consign){
 
 /** 한 세목의 기간 통계 */
 function itemStats(it, spec, carryFrom, carryTo){
-  let carry = 0, paid = 0, used = 0, consign = 0, payers = 0;
+  let carry = 0, paid = 0, used = 0, consign = 0, payers = 0, refund = 0;
   for (const c of S.children) {
     const b = balance(c.id, it.id, spec.from, spec.to);
     const cy = spec.carry ? balance(c.id, it.id, carryFrom, carryTo).left : 0;
     paid += b.paid; used += b.used; consign += b.consign; carry += cy;
+    refund += sumRefunds(c.id, it.id, spec.from, spec.to);
     if (b.paid) payers++;
   }
   const exps = S.expenses.filter(e => e.itemId === it.id && inRange(e.date, spec.from, spec.to));
-  return { carry, paid, used, consign, payers, left: carry + paid - used,
+  return { carry, paid, used, consign, payers, refund, left: carry + paid - used,
            count: exps.length,
            oper: exps.reduce((s, e) => s + (e.operAmount || 0), 0),
            fee:  S.vouchers.filter(x => x.itemId === it.id && inRange(x.date, spec.from, spec.to))
@@ -3406,9 +3573,11 @@ function settleHalf(host){
   if (!stats.length) { body.appendChild(el(`<div class="empty">이 기간의 기록이 없습니다.</div>`)); return; }
 
   const anyConsign = stats.some(x => x.s.consign);
+  /* 이미 돌려준 돈이 있으면 「반환액」 열을 붙이고 미집행액에서 뺀다 */
+  const anyRefund = stats.some(x => x.s.refund);
   const cols = []
     /* 어느 칸을 더하고 빼서 「남은 금액」이 나오는지 기호로 적어 둔다 */
-    .concat(moneyCols(spec.carry, anyConsign, "보호자 수납액"));
+    .concat(moneyCols(spec.carry, anyConsign, "보호자 수납액", null, anyRefund));
 
   const t = el(`<table class="sheet"><thead><tr>
     <th style="width:170px">세목</th><th style="width:170px">계정과목</th>
@@ -3417,17 +3586,19 @@ function settleHalf(host){
   </tr></thead><tbody></tbody></table>`);
   const tb = $("tbody", t);
   const csv = [["세목", "계정과목", "수납 인원", "지출 건수"].concat(cols.map(c2 => c2[0]))];
-  const tot = { carry: 0, paid: 0, used: 0, consign: 0, left: 0, count: 0 };
+  const tot = { carry: 0, paid: 0, used: 0, consign: 0, left: 0, refund: 0, count: 0 };
 
   for (const x of stats) {
     const s = x.s;
-    ["carry", "paid", "used", "consign", "left", "count"].forEach(k => tot[k] += s[k]);
+    ["carry", "paid", "used", "consign", "left", "refund", "count"].forEach(k => tot[k] += s[k]);
     const g = GROUPS[x.it.group] || {};
     const cells = []
       .concat(spec.carry ? [s.carry] : [])
       .concat([s.paid])
       .concat(anyConsign ? [s.consign] : [])
-      .concat([s.used + s.consign, s.left]);
+      .concat([s.used + s.consign])
+      .concat(anyRefund ? [s.refund] : [])
+      .concat([s.left - s.refund]);
     tb.appendChild(el(`<tr>
       <td>${esc(x.it.name)}</td><td><span class="tag">${esc(g.income || x.it.group)}</span></td>
       <td class="c">${won(s.payers)}명</td><td class="c">${won(s.count)}건</td>
@@ -3439,17 +3610,27 @@ function settleHalf(host){
     .concat(spec.carry ? [tot.carry] : [])
     .concat([tot.paid])
     .concat(anyConsign ? [tot.consign] : [])
-    .concat([tot.used + tot.consign, tot.left]);
+    .concat([tot.used + tot.consign])
+    .concat(anyRefund ? [tot.refund] : [])
+    .concat([tot.left - tot.refund]);
   tb.appendChild(el(`<tr class="sum"><td colspan="3" class="c">합계</td>
     <td class="c">${won(tot.count)}건</td>
     ${sumCells.map(n => `<td class="n">${won(n)}</td>`).join("")}</tr>`));
   csv.push(["합계", "", "", tot.count].concat(sumCells));
   body.appendChild(t);
 
-  body.appendChild(el(`<table class="sheet" style="max-width:460px;margin-top:10px"><tbody>
-    <tr class="sum"><th style="width:240px">미집행액 합계 (보호자에게 남은 금액)</th>
+  body.appendChild(el(`<table class="sheet" style="max-width:520px;margin-top:10px"><tbody>
+    ${anyRefund ? `<tr><th style="width:300px">${col("남은 금액 (수납 − 사용)", "A")}</th>
       <td class="n">${won(tot.left)}원</td></tr>
+    <tr><th style="width:300px">${col("반환액 (622목 보호자반환금)", "B")}</th>
+      <td class="n">${won(tot.refund)}원</td></tr>` : ""}
+    <tr class="sum"><th style="width:300px">${col("미집행액 합계 (보호자에게 남은 금액)",
+      anyRefund ? "C = A − B" : "")}</th>
+      <td class="n">${won(tot.left - tot.refund)}원</td></tr>
   </tbody></table>`));
+  if (anyRefund) body.appendChild(el(`<div class="note show-print">중간퇴소 등으로
+    <b>이미 돌려준 ${won(tot.refund)}원</b>은 <b>622목 보호자반환금</b>으로 나갔으므로
+    미집행액에서 뺐습니다. 세출부의 622목 지출액과 같은 금액이어야 합니다.</div>`));
 
   if (anyConsign) body.appendChild(el(`<div class="note">위탁 원아의 비용은 보호자가 아니라
     <b>전입금으로 충당</b>됩니다. 그 달 지출액과 같은 금액을 <b>「전입금 충당」에 수입으로도</b> 잡아
@@ -3891,6 +4072,20 @@ function runChecks(){
       add("warn", `수납만 있고 지출이 없음 — ${it.name}`, "미집행 상태입니다. 집행하거나 정산해 돌려줘야 합니다.", null);
   }
 
+  /* 돌려준 돈이 남은 금액보다 많으면 어딘가 어긋난 것이다.
+     (반환 완료로 표시한 뒤에 그 원아의 지출을 더 넣었을 때 주로 생긴다) */
+  for (const c of S.children) {
+    for (const it of S.items) {
+      const gave = sumRefunds(c.id, it.id, from, to);
+      if (!gave) continue;
+      const b = balance(c.id, it.id, from, to);
+      if (gave > b.left) add("warn", `반환액이 남은 금액보다 많음 — ${c.name} · ${it.name}`,
+        `돌려준 금액 ${won(gave)}원 > 남은 금액 ${won(b.left)}원. ` +
+        `반환 완료로 표시한 뒤 지출이 더 들어왔을 수 있습니다. ` +
+        `반환 정산서에서 「반환 완료 취소」를 누르고 금액을 다시 확인하세요.`, null);
+    }
+  }
+
   /* 4분기에 들어섰다면 잔액이 모자라는 원아를 짚어 준다.
      그 전에는 다음 분기 수납으로 메워지는 것이 보통이라 알리지 않는다. */
   if (todayISO() >= fy + "-12-01") {
@@ -3925,6 +4120,10 @@ function renderCheck(root){
   /* 위탁 원아 몫은 보호자가 아니라 전입금으로 들어온다 */
   const transferTotal = S.children.reduce((s, c) =>
     s + S.items.reduce((t, it) => t + sumConsignCovered(c.id, it.id, from, to), 0), 0);
+  /* 중간퇴소 등으로 이미 돌려준 돈 — 622목 보호자반환금으로 나간 몫 */
+  const refundTotal = (S.refunds || [])
+    .filter(r => inRange(r.date, from, refundTo(to)))
+    .reduce((s, r) => s + r.amount, 0);
 
   root.innerHTML = `
     <h2>검증</h2>
@@ -3934,10 +4133,16 @@ function renderCheck(root){
       ${transferTotal ? `<tr><th>${col("전입금 충당 (위탁 원아 몫)", "B")}</th><td class="n">${won(transferTotal)}원</td></tr>
       <tr><th>${col("수입 합계", "C = A + B")}</th><td class="n">${won(paidTotal + transferTotal)}원</td></tr>` : ""}
       <tr><th>${col("원아 배분 합계 (421목·411목 중 필요경비 부담분)", transferTotal ? "D" : "B")}</th><td class="n">${won(usedTotal)}원</td></tr>
+      ${refundTotal ? `<tr><th>${col("이미 반환한 금액 (622목 보호자반환금)", transferTotal ? "E" : "C")}</th>
+        <td class="n">${won(refundTotal)}원</td></tr>` : ""}
       <tr class="sum"><th>${col("남은 금액 (보호자에게 돌려줄 몫)",
-        transferTotal ? "E = C − D" : "C = A − B")}</th><td class="n">${won(paidTotal + transferTotal - usedTotal)}원</td></tr>
+        transferTotal
+          ? (refundTotal ? "F = C − D − E" : "E = C − D")
+          : (refundTotal ? "D = A − B − C" : "C = A − B"))}</th>
+        <td class="n">${won(paidTotal + transferTotal - usedTotal - refundTotal)}원</td></tr>
     </tbody></table>
-    <div class="hint" style="margin-top:6px">위탁 원아는 보호자 대신 <b>전입금</b>이 들어오므로, 그 달 지출액과 같은 금액을 수입으로 잡습니다. 그래서 <b>수입 합계와 배분 합계의 차이가 곧 보호자에게 돌려줄 몫</b>이 됩니다.</div>
+    <div class="hint" style="margin-top:6px">위탁 원아는 보호자 대신 <b>전입금</b>이 들어오므로, 그 달 지출액과 같은 금액을 수입으로 잡습니다. 그래서 <b>수입 합계와 배분 합계의 차이가 곧 보호자에게 돌려줄 몫</b>이 됩니다.${
+      refundTotal ? " 중간퇴소 등으로 <b>이미 돌려준 돈</b>은 622목으로 나갔으므로 한 번 더 뺍니다." : ""}</div>
 
     <h3>어린이집 부담</h3>
     <table style="max-width:620px"><tbody>
@@ -4005,9 +4210,14 @@ const FAQ = [
        <li><b>정산·보고 → 중간퇴소·중간전환 정산</b>으로 갑니다.</li>
        <li>그 아이를 고르면 세목별로 <b>수납액 − 실 사용금액 = 반환금</b>이 자동으로 나옵니다.</li>
        <li>퇴소한 달의 지출건은 프로그램이 <b>마음대로 판정하지 않고</b> 하나씩 물어봅니다. 포함할 것만 체크하세요.</li>
-       <li><b>「인쇄」</b>로 정산서를 뽑아 보호자에게 드리면 됩니다.</li></ol>
-       <p>이 프로그램은 <b>반환할 금액을 계산해 정산서를 뽑는 데까지</b>가 역할입니다.
-         실제 계좌 이체와 회계 처리는 정산서를 보고 어린이집에서 진행하시면 됩니다.</p>`,
+       <li><b>「인쇄」</b>로 정산서를 뽑아 보호자에게 드리면 됩니다.</li>
+       <li>실제로 돈을 돌려준 뒤 정산서 아래의 <b>「반환 완료로 표시」</b>를 누르세요.
+         반환일과 세목별 금액이 기록으로 남습니다.</li></ol>
+       <p>돈을 옮기는 것은 어린이집이 하고, 프로그램은 <b>「언제 얼마를 돌려줬다」는 사실만</b> 적어 둡니다.
+         이 표시를 해 두어야 연말 <b>반환 정산서</b>에서 이 아이가 빠지고, <b>운영위원회 보고서</b>의
+         미집행액에서도 그만큼 빠집니다. 표시하지 않으면 <b>이미 돌려준 돈을 또 돌려줄 돈으로</b> 잡습니다.</p>
+       <p>잘못 눌렀거나 반환이 미뤄졌다면 같은 자리의 <b>「반환 완료 취소」</b>로 되돌릴 수 있습니다.
+         취소해도 수납·사용 금액은 건드리지 않고 반환 기록만 지웁니다.</p>`,
     law:"본문 97p — 반기별 보호자별 수납액·실 사용금액·남은 금액 정산" },
 
   { g:"원아", q:"퇴소한 아이를 지우려는데 삭제가 안 됩니다.",
@@ -4119,13 +4329,18 @@ const FAQ = [
        <p>수납 입력에 적은 수납일이 그대로 올라오므로 따로 옮겨 적을 필요가 없습니다.</p>` },
 
   { g:"정산·보고", q:"이 프로그램은 어디까지 해 주나요? 실제 반환 처리도 하나요?",
-    k:"어디까지 범위 반환 처리 이체 계좌 역할",
-    a:`<p><b>반환할 금액을 계산해 정산서를 뽑는 데까지</b>입니다.</p>
+    k:"어디까지 범위 반환 처리 이체 계좌 역할 반환완료 표시 취소",
+    a:`<p><b>반환할 금액을 계산해 정산서를 뽑고, 돌려줬다는 사실을 적어 두는 데까지</b>입니다.</p>
        <ul><li>받은 돈과 쓴 돈을 원아별·세목별로 맞춰 <b>얼마를 돌려줘야 하는지</b> 계산합니다.</li>
-       <li>그 결과를 <b>정산서·안내문·보고서</b>로 인쇄해 드립니다.</li></ul>
-       <p>여기까지가 손이 많이 가고 틀리기 쉬운 부분이라 프로그램이 맡습니다.
-         <b>실제 계좌 이체, 반납결의, 회계 전표 처리는 이 정산서를 보고 어린이집에서 진행</b>하시면 됩니다.
-         프로그램은 계좌번호를 받아 두지도, 반환했다는 기록을 남기지도 않습니다.</p>` },
+       <li>그 결과를 <b>정산서·안내문·보고서</b>로 인쇄해 드립니다.</li>
+       <li>돈을 돌려준 뒤 <b>「반환 완료로 표시」</b>를 누르면 <b>반환일 · 원아 · 세목 · 금액</b>이 남습니다.</li></ul>
+       <p><b>실제 계좌 이체, 반납결의, 회계 전표 처리는 이 정산서를 보고 어린이집에서 진행</b>하시면 됩니다.
+         프로그램은 계좌번호를 받아 두지 않고, 이체를 대신하지도 않습니다.
+         다만 <b>이미 돌려준 돈을 또 돌려줄 돈으로 잡지 않도록</b> 그 사실만 기록합니다.</p>
+       <p>그래서 <b>운영위원회 보고서</b>에 <b>반환액</b> 열이 붙고
+         <b>미집행액 = 남은 금액 − 반환액</b>으로 떨어집니다.
+         이 반환액은 세출부의 <b>622목 보호자반환금</b> 지출액과 같아야 합니다.</p>
+       <p>되돌리려면 <b>「반환 완료 취소」</b>를 누르면 됩니다.</p>` },
 
   { g:"수납", q:"더 받은 돈(과오납)을 돌려줘야 합니다.",
     k:"과오납 착오 더받음 반납 세입 반납결의",
@@ -4216,7 +4431,10 @@ const FAQ = [
        <p>실제로 돈을 돌려주는 것은 대개 <b>회계연도가 끝나는 2월말에 한 번</b>입니다.
          그때 <b>정산·보고 → 반환 정산서 (전 원아)</b>에서 기간을 <b>연간</b>으로 두고 뽑으면,
          원아마다 세목별로 <b>수납액 − 실 사용금액 = 반환할 금액</b>이 한 장에 나옵니다.</p>
-       <p>중간에 그만둔 아이만 그때그때 <b>중간퇴소 정산</b>으로 따로 뽑습니다.</p>
+       <p>돌려준 뒤에는 줄 끝의 <b>「반환 완료로 표시」</b>를 누르세요. 그 금액은 표에서 빠지고
+         보고서의 <b>반환액</b>으로 잡힙니다. 잘못 눌렀다면 <b>「반환 완료 취소」</b>로 되돌립니다.</p>
+       <p>중간에 그만둔 아이만 그때그때 <b>중간퇴소 정산</b>으로 따로 뽑습니다.
+         거기서 이미 <b>반환 완료로 표시</b>해 두었다면 연말 표에는 다시 나오지 않습니다.</p>
        <p>수납액을 넘겨 쓴 세목은 반환할 금액을 0으로 두고 <b>초과분은 어린이집 운영비로 처리</b>합니다.</p>` },
 
   { g:"정산·보고", q:"입학준비금은 왜 반환금이 자동으로 안 나오나요?",
@@ -4753,12 +4971,15 @@ function manualFull(sources){
     (재무회계규칙 제15조 — 예산의 목적 외 사용 금지)</blockquote>
 
   <h2>9. 정산·보고 — 서류 뽑기</h2>
-  <div class="intro">이 프로그램은 <b>반환할 금액을 계산해 정산서를 뽑는 데까지</b>가 역할입니다.
+  <div class="intro">이 프로그램은 <b>반환할 금액을 계산해 정산서를 뽑고,
+    돌려줬다는 사실을 적어 두는 데까지</b>가 역할입니다.
     실제 계좌 이체와 회계 처리는 정산서를 보고 어린이집에서 진행하시면 됩니다.</div>
 
   <h3>① 정산보고서 (운영위원회용) <span class="tag">탭을 열면 이 화면이 먼저 나옵니다</span></h3>
   <p><b>세목별 통계</b>입니다. 세목마다 수납 인원·지출 건수·보호자 수납액·실 사용금액·남은 금액이 나오고,
     맨 아래 <b>미집행액 합계</b>와 <b>어린이집 부담</b>까지 계산됩니다.
+    이미 돌려준 돈이 있으면 <b>반환액</b> 열이 붙어 <b>미집행액 = 남은 금액 − 반환액</b>으로 떨어집니다.
+    이 반환액은 세출부의 <b>622목 보호자반환금</b> 지출액과 같아야 합니다.
     「지출 내역 함께 넣기」를 켜 두면 <b>무엇에 썼는지</b> 건별 목록이 뒤에 붙습니다.</p>
   <p>위탁 원아가 있으면 <b>「전입금 충당」 열</b>이 함께 나옵니다. 위탁 원아 몫은 보호자가 아니라
     회사가 내므로, 그 금액을 수입에도 잡아 <b>수입과 지출이 맞아떨어지게</b> 했습니다.</p>
@@ -4783,6 +5004,13 @@ function manualFull(sources){
     원아마다 세목별로 <b>수납액 − 실 사용금액 = 반환할 금액</b>이 한 장에 나옵니다.
     이 표를 보고 반환 처리를 하시면 됩니다.</p>
   <p>퇴소·위탁·초과 사용은 비고에 표시됩니다.</p>
+  <div class="warn"><p><b>돌려준 뒤에는 꼭 표시해 두세요.</b>
+    줄 끝의 <b>「반환 완료로 표시」</b>를 누르면 위의 <b>반환일</b>과 그 줄의 세목별 금액이
+    기록으로 남고, 그 금액은 이 표에서 빠집니다. 비고에는 <b>「11.25 반환완료 154,873원」</b>처럼 적힙니다.</p>
+    <p>표시해 두지 않으면 <b>이미 돌려준 돈을 또 돌려줄 돈으로</b> 잡고,
+      운영위원회 보고서의 미집행액도 실제보다 크게 나옵니다.</p>
+    <p>잘못 눌렀거나 반환이 미뤄졌다면 같은 자리의 <b>「반환 완료 취소」</b>를 누르세요.
+      기록만 지우고 수납·사용 금액은 건드리지 않으므로 몇 번이든 되돌릴 수 있습니다.</p></div>
 
   <h3>④ 중간퇴소·중간전환 정산</h3>
   <p>중간에 그만두거나 위탁으로 바뀐 아이만 그때그때 따로 뽑습니다.</p>
@@ -4792,7 +5020,12 @@ function manualFull(sources){
     <li><b>그달 지출건 문답</b> — 퇴소한 달의 지출을 하나씩 보여주며 포함할지 묻습니다.
       프로그램이 마음대로 판정하지 않습니다. 체크와 사유가 정산서에 근거로 남습니다.</li>
     <li>세목별로 <b>수납 − 사용 = 반환할 금액</b>이 나오고, 산식이 한 줄씩 함께 적힙니다.</li>
-    <li><b>입학준비금</b>은 자동계산에서 빠집니다. 「물품을 이미 지급함」을 체크하고 <b>협의한 금액을 직접</b> 적으세요.</li>
+    <li><b>입학준비금</b>은 자동계산에서 빠집니다. 「물품을 이미 지급함」을 체크하고 <b>협의한 금액을 직접</b> 적으세요.
+      적은 금액은 <b>그 원아 기록에 저장</b>되므로 화면을 닫았다 열어도 그대로 남습니다.</li>
+    <li>보호자에게 <b>실제로 돌려준 뒤</b> 표 아래의 <b>「반환 완료로 표시」</b>를 누릅니다.
+      반환일과 세목별 금액이 기록으로 남아, 연말 <b>반환 정산서</b>에서 이 아이가 빠지고
+      <b>운영위원회 보고서</b>의 미집행액에서도 그만큼 빠집니다.
+      되돌리려면 <b>「반환 완료 취소」</b>를 누르세요.</li>
   </ol>
   <div class="warn"><p><b>위탁 원아는 정반대입니다.</b> 남은 돈을 보호자에게 반환하지 않고
     <b>보육교사 인건비·운영비로 충당</b>합니다. 이용을 중단한 경우에도 같습니다. 프로그램이 자동으로 안내합니다.</p></div>
@@ -4837,7 +5070,9 @@ function manualFull(sources){
       <tr><td>전입금 충당</td><td>위탁 원아 몫. 회사가 낸 돈</td></tr>
       <tr><td><b>수입 합계</b></td><td>위 둘을 더한 것</td></tr>
       <tr><td>원아 배분 합계</td><td>421목·411목 중 원아에게 나눈 몫</td></tr>
-      <tr><td class="sum"><b>남은 금액</b></td><td><b>수입 합계 − 배분 합계 = 보호자에게 돌려줄 몫</b></td></tr>
+      <tr><td>이미 반환한 금액</td><td>「반환 완료로 표시」를 눌러 둔 몫. <b>622목 보호자반환금</b>으로 나간 돈</td></tr>
+      <tr><td class="sum"><b>남은 금액</b></td><td><b>수입 합계 − 배분 합계 − 이미 반환한 금액
+        = 앞으로 돌려줄 몫</b></td></tr>
     </tbody>
   </table>
   <blockquote>위탁 원아가 있어도 <b>수입과 지출이 맞아떨어집니다.</b>
@@ -4927,6 +5162,8 @@ function manualQuick(sources){
       <tr><td>운영위원회 보고</td><td><b>정산·보고 → 정산보고서 (운영위원회용)</b></td></tr>
       <tr><td>보호자에게 알림</td><td><b>정산·보고 → 보호자용 개별 안내문</b></td></tr>
       <tr><td>2월말 반환 처리</td><td><b>정산·보고 → 반환 정산서 (전 원아)</b></td></tr>
+      <tr><td>돌려줬다고 표시 · 취소</td><td><b>반환 정산서</b>나 <b>중간퇴소 정산</b>의
+        「반환 완료로 표시」 · 「반환 완료 취소」</td></tr>
       <tr><td>그만둔 아이 정산서</td><td><b>정산·보고 → 중간퇴소·중간전환 정산</b></td></tr>
       <tr><td>수입대장 · 지출대장 (금액)</td><td><b>대장</b></td></tr>
       <tr><td>수입부 대장 (수납한 날짜)</td><td><b>대장 → 구분을 「기타필요경비 수입부 대장」으로</b></td></tr>

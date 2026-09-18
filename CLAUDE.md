@@ -53,7 +53,7 @@ build.py                 위 둘을 묶어 어린이집살림도우미.html을 �
 
 ```bash
 python3 build.py
-for t in flow reports dummy rollover audit launcher compat compat-settle items; do
+for t in flow reports dummy rollover audit launcher compat compat-settle items refund; do
   node tests/$t.js || echo "$t 실패"
 done
 ```
@@ -69,6 +69,7 @@ done
 | `compat` | 이미 뿌린 물품관리시스템의 백업이 들어오는지 |
 | `compat-settle` | **배포한 정산 프로그램의 백업이 숫자 그대로 열리는지** |
 | `items` | 세목이 모든 화면·서류에 따라붙는지 |
+| `refund` | 「반환 완료로 표시」·「반환 완료 취소」가 모든 표에 따라붙는지 |
 
 Playwright는 `NODE_PATH`에 설치해 두고 쓴다. 브라우저는
 `/opt/pw-browsers/chromium-1194/chrome-linux/chrome`.
@@ -83,7 +84,10 @@ Playwright는 `NODE_PATH`에 설치해 두고 쓴다. 브라우저는
   인쇄물에도 내보낸다.
 - **세목 간 상계를 하지 않는다** (재무회계규칙 제15조).
 - **반은 통계 단위가 아니다.** 원아를 빠르게 고르기 위한 도구일 뿐이다.
-- 반환할 금액을 계산해 **정산서를 뽑는 데까지**가 이 프로그램의 일이다.
+- 반환할 금액을 계산해 **정산서를 뽑고, 돌려줬다는 사실을 적어 두는 데까지**가 이
+  프로그램의 일이다. 이체도 전표도 대신하지 않는다. 다만 적어 두지 않으면 이미
+  돌려준 돈을 또 「돌려줄 돈」으로 잡으므로, `refunds`에 **반환일·원아·세목·금액**만
+  남긴다 (「가」 방식). 표시·취소는 언제든 되돌릴 수 있어야 한다.
 - 자료는 이 컴퓨터 밖으로 나가지 않는다 (localStorage + JSON 백업).
 
 자세한 것은 `개발문서.md`.

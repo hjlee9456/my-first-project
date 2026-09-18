@@ -160,10 +160,12 @@ const flat = s => String(s||"").replace(/\s+/g," ");
   check("안내문에서 반을 먼저 고르고 원아를 고른다",
     (await p.locator("#nt_class").count()) === 1 && (await p.locator("#nt_child").count()) === 1);
 
-  // ---- 정산 반환 확정 버튼이 없어야 함 ----
+  // ---- 중간퇴소 정산서의 반환 처리 버튼 ----
   await p.click('[data-m="exit"]');
   await p.waitForTimeout(250);
-  check("반환금 확정 버튼이 삭제됨", (await p.locator("#ex_fix").count()) === 0);
+  check("옛 「반환금 확정」 버튼은 없음", (await p.locator("#ex_fix").count()) === 0);
+  check("돌려줄 돈이 있으면 「반환 완료로 표시」 버튼이 붙음",
+    (await p.locator("#ex_mark").count()) === 1 && (await p.locator("#ex_unmark").count()) === 0);
 
   // ---- 설명서 근거자료 ----
   await p.click('nav button[data-tab="manual"]');
