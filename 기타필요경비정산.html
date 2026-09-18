@@ -176,7 +176,13 @@ th .sym{opacity:.95}
   body{padding:0}
   header,nav,.no-print{display:none!important}
   /* 화면에서 일하는 데 쓰는 안내는 출력물에 넣지 않는다 */
+  /* 화면에서 일하는 데 쓰는 안내는 빼지만, 표를 읽는 데 꼭 필요한 설명
+     (.show-print)은 인쇄물에도 함께 나간다 — 숫자가 왜 그렇게 나왔는지
+     보호자·운영위원회가 그 종이만 보고 알 수 있어야 한다. */
   .note,.law,.hint,.tag.ev{display:none!important}
+  .note.show-print{display:block!important;background:#f7f9fb;border-color:#bdcbd5;
+    color:#263849;font-size:11.5px;line-height:1.7;padding:7px 9px;margin:4mm 0 0}
+  .note.show-print .hint{display:block!important;color:#4d6071;font-size:11px}
   body{background:#fff}
   main{padding:0;max-width:none}
   .panel{border:none;padding:0;margin:0}
@@ -3223,6 +3229,7 @@ function drawExitSheet(host, c, from, to, forcedTo, consign){
   const anyConsign = rows.some(r => r.b.consign);
   const anyFee = rows.some(r => r.pc.fee > 0);
   let tPaid = 0, tUsed = 0, tCons = 0, tBack = 0, tFee = 0, tOver = 0;
+  const overList = [];          /* 어느 세목에서 얼마를 어린이집이 부담했나 */
 
   /* ── 정산 내역 ── 받은 돈, 쓴 돈, 돌려줄 돈. 보호자가 가장 먼저 봐야 할 표 */
   const t = el(`<h3>정산 내역</h3>
@@ -3238,7 +3245,9 @@ function drawExitSheet(host, c, from, to, forcedTo, consign){
     const prep = r.it.special === "prep";
     const auto = Math.max(0, r.b.left);
     tPaid += r.b.paid; tUsed += r.b.totalUsed; tCons += r.b.transferIn; tFee += r.pc.fee;
-    tOver += Math.max(0, -r.b.left);
+    const over2 = Math.max(0, -r.b.left);
+    if (over2) overList.push({ name: r.it.name, over: over2 });
+    tOver += over2;
 
     const tr = el(`<tr>
       <td>${esc(r.it.name)}</td>
@@ -3272,15 +3281,17 @@ function drawExitSheet(host, c, from, to, forcedTo, consign){
     <td class="n">${won(tUsed)}</td>
     <td class="n">${won(tBack)}</td></tr>`));
   body.appendChild(t);
-  if (anyFee) body.appendChild(el(`<div class="note">카드로 내신 금액은 <b>수수료를 떼고</b>
+  if (anyFee) body.appendChild(el(`<div class="note show-print">카드로 내신 금액은 <b>수수료를 떼고</b>
     어린이집 통장에 들어옵니다. 위 표는 <b>보호자께서 결제하신 금액</b>을 적고,
     떼인 수수료를 따로 보여 드립니다.</div>`));
-  if (tOver) body.appendChild(el(`<div class="note"><b>받은 돈보다 더 쓴 세목이 있습니다.</b>
-    실 사용금액이 수납액보다 <b>${won(tOver)}원</b> 많은데, 이 금액은
-    <b>어린이집 운영비에서 부담</b>했습니다. 보호자께 더 청구하지 않으며,
+  if (tOver) body.appendChild(el(`<div class="note show-print"><b>받은 돈보다 더 쓴 세목이 있습니다 —
+    어린이집 운영비에서 ${won(tOver)}원을 부담했습니다.</b><br>
+    <span class="hint">${overList.map(r => esc(r.name) + " " + won(r.over) + "원").join(" · ")}</span><br>
+    위 세목은 보호자께서 내신 금액보다 실제로 쓴 금액이 많습니다.
+    모자란 몫은 <b>어린이집 운영비에서 부담</b>했으므로 보호자께 더 청구하지 않으며,
     그 세목의 반환할 금액은 <b>0</b>으로 적습니다.
-    그래서 표의 「반환할 금액」이 「수납액 − 실 사용금액」과 맞지 않을 수 있습니다.</div>`));
-  if (anyConsign) body.appendChild(el(`<div class="note">위탁보육료를 받는 달의 비용은
+    그래서 표의 「반환할 금액」이 「수납액 − 실 사용금액」과 맞지 않아 보일 수 있습니다.</div>`));
+  if (anyConsign) body.appendChild(el(`<div class="note show-print">위탁보육료를 받는 달의 비용은
     <b>전입금으로 충당</b>되므로 같은 금액을 수입으로도 잡았습니다. 들어온 만큼 나간 것이라
     반환할 금액에는 영향이 없습니다.</div>`));
 
@@ -3562,6 +3573,7 @@ function noticeSheet(c, spec, fy, withDetail){
   const carryFrom = fyStart(fy), carryTo = addDays(spec.from, -1);
   const rows = [];
   let carryT = 0, paidT = 0, usedT = 0, consignT = 0, leftClamped = 0, overT = 0, feeT = 0;
+  const overRows = [];          /* 어느 세목에서 얼마를 어린이집이 부담했나 */
   for (const it of S.items) {
     const b = balance(c.id, it.id, spec.from, spec.to);
     const carry = spec.carry ? balance(c.id, it.id, carryFrom, carryTo).left : 0;
@@ -3569,7 +3581,9 @@ function noticeSheet(c, spec, fy, withDetail){
     const pc = parentCharge(c.id, it.id, spec.from, spec.to);
     rows.push({ it, b, carry, pc });
     leftClamped += Math.max(0, carry + b.paid - b.used);
-    overT       += Math.max(0, -(carry + b.paid - b.used));
+    const over1 = Math.max(0, -(carry + b.paid - b.used));
+    if (over1) overRows.push({ name: it.name, over: over1 });
+    overT += over1;
     carryT += carry; paidT += b.paid; usedT += b.used; consignT += b.consign; feeT += pc.fee;
   }
   if (!rows.length) return null;
@@ -3640,15 +3654,17 @@ function noticeSheet(c, spec, fy, withDetail){
         <td class="n">${won(usedT + consignT)}</td>
         <td class="n">${won(leftClamped)}</td></tr>
     </tbody></table>
-    ${anyFee ? `<div class="note">카드로 내신 금액은 <b>수수료를 떼고</b> 어린이집 통장에 들어옵니다.
+    ${anyFee ? `<div class="note show-print">카드로 내신 금액은 <b>수수료를 떼고</b> 어린이집 통장에 들어옵니다.
       그래서 <b>결제하신 금액</b>과 실제로 필요경비에 쓸 수 있었던 금액이 수수료만큼 다릅니다.
       위 표는 <b>보호자께서 결제하신 금액</b>을 적고, 떼인 수수료를 따로 보여 드립니다.</div>` : ""}
-    ${overT ? `<div class="note"><b>받은 돈보다 더 쓴 세목이 있습니다.</b>
-      실 사용금액이 수납액보다 <b>${won(overT)}원</b> 많은데, 이 금액은
-      <b>어린이집 운영비에서 부담</b>했습니다. 보호자께 더 청구하지 않으며,
+    ${overT ? `<div class="note show-print"><b>받은 돈보다 더 쓴 세목이 있습니다 —
+      어린이집 운영비에서 ${won(overT)}원을 부담했습니다.</b><br>
+      <span class="hint">${overRows.map(r => esc(r.name) + " " + won(r.over) + "원").join(" · ")}</span><br>
+      위 세목은 보호자께서 내신 금액보다 실제로 쓴 금액이 많습니다.
+      모자란 몫은 <b>어린이집 운영비에서 부담</b>했으므로 보호자께 더 청구하지 않으며,
       그 세목의 남은 금액은 <b>0</b>으로 적습니다.
-      그래서 표의 「남은 금액」이 「수납액 − 실 사용금액」과 맞지 않을 수 있습니다.</div>` : ""}
-    ${anyConsign ? `<div class="note">위탁보육료를 받는 달의 비용은 보호자가 아니라 <b>회사 전입금으로 충당</b>되어, 같은 금액이 수입과 사용에 함께 잡힙니다. 보호자가 내실 몫에는 영향이 없습니다.</div>` : ""}
+      그래서 표의 「남은 금액」이 「수납액 − 실 사용금액」과 맞지 않아 보일 수 있습니다.</div>` : ""}
+    ${anyConsign ? `<div class="note show-print">위탁보육료를 받는 달의 비용은 보호자가 아니라 <b>회사 전입금으로 충당</b>되어, 같은 금액이 수입과 사용에 함께 잡힙니다. 보호자가 내실 몫에는 영향이 없습니다.</div>` : ""}
     ${detail}`;
   return node;
 }

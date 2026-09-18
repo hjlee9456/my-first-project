@@ -255,6 +255,26 @@ const SEED = {
       && /대상 원아/.test(prev),
     prev.slice(prev.indexOf("잔액이 모자랍니다"), prev.indexOf("잔액이 모자랍니다") + 120));
 
+  /* 보호자 서류의 설명은 인쇄물에도 나가야 한다 — 어느 세목에서 얼마를
+     어린이집이 부담했는지 그 종이만 보고 알 수 있어야 하기 때문이다 */
+  await p.click('nav button[data-tab="settle"]');
+  await p.waitForTimeout(300);
+  await p.click('[data-m="notice"]');
+  await p.waitForTimeout(600);
+  await p.emulateMedia({ media: "print" });
+  await p.waitForTimeout(400);
+  const printedNotes = await p.$$eval("#nt_body .note",
+    ns => ns.filter(n => getComputedStyle(n).display !== "none")
+            .map(n => n.textContent.replace(/\s+/g, " ")));
+  check("안내문의 설명이 인쇄물에도 나옴", printedNotes.length > 0,
+    printedNotes.length + "건");
+  const overNote = printedNotes.find(t => /더 쓴 세목/.test(t)) || "";
+  check("어느 세목에서 얼마를 어린이집이 부담했는지 적힘",
+    !overNote || (/운영비에서 [\d,]+원을 부담/.test(overNote) && /[가-힣·\s]+ [\d,]+원/.test(overNote)),
+    overNote.slice(0, 120));
+  await p.emulateMedia({ media: "screen" });
+  await p.waitForTimeout(300);
+
   // ================= 반환 정산서 (전 원아) =================
   await p.click('nav button[data-tab="settle"]');
   await p.waitForTimeout(300);
