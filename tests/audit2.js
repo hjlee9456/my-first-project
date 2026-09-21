@@ -221,6 +221,42 @@ const base = (extra={}) => Object.assign({
   say("08 협의금액 10,000이 연말 반환 정산서에 반영",
       /10,000/.test(bk) && !/ 40,000 /.test(bk), bk.slice(bk.indexOf("순번"), bk.indexOf("순번")+140));
 
+  // ══ 08 안내문도 협의금액을 따르나 (반환 열은 반환이 있을 때만)
+  await seed(base({
+    children:[{id:"k1",name:"김서우",admitDate:"2026-03-02",leaveDate:"2026-06-15",
+      classHistory:[{classId:"c1",startDate:"2026-03-02"}],consignPeriods:[],
+      prepBack:2000, prepGiven:true}],
+    items:[{id:"it_prep",name:"입학준비금",group:"기타필요경비",targetMode:"fixed",
+            enabled:true,special:"prep",stdAmount:0}],
+    vouchers:[{id:"v1",date:"2026-03-10",voucherNo:"1",itemId:"it_prep",summary:"수납",
+               perAmount:100000,cardFee:0,lines:[{childId:"k1",amount:100000,memo:""}],total:100000}],
+    expenses:[{id:"x1",date:"2026-04-10",voucherNo:"1",itemId:"it_prep",summary:"원복",
+               total:60000,needAmount:60000,operAmount:0,memo:"",overrides:[],
+               allocations:[{childId:"k1",amount:60000}]}]}));
+  await p.click('nav button[data-tab="settle"]'); await p.click('[data-m="notice"]');
+  await p.click('[data-p="Y"]').catch(()=>{}); await p.waitForTimeout(250);
+  await p.selectOption("#nt_class",""); await p.waitForTimeout(150);
+  await p.selectOption("#nt_child","k1"); await p.waitForTimeout(350);
+  let ntp = flat(await p.textContent("#nt_body"));
+  say("08 반환 전에는 안내문에 반환 열이 없음", !/돌려드린/.test(ntp));
+  say("08 안내문의 입학준비금이 협의금액 2,000원을 따름 (40,000이 아님)",
+      /입학준비금 100,000 60,000 2,000/.test(ntp) && !/38,000/.test(ntp),
+      ntp.slice(ntp.indexOf("입학준비금"), ntp.indexOf("입학준비금")+60));
+  say("08 협의로 정했다는 설명이 인쇄물에도 나감",
+      (await p.locator("#nt_body .note.show-print").filter({hasText:"협의한 금액"}).count())===1);
+
+  // 반환까지 마치면 앞으로 돌려드릴 금액이 0
+  await p.click('[data-m="exit"]'); await p.waitForTimeout(350);
+  await p.click("#ex_mark"); await p.waitForTimeout(400);
+  await p.click('[data-m="notice"]'); await p.click('[data-p="Y"]').catch(()=>{});
+  await p.waitForTimeout(250);
+  await p.selectOption("#nt_class",""); await p.waitForTimeout(150);
+  await p.selectOption("#nt_child","k1"); await p.waitForTimeout(350);
+  ntp = flat(await p.textContent("#nt_body"));
+  say("08 협의금액을 돌려준 뒤 앞으로 돌려드릴 금액이 0",
+      /입학준비금 100,000 60,000 2,000 0/.test(ntp),
+      ntp.slice(ntp.indexOf("입학준비금"), ntp.indexOf("입학준비금")+60));
+
   // ══ 14 입력 검증
   await seed(base());
   say("14 1.5는 15가 되지 않음",  (await p.evaluate(()=>num("1.5")))===0, String(await p.evaluate(()=>num("1.5"))));
