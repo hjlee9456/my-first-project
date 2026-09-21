@@ -58,7 +58,23 @@ const flat = s => String(s || "").replace(/\s+/g, " ");
 
   // 버전·제작자·의견 주실 곳은 첫 화면 하나에만 둔다
   const about = flat(await p.textContent("#home .about"));
-  check("첫 화면에 버전·제작자", /어린이집 살림도우미 v1\.0\.0 · 제작 이현재/.test(about), about.slice(0, 60));
+  /* 판올림할 때마다 시험을 고치지 않도록 build.py에 적힌 버전을 그대로 읽어 온다 */
+  const VER = (require("fs").readFileSync("/home/user/my-first-project/build.py", "utf8")
+    .match(/^VERSION\s*=\s*"([^"]+)"/m) || [])[1];
+  check("첫 화면에 버전·제작자",
+    !!VER && about.includes(`어린이집 살림도우미 ${VER} · 제작 이현재`), `${VER} · ` + about.slice(0, 50));
+  check("첫 화면 우측 하단에 패치노트 버튼",
+    (await p.locator("#btnLog").count()) === 1);
+  await p.click("#btnLog");
+  await p.waitForTimeout(250);
+  const log = flat(await p.textContent("#logBox"));
+  check("패치노트에 판올림 날짜와 고친 내용이 나옴",
+    new RegExp(VER.replace(".", "\\.") + " 2026-").test(log) && /v1\.0\.0 2026-09-18/.test(log),
+    log.slice(0, 110));
+  await p.click("#logClose");
+  await p.waitForTimeout(200);
+  check("패치노트 창이 닫힘", await p.locator("#logMask").isHidden());
+
   check("첫 화면에 의견 주실 곳", /hjlee9446@korea\.kr/.test(about) && /개정본 수신 신청/.test(about), about);
   check("메일 링크가 걸려 있음",
     (await p.locator('#home .about a[href^="mailto:hjlee9446@korea.kr"]').count()) === 1);

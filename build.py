@@ -22,8 +22,29 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # 고칠 일이 있으면 여기만 고치면 첫 화면에 그대로 나온다.
 NAME    = "어린이집 살림도우미"
 FILE    = "어린이집살림도우미.html"
-VERSION = "v1.0.0"
+VERSION = "v1.0.1"
 MAKER   = "이현재"
+
+# 판올림 기록. 새 판을 낼 때마다 맨 위에 한 덩이씩 얹는다.
+# 어린이집이 「무엇이 달라졌나」를 한눈에 보는 자리라 짧게 적는다.
+PATCHES_LOG = [
+    ("v1.0.1", "2026-09-21", [
+        "이미 돌려준 돈이 다음 반기와 보호자 안내문에 다시 나오던 것을 바로잡음",
+        "같은 금액을 여러 번 「반환 완료」로 찍을 수 있던 것을 막음",
+        "사용을 꺼 둔 세목의 예전 결의서를 고치면 세목이 바뀌던 것을 바로잡음",
+        "결의서를 고치는 중에 날짜·세목이 원래대로 되돌아가던 것을 바로잡음",
+        "정산 문답에서 마지막 원아를 빼면 배분 합계가 0원이 되던 것을 막음",
+        "카드수수료 방식을 바꾸다 취소하면 수납액이 어긋나던 것을 바로잡음",
+        "새 회계연도를 만들 때 반환 기록이 사라지던 것을 바로잡음",
+        "검증 화면의 「돌려줄 돈」을 세목별로 계산 (세목끼리 상계하지 않음)",
+        "입학준비금 협의 금액이 CSV·연말 정산서에 반영되도록 함",
+        "명단 창을 띄운 채 인쇄하면 그 명단만 깨끗하게 나오도록 함",
+        "금액 칸에 「1.5」처럼 적으면 말없이 15로 바뀌던 것을 막음",
+    ]),
+    ("v1.0.0", "2026-09-18", [
+        "첫 배포 — 기타필요경비 정산과 물품관리를 한 파일로 묶음",
+    ]),
+]
 MAIL    = "hjlee9446@korea.kr"
 
 # ---------------------------------------------------------------------------
@@ -145,6 +166,8 @@ body{margin:0;background:var(--bg);color:var(--ink);
   padding:7px 14px;border:1px solid var(--line);background:var(--panel);
   border-radius:6px;cursor:pointer;color:var(--dim)}
 #home .corner:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg)}
+/* 무엇이 언제 고쳐졌는지 — 눈에 띌 필요는 없으니 구석에 작게 둔다 */
+#home .corner.rb{top:auto;left:auto;right:14px;bottom:14px;font-size:12px;padding:5px 11px}
 #home h1{margin:2px 0 4px;font-size:27px;font-weight:700}
 #home .lead{font-size:13.5px;color:var(--dim);margin-bottom:26px}
 .cards{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
@@ -164,11 +187,15 @@ body{margin:0;background:var(--bg);color:var(--ink);
 #home .about a:hover{text-decoration:underline}
 
 /* ---------- 어린이집 이름 창 ---------- */
-#nameMask{position:fixed;inset:0;background:rgba(20,26,34,.42);
+#nameMask,#logMask{position:fixed;inset:0;background:rgba(20,26,34,.42);
   display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
-#nameMask[hidden]{display:none}
-#nameBox{background:var(--panel);border-radius:10px;padding:24px 26px 20px;
+#nameMask[hidden],#logMask[hidden]{display:none}
+#nameBox,#logMask .box{background:var(--panel);border-radius:10px;padding:24px 26px 20px;
   width:100%;max-width:430px;box-shadow:0 16px 44px rgba(0,0,0,.22)}
+#logMask .box .btns{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+#logMask .box button{font:inherit;font-size:13px;padding:7px 16px;border:1px solid var(--accent);
+  background:var(--accent);border-radius:5px;cursor:pointer;color:#fff}
+#logMask .box button:hover{filter:brightness(1.07)}
 #nameBox h2{margin:0 0 8px;font-size:17px}
 #nameBox p{margin:0 0 16px;font-size:12.5px;color:var(--dim);line-height:1.8}
 #nameBox input{font:inherit;font-size:14px;width:100%;padding:9px 11px;
@@ -180,6 +207,15 @@ body{margin:0;background:var(--bg);color:var(--ink);
 #nameBox button:hover{background:var(--bg)}
 #nameBox button.pri{background:var(--accent);border-color:var(--accent);color:#fff}
 #nameBox button.pri:hover{filter:brightness(1.07)}
+
+/* ---------- 패치노트 ---------- */
+#logBox{max-width:560px;max-height:min(70vh,560px);overflow:auto}
+#logBox h2{margin:0 0 4px}
+#logBox .rel{margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+#logBox .rel:first-of-type{margin-top:10px;padding-top:0;border-top:0}
+#logBox .rel h3{margin:0 0 7px;font-size:14px;display:flex;align-items:baseline;gap:8px}
+#logBox .rel h3 .d{font-size:12px;font-weight:400;color:var(--faint)}
+#logBox ul{margin:0;padding-left:18px;font-size:12.5px;color:var(--dim);line-height:1.85}
 
 /* ---------- 프로그램 화면 ---------- */
 #run{position:fixed;inset:0;display:none;flex-direction:column}
@@ -211,6 +247,7 @@ body{font-size:15px}#home{gap:8px;padding:80px 24px 40px}#home h1{font-size:34px
 
 <div id="home">
   <button id="btnName" class="corner">⚙ 어린이집 이름 설정</button>
+  <button id="btnLog" class="corner rb">📋 패치노트</button>
   <h1>__NAME__</h1>
   <div class="lead">사용할 업무를 선택하세요.</div>
   <div class="cards">
@@ -241,6 +278,18 @@ __CARDS__
       <button id="nameCancel">취소</button>
       <button id="nameSave" class="pri">저장</button>
     </div>
+  </div>
+</div>
+
+<!-- 판올림 기록 — 무엇이 언제 고쳐졌는지 -->
+<div id="logMask" hidden>
+  <div id="nameBox" class="box" style="max-width:560px">
+    <div id="logBox">
+      <h2>패치노트</h2>
+      <p style="margin:0 0 4px;font-size:12.5px;color:var(--dim)">__NAME__이 판올림된 기록입니다.</p>
+__PATCHLOG__
+    </div>
+    <div class="btns"><button id="logClose" class="pri">닫기</button></div>
   </div>
 </div>
 
@@ -342,6 +391,10 @@ function saveCenterName(){
   closeNameBox();
 }
 
+var logMask = document.getElementById("logMask");
+document.getElementById("btnLog").onclick    = function(){ logMask.hidden = false; };
+document.getElementById("logClose").onclick  = function(){ logMask.hidden = true; };
+logMask.addEventListener("click", function(e){ if (e.target === logMask) logMask.hidden = true; });
 document.getElementById("btnName").onclick   = openNameBox;
 document.getElementById("nameSave").onclick   = saveCenterName;
 document.getElementById("nameCancel").onclick = closeNameBox;
@@ -375,7 +428,16 @@ def main():
             '    </button>' % (key, icon, name, desc))
         print("  담음: %-22s %6.0f KB" % (filename, len(html.encode("utf-8")) / 1024))
 
+    log = []
+    for ver, date, lines in PATCHES_LOG:
+        log.append(
+            '      <div class="rel">\n'
+            '        <h3>%s <span class="d">%s</span></h3>\n'
+            '        <ul>%s</ul>\n'
+            '      </div>' % (ver, date, "".join("<li>%s</li>" % x for x in lines)))
+
     page = PAGE.replace("__CARDS__", "\n".join(cards))
+    page = page.replace("__PATCHLOG__", "\n".join(log))
     page = page.replace("__APPS__", "{\n" + ",\n".join(apps) + "\n}")
     page = page.replace("__VERSION__", VERSION).replace("__MAIL__", MAIL)
     page = page.replace("__NAME__", NAME)

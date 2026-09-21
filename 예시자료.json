@@ -104,7 +104,9 @@
      "startDate": "2026-03-02"
     }
    ],
-   "consignPeriods": []
+   "consignPeriods": [],
+   "prepGiven": true,
+   "prepBack": 1000
   },
   {
    "id": "ch06",
@@ -454,7 +456,9 @@
      "startDate": "2026-03-02"
     }
    ],
-   "consignPeriods": []
+   "consignPeriods": [],
+   "prepGiven": true,
+   "prepBack": 2000
   },
   {
    "id": "ch30",
@@ -10645,5 +10649,52 @@
    ]
   }
  ],
- "cardFeeMode": "net"
+ "cardFeeMode": "net",
+ "refunds": [
+  {
+   "id": "rf01",
+   "date": "2026-11-25",
+   "childId": "ch29",
+   "itemId": "it_prep",
+   "amount": 2000,
+   "reason": "중간퇴소",
+   "memo": ""
+  },
+  {
+   "id": "rf02",
+   "date": "2026-11-25",
+   "childId": "ch29",
+   "itemId": "it_bus",
+   "amount": 60484,
+   "reason": "중간퇴소",
+   "memo": ""
+  },
+  {
+   "id": "rf03",
+   "date": "2026-11-25",
+   "childId": "ch29",
+   "itemId": "it_event",
+   "amount": 19575,
+   "reason": "중간퇴소",
+   "memo": ""
+  },
+  {
+   "id": "rf04",
+   "date": "2026-11-25",
+   "childId": "ch29",
+   "itemId": "it_album",
+   "amount": 49995,
+   "reason": "중간퇴소",
+   "memo": ""
+  },
+  {
+   "id": "rf05",
+   "date": "2026-11-25",
+   "childId": "ch29",
+   "itemId": "it_local",
+   "amount": 20826,
+   "reason": "중간퇴소",
+   "memo": ""
+  }
+ ]
 }

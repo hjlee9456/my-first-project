@@ -128,8 +128,13 @@ const SEED = {
   const chk = flat(await p.textContent("main"));
   check("검증 대사에 이미 반환한 금액이 한 줄로 들어감",
     /이미 반환한 금액 \(622목 보호자반환금\)\(C\) 95,000원/.test(chk)
-      && /남은 금액 \(보호자에게 돌려줄 몫\)\(D = A − B − C\) 95,000원/.test(chk),
+      && /장부 차액\(D = A − B − C\) 95,000원/.test(chk),
     chk.slice(chk.indexOf("보호자 수납 합계"), chk.indexOf("보호자 수납 합계") + 220));
+  /* 세목을 서로 상계하지 않으므로 「돌려줄 돈」은 세목별 남은 몫의 합이다 */
+  check("검증에 돌려줄 돈과 메워야 할 돈이 따로 나옴",
+    /돌려줄 돈 \(세목별 남은 몫의 합\)\(A\) 95,000원/.test(chk)
+      && /메워야 할 돈 \(세목별 모자란 몫의 합\)\(B\) 0원/.test(chk),
+    chk.slice(chk.indexOf("돌려줄 돈과"), chk.indexOf("돌려줄 돈과") + 140));
 
   await p.click('nav button[data-tab="child"]');
   await p.waitForTimeout(200);
