@@ -1,0 +1,4609 @@
+{
+  "version": 2,
+  "fiscalYear": 2026,
+  "years": {
+    "2026": {
+      "classes": [
+        {
+          "id": "cl_a",
+          "name": "햇살반"
+        },
+        {
+          "id": "cl_b",
+          "name": "별빛반"
+        },
+        {
+          "id": "cl_c",
+          "name": "한빛반"
+        }
+      ],
+      "children": [
+        {
+          "id": "k1",
+          "name": "김서우",
+          "admitDate": "2026-03-02",
+          "leaveDate": "",
+          "memo": "",
+          "classHistory": [
+            {
+              "classId": "cl_a",
+              "startDate": "2026-03-02"
+            }
+          ],
+          "consignPeriods": []
+        },
+        {
+          "id": "k2",
+          "name": "이하람",
+          "admitDate": "2026-03-02",
+          "leaveDate": "2026-06-15",
+          "memo": "중간퇴소",
+          "classHistory": [
+            {
+              "classId": "cl_a",
+              "startDate": "2026-03-02"
+            }
+          ],
+          "consignPeriods": []
+        },
+        {
+          "id": "k3",
+          "name": "박도윤",
+          "admitDate": "2026-03-02",
+          "leaveDate": "",
+          "memo": "9월 반 이동",
+          "classHistory": [
+            {
+              "classId": "cl_a",
+              "startDate": "2026-03-02"
+            },
+            {
+              "classId": "cl_b",
+              "startDate": "2026-09-01"
+            }
+          ],
+          "consignPeriods": []
+        },
+        {
+          "id": "k4",
+          "name": "최지안",
+          "admitDate": "2026-03-02",
+          "leaveDate": "",
+          "memo": "10월 위탁 전환",
+          "classHistory": [
+            {
+              "classId": "cl_b",
+              "startDate": "2026-03-02"
+            }
+          ],
+          "consignPeriods": [
+            {
+              "id": "cp1",
+              "startMonth": "2026-10",
+              "endMonth": null,
+              "employer": "한국조선해양"
+            }
+          ]
+        },
+        {
+          "id": "k5",
+          "name": "정유나",
+          "admitDate": "2026-03-02",
+          "leaveDate": "",
+          "memo": "처음부터 위탁",
+          "classHistory": [
+            {
+              "classId": "cl_b",
+              "startDate": "2026-03-02"
+            }
+          ],
+          "consignPeriods": [
+            {
+              "id": "cp2",
+              "startMonth": "2026-03",
+              "endMonth": null,
+              "employer": "여수광양항만공사"
+            }
+          ]
+        },
+        {
+          "id": "k6",
+          "name": "한서준",
+          "admitDate": "2026-08-03",
+          "leaveDate": "",
+          "memo": "중간입소",
+          "classHistory": [
+            {
+              "classId": "cl_c",
+              "startDate": "2026-08-03"
+            }
+          ],
+          "consignPeriods": []
+        },
+        {
+          "id": "k7",
+          "name": "오하린",
+          "admitDate": "2026-03-02",
+          "leaveDate": "",
+          "memo": "",
+          "classHistory": [
+            {
+              "classId": "cl_c",
+              "startDate": "2026-03-02"
+            }
+          ],
+          "consignPeriods": []
+        },
+        {
+          "id": "k8",
+          "name": "강시우",
+          "admitDate": "2026-03-02",
+          "leaveDate": "",
+          "memo": "",
+          "classHistory": [
+            {
+              "classId": "cl_c",
+              "startDate": "2026-03-02"
+            }
+          ],
+          "consignPeriods": []
+        }
+      ],
+      "items": [
+        {
+          "id": "it_prep",
+          "name": "입학준비금",
+          "group": "기타필요경비",
+          "targetMode": "fixed",
+          "enabled": true,
+          "special": "prep",
+          "cycle": "year",
+          "stdAmount": 0,
+          "note": "신청 항목만"
+        },
+        {
+          "id": "it_sa",
+          "name": "특별활동비",
+          "group": "특별활동비",
+          "targetMode": "fixed",
+          "enabled": true,
+          "cycle": "monthly",
+          "stdAmount": 36997,
+          "note": ""
+        },
+        {
+          "id": "it_field",
+          "name": "현장학습비",
+          "group": "기타필요경비",
+          "targetMode": "event",
+          "enabled": true,
+          "cycle": "adhoc",
+          "stdAmount": 29997,
+          "note": ""
+        },
+        {
+          "id": "it_bus",
+          "name": "차량운행비",
+          "group": "기타필요경비",
+          "targetMode": "fixed",
+          "enabled": true,
+          "cycle": "monthly",
+          "stdAmount": 19998,
+          "note": "이용 원아만"
+        },
+        {
+          "id": "it_event",
+          "name": "행사비",
+          "group": "기타필요경비",
+          "targetMode": "event",
+          "enabled": true,
+          "cycle": "adhoc",
+          "stdAmount": 49995,
+          "note": ""
+        },
+        {
+          "id": "it_album",
+          "name": "앨범비",
+          "group": "기타필요경비",
+          "targetMode": "fixed",
+          "enabled": true,
+          "cycle": "year",
+          "stdAmount": 49995,
+          "note": "졸업 신청자만"
+        },
+        {
+          "id": "it_meal",
+          "name": "급식비",
+          "group": "기타필요경비",
+          "targetMode": "fixed",
+          "enabled": false,
+          "cycle": "monthly",
+          "stdAmount": 0,
+          "note": "쓰지 않는 세목"
+        },
+        {
+          "id": "it_local",
+          "name": "기타 시·도 특성화비용",
+          "group": "기타필요경비",
+          "targetMode": "fixed",
+          "enabled": true,
+          "cycle": "monthly",
+          "stdAmount": 9999,
+          "note": ""
+        }
+      ],
+      "rosters": [
+        {
+          "id": "rs1",
+          "name": "통학차량 이용 원아",
+          "itemId": "it_bus",
+          "childIds": [
+            "k1",
+            "k3",
+            "k7"
+          ]
+        },
+        {
+          "id": "rs2",
+          "name": "졸업앨범 신청 원아",
+          "itemId": "it_album",
+          "childIds": [
+            "k7",
+            "k8"
+          ]
+        }
+      ],
+      "vouchers": [
+        {
+          "id": "vc01",
+          "date": "2026-03-20",
+          "voucherNo": "1",
+          "itemId": "it_prep",
+          "summary": "기타필요경비 아이행복카드 결제분 — 입학준비금 · 현장학습비 · 행사비",
+          "perAmount": 99990,
+          "cardFee": 0,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 99990,
+              "memo": ""
+            },
+            {
+              "childId": "k2",
+              "amount": 99990,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 99990,
+              "memo": ""
+            },
+            {
+              "childId": "k4",
+              "amount": 99990,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 99990,
+              "memo": ""
+            },
+            {
+              "childId": "k8",
+              "amount": 99990,
+              "memo": ""
+            }
+          ],
+          "total": 599940
+        },
+        {
+          "id": "vc02",
+          "date": "2026-03-20",
+          "voucherNo": "1",
+          "itemId": "it_field",
+          "summary": "기타필요경비 아이행복카드 결제분 — 입학준비금 · 현장학습비 · 행사비",
+          "perAmount": 29997,
+          "cardFee": 18,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 29997,
+              "memo": ""
+            },
+            {
+              "childId": "k2",
+              "amount": 29997,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 29997,
+              "memo": ""
+            },
+            {
+              "childId": "k4",
+              "amount": 29997,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 29997,
+              "memo": ""
+            },
+            {
+              "childId": "k8",
+              "amount": 29997,
+              "memo": ""
+            }
+          ],
+          "total": 179982
+        },
+        {
+          "id": "vc03",
+          "date": "2026-03-20",
+          "voucherNo": "1",
+          "itemId": "it_event",
+          "summary": "기타필요경비 아이행복카드 결제분 — 입학준비금 · 현장학습비 · 행사비",
+          "perAmount": 49995,
+          "cardFee": 30,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 49995,
+              "memo": ""
+            },
+            {
+              "childId": "k2",
+              "amount": 49995,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 49995,
+              "memo": ""
+            },
+            {
+              "childId": "k4",
+              "amount": 49995,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 49995,
+              "memo": ""
+            },
+            {
+              "childId": "k8",
+              "amount": 49995,
+              "memo": ""
+            }
+          ],
+          "total": 299970
+        },
+        {
+          "id": "vc04",
+          "date": "2026-03-21",
+          "voucherNo": "2",
+          "itemId": "it_sa",
+          "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+          "perAmount": 36997,
+          "cardFee": 18,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k2",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k4",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k8",
+              "amount": 36997,
+              "memo": ""
+            }
+          ],
+          "total": 221982
+        },
+        {
+          "id": "vc05",
+          "date": "2026-03-21",
+          "voucherNo": "2",
+          "itemId": "it_bus",
+          "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+          "perAmount": 19998,
+          "cardFee": 6,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 19998,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 19998,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 19998,
+              "memo": ""
+            }
+          ],
+          "total": 59994
+        },
+        {
+          "id": "vc06",
+          "date": "2026-03-21",
+          "voucherNo": "2",
+          "itemId": "it_local",
+          "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+          "perAmount": 9999,
+          "cardFee": 6,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k2",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k4",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k8",
+              "amount": 9999,
+              "memo": ""
+            }
+          ],
+          "total": 59994
+        },
+        {
+          "id": "vc07",
+          "date": "2026-06-21",
+          "voucherNo": "3",
+          "itemId": "it_sa",
+          "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+          "perAmount": 36997,
+          "cardFee": 15,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k4",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k8",
+              "amount": 36997,
+              "memo": ""
+            }
+          ],
+          "total": 184985
+        },
+        {
+          "id": "vc08",
+          "date": "2026-06-21",
+          "voucherNo": "3",
+          "itemId": "it_bus",
+          "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+          "perAmount": 19998,
+          "cardFee": 6,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 19998,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 19998,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 19998,
+              "memo": ""
+            }
+          ],
+          "total": 59994
+        },
+        {
+          "id": "vc09",
+          "date": "2026-06-21",
+          "voucherNo": "3",
+          "itemId": "it_local",
+          "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+          "perAmount": 9999,
+          "cardFee": 5,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k4",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k8",
+              "amount": 9999,
+              "memo": ""
+            }
+          ],
+          "total": 49995
+        },
+        {
+          "id": "vc10",
+          "date": "2026-09-21",
+          "voucherNo": "4",
+          "itemId": "it_sa",
+          "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+          "perAmount": 36997,
+          "cardFee": 18,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k4",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k6",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k8",
+              "amount": 36997,
+              "memo": ""
+            }
+          ],
+          "total": 221982
+        },
+        {
+          "id": "vc11",
+          "date": "2026-09-21",
+          "voucherNo": "4",
+          "itemId": "it_bus",
+          "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+          "perAmount": 19998,
+          "cardFee": 6,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 19998,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 19998,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 19998,
+              "memo": ""
+            }
+          ],
+          "total": 59994
+        },
+        {
+          "id": "vc12",
+          "date": "2026-09-21",
+          "voucherNo": "4",
+          "itemId": "it_local",
+          "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+          "perAmount": 9999,
+          "cardFee": 6,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k4",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k6",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k8",
+              "amount": 9999,
+              "memo": ""
+            }
+          ],
+          "total": 59994
+        },
+        {
+          "id": "vc13",
+          "date": "2026-12-21",
+          "voucherNo": "5",
+          "itemId": "it_sa",
+          "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+          "perAmount": 36997,
+          "cardFee": 15,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k6",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k8",
+              "amount": 36997,
+              "memo": ""
+            }
+          ],
+          "total": 184985
+        },
+        {
+          "id": "vc14",
+          "date": "2026-12-21",
+          "voucherNo": "5",
+          "itemId": "it_bus",
+          "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+          "perAmount": 19998,
+          "cardFee": 6,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 19998,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 19998,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 19998,
+              "memo": ""
+            }
+          ],
+          "total": 59994
+        },
+        {
+          "id": "vc15",
+          "date": "2026-12-21",
+          "voucherNo": "5",
+          "itemId": "it_local",
+          "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+          "perAmount": 9999,
+          "cardFee": 5,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k6",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k8",
+              "amount": 9999,
+              "memo": ""
+            }
+          ],
+          "total": 49995
+        },
+        {
+          "id": "vc16",
+          "date": "2027-02-21",
+          "voucherNo": "6",
+          "itemId": "it_sa",
+          "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+          "perAmount": 36997,
+          "cardFee": 15,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k6",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 36997,
+              "memo": ""
+            },
+            {
+              "childId": "k8",
+              "amount": 36997,
+              "memo": ""
+            }
+          ],
+          "total": 184985
+        },
+        {
+          "id": "vc17",
+          "date": "2027-02-21",
+          "voucherNo": "6",
+          "itemId": "it_bus",
+          "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+          "perAmount": 19998,
+          "cardFee": 6,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 19998,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 19998,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 19998,
+              "memo": ""
+            }
+          ],
+          "total": 59994
+        },
+        {
+          "id": "vc18",
+          "date": "2027-02-21",
+          "voucherNo": "6",
+          "itemId": "it_local",
+          "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+          "perAmount": 9999,
+          "cardFee": 5,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k3",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k6",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k7",
+              "amount": 9999,
+              "memo": ""
+            },
+            {
+              "childId": "k8",
+              "amount": 9999,
+              "memo": ""
+            }
+          ],
+          "total": 49995
+        },
+        {
+          "id": "vc19",
+          "date": "2026-11-20",
+          "voucherNo": "7",
+          "itemId": "it_album",
+          "summary": "졸업앨범비 수납",
+          "perAmount": 49995,
+          "cardFee": 10,
+          "lines": [
+            {
+              "childId": "k7",
+              "amount": 49995,
+              "memo": ""
+            },
+            {
+              "childId": "k8",
+              "amount": 49995,
+              "memo": ""
+            }
+          ],
+          "total": 99990
+        }
+      ],
+      "receipts": [
+        {
+          "id": "vc01_k1",
+          "voucherId": "vc01",
+          "voucherNo": "1",
+          "childId": "k1",
+          "itemId": "it_prep",
+          "date": "2026-03-20",
+          "amount": 99990,
+          "fee": 0,
+          "memo": ""
+        },
+        {
+          "id": "vc01_k2",
+          "voucherId": "vc01",
+          "voucherNo": "1",
+          "childId": "k2",
+          "itemId": "it_prep",
+          "date": "2026-03-20",
+          "amount": 99990,
+          "fee": 0,
+          "memo": ""
+        },
+        {
+          "id": "vc01_k3",
+          "voucherId": "vc01",
+          "voucherNo": "1",
+          "childId": "k3",
+          "itemId": "it_prep",
+          "date": "2026-03-20",
+          "amount": 99990,
+          "fee": 0,
+          "memo": ""
+        },
+        {
+          "id": "vc01_k4",
+          "voucherId": "vc01",
+          "voucherNo": "1",
+          "childId": "k4",
+          "itemId": "it_prep",
+          "date": "2026-03-20",
+          "amount": 99990,
+          "fee": 0,
+          "memo": ""
+        },
+        {
+          "id": "vc01_k7",
+          "voucherId": "vc01",
+          "voucherNo": "1",
+          "childId": "k7",
+          "itemId": "it_prep",
+          "date": "2026-03-20",
+          "amount": 99990,
+          "fee": 0,
+          "memo": ""
+        },
+        {
+          "id": "vc01_k8",
+          "voucherId": "vc01",
+          "voucherNo": "1",
+          "childId": "k8",
+          "itemId": "it_prep",
+          "date": "2026-03-20",
+          "amount": 99990,
+          "fee": 0,
+          "memo": ""
+        },
+        {
+          "id": "vc02_k1",
+          "voucherId": "vc02",
+          "voucherNo": "1",
+          "childId": "k1",
+          "itemId": "it_field",
+          "date": "2026-03-20",
+          "amount": 29997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc02_k2",
+          "voucherId": "vc02",
+          "voucherNo": "1",
+          "childId": "k2",
+          "itemId": "it_field",
+          "date": "2026-03-20",
+          "amount": 29997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc02_k3",
+          "voucherId": "vc02",
+          "voucherNo": "1",
+          "childId": "k3",
+          "itemId": "it_field",
+          "date": "2026-03-20",
+          "amount": 29997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc02_k4",
+          "voucherId": "vc02",
+          "voucherNo": "1",
+          "childId": "k4",
+          "itemId": "it_field",
+          "date": "2026-03-20",
+          "amount": 29997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc02_k7",
+          "voucherId": "vc02",
+          "voucherNo": "1",
+          "childId": "k7",
+          "itemId": "it_field",
+          "date": "2026-03-20",
+          "amount": 29997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc02_k8",
+          "voucherId": "vc02",
+          "voucherNo": "1",
+          "childId": "k8",
+          "itemId": "it_field",
+          "date": "2026-03-20",
+          "amount": 29997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc03_k1",
+          "voucherId": "vc03",
+          "voucherNo": "1",
+          "childId": "k1",
+          "itemId": "it_event",
+          "date": "2026-03-20",
+          "amount": 49995,
+          "fee": 5,
+          "memo": ""
+        },
+        {
+          "id": "vc03_k2",
+          "voucherId": "vc03",
+          "voucherNo": "1",
+          "childId": "k2",
+          "itemId": "it_event",
+          "date": "2026-03-20",
+          "amount": 49995,
+          "fee": 5,
+          "memo": ""
+        },
+        {
+          "id": "vc03_k3",
+          "voucherId": "vc03",
+          "voucherNo": "1",
+          "childId": "k3",
+          "itemId": "it_event",
+          "date": "2026-03-20",
+          "amount": 49995,
+          "fee": 5,
+          "memo": ""
+        },
+        {
+          "id": "vc03_k4",
+          "voucherId": "vc03",
+          "voucherNo": "1",
+          "childId": "k4",
+          "itemId": "it_event",
+          "date": "2026-03-20",
+          "amount": 49995,
+          "fee": 5,
+          "memo": ""
+        },
+        {
+          "id": "vc03_k7",
+          "voucherId": "vc03",
+          "voucherNo": "1",
+          "childId": "k7",
+          "itemId": "it_event",
+          "date": "2026-03-20",
+          "amount": 49995,
+          "fee": 5,
+          "memo": ""
+        },
+        {
+          "id": "vc03_k8",
+          "voucherId": "vc03",
+          "voucherNo": "1",
+          "childId": "k8",
+          "itemId": "it_event",
+          "date": "2026-03-20",
+          "amount": 49995,
+          "fee": 5,
+          "memo": ""
+        },
+        {
+          "id": "vc04_k1",
+          "voucherId": "vc04",
+          "voucherNo": "2",
+          "childId": "k1",
+          "itemId": "it_sa",
+          "date": "2026-03-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc04_k2",
+          "voucherId": "vc04",
+          "voucherNo": "2",
+          "childId": "k2",
+          "itemId": "it_sa",
+          "date": "2026-03-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc04_k3",
+          "voucherId": "vc04",
+          "voucherNo": "2",
+          "childId": "k3",
+          "itemId": "it_sa",
+          "date": "2026-03-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc04_k4",
+          "voucherId": "vc04",
+          "voucherNo": "2",
+          "childId": "k4",
+          "itemId": "it_sa",
+          "date": "2026-03-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc04_k7",
+          "voucherId": "vc04",
+          "voucherNo": "2",
+          "childId": "k7",
+          "itemId": "it_sa",
+          "date": "2026-03-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc04_k8",
+          "voucherId": "vc04",
+          "voucherNo": "2",
+          "childId": "k8",
+          "itemId": "it_sa",
+          "date": "2026-03-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc05_k1",
+          "voucherId": "vc05",
+          "voucherNo": "2",
+          "childId": "k1",
+          "itemId": "it_bus",
+          "date": "2026-03-21",
+          "amount": 19998,
+          "fee": 2,
+          "memo": ""
+        },
+        {
+          "id": "vc05_k3",
+          "voucherId": "vc05",
+          "voucherNo": "2",
+          "childId": "k3",
+          "itemId": "it_bus",
+          "date": "2026-03-21",
+          "amount": 19998,
+          "fee": 2,
+          "memo": ""
+        },
+        {
+          "id": "vc05_k7",
+          "voucherId": "vc05",
+          "voucherNo": "2",
+          "childId": "k7",
+          "itemId": "it_bus",
+          "date": "2026-03-21",
+          "amount": 19998,
+          "fee": 2,
+          "memo": ""
+        },
+        {
+          "id": "vc06_k1",
+          "voucherId": "vc06",
+          "voucherNo": "2",
+          "childId": "k1",
+          "itemId": "it_local",
+          "date": "2026-03-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc06_k2",
+          "voucherId": "vc06",
+          "voucherNo": "2",
+          "childId": "k2",
+          "itemId": "it_local",
+          "date": "2026-03-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc06_k3",
+          "voucherId": "vc06",
+          "voucherNo": "2",
+          "childId": "k3",
+          "itemId": "it_local",
+          "date": "2026-03-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc06_k4",
+          "voucherId": "vc06",
+          "voucherNo": "2",
+          "childId": "k4",
+          "itemId": "it_local",
+          "date": "2026-03-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc06_k7",
+          "voucherId": "vc06",
+          "voucherNo": "2",
+          "childId": "k7",
+          "itemId": "it_local",
+          "date": "2026-03-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc06_k8",
+          "voucherId": "vc06",
+          "voucherNo": "2",
+          "childId": "k8",
+          "itemId": "it_local",
+          "date": "2026-03-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc07_k1",
+          "voucherId": "vc07",
+          "voucherNo": "3",
+          "childId": "k1",
+          "itemId": "it_sa",
+          "date": "2026-06-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc07_k3",
+          "voucherId": "vc07",
+          "voucherNo": "3",
+          "childId": "k3",
+          "itemId": "it_sa",
+          "date": "2026-06-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc07_k4",
+          "voucherId": "vc07",
+          "voucherNo": "3",
+          "childId": "k4",
+          "itemId": "it_sa",
+          "date": "2026-06-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc07_k7",
+          "voucherId": "vc07",
+          "voucherNo": "3",
+          "childId": "k7",
+          "itemId": "it_sa",
+          "date": "2026-06-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc07_k8",
+          "voucherId": "vc07",
+          "voucherNo": "3",
+          "childId": "k8",
+          "itemId": "it_sa",
+          "date": "2026-06-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc08_k1",
+          "voucherId": "vc08",
+          "voucherNo": "3",
+          "childId": "k1",
+          "itemId": "it_bus",
+          "date": "2026-06-21",
+          "amount": 19998,
+          "fee": 2,
+          "memo": ""
+        },
+        {
+          "id": "vc08_k3",
+          "voucherId": "vc08",
+          "voucherNo": "3",
+          "childId": "k3",
+          "itemId": "it_bus",
+          "date": "2026-06-21",
+          "amount": 19998,
+          "fee": 2,
+          "memo": ""
+        },
+        {
+          "id": "vc08_k7",
+          "voucherId": "vc08",
+          "voucherNo": "3",
+          "childId": "k7",
+          "itemId": "it_bus",
+          "date": "2026-06-21",
+          "amount": 19998,
+          "fee": 2,
+          "memo": ""
+        },
+        {
+          "id": "vc09_k1",
+          "voucherId": "vc09",
+          "voucherNo": "3",
+          "childId": "k1",
+          "itemId": "it_local",
+          "date": "2026-06-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc09_k3",
+          "voucherId": "vc09",
+          "voucherNo": "3",
+          "childId": "k3",
+          "itemId": "it_local",
+          "date": "2026-06-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc09_k4",
+          "voucherId": "vc09",
+          "voucherNo": "3",
+          "childId": "k4",
+          "itemId": "it_local",
+          "date": "2026-06-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc09_k7",
+          "voucherId": "vc09",
+          "voucherNo": "3",
+          "childId": "k7",
+          "itemId": "it_local",
+          "date": "2026-06-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc09_k8",
+          "voucherId": "vc09",
+          "voucherNo": "3",
+          "childId": "k8",
+          "itemId": "it_local",
+          "date": "2026-06-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc10_k1",
+          "voucherId": "vc10",
+          "voucherNo": "4",
+          "childId": "k1",
+          "itemId": "it_sa",
+          "date": "2026-09-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc10_k3",
+          "voucherId": "vc10",
+          "voucherNo": "4",
+          "childId": "k3",
+          "itemId": "it_sa",
+          "date": "2026-09-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc10_k4",
+          "voucherId": "vc10",
+          "voucherNo": "4",
+          "childId": "k4",
+          "itemId": "it_sa",
+          "date": "2026-09-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc10_k6",
+          "voucherId": "vc10",
+          "voucherNo": "4",
+          "childId": "k6",
+          "itemId": "it_sa",
+          "date": "2026-09-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc10_k7",
+          "voucherId": "vc10",
+          "voucherNo": "4",
+          "childId": "k7",
+          "itemId": "it_sa",
+          "date": "2026-09-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc10_k8",
+          "voucherId": "vc10",
+          "voucherNo": "4",
+          "childId": "k8",
+          "itemId": "it_sa",
+          "date": "2026-09-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc11_k1",
+          "voucherId": "vc11",
+          "voucherNo": "4",
+          "childId": "k1",
+          "itemId": "it_bus",
+          "date": "2026-09-21",
+          "amount": 19998,
+          "fee": 2,
+          "memo": ""
+        },
+        {
+          "id": "vc11_k3",
+          "voucherId": "vc11",
+          "voucherNo": "4",
+          "childId": "k3",
+          "itemId": "it_bus",
+          "date": "2026-09-21",
+          "amount": 19998,
+          "fee": 2,
+          "memo": ""
+        },
+        {
+          "id": "vc11_k7",
+          "voucherId": "vc11",
+          "voucherNo": "4",
+          "childId": "k7",
+          "itemId": "it_bus",
+          "date": "2026-09-21",
+          "amount": 19998,
+          "fee": 2,
+          "memo": ""
+        },
+        {
+          "id": "vc12_k1",
+          "voucherId": "vc12",
+          "voucherNo": "4",
+          "childId": "k1",
+          "itemId": "it_local",
+          "date": "2026-09-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc12_k3",
+          "voucherId": "vc12",
+          "voucherNo": "4",
+          "childId": "k3",
+          "itemId": "it_local",
+          "date": "2026-09-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc12_k4",
+          "voucherId": "vc12",
+          "voucherNo": "4",
+          "childId": "k4",
+          "itemId": "it_local",
+          "date": "2026-09-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc12_k6",
+          "voucherId": "vc12",
+          "voucherNo": "4",
+          "childId": "k6",
+          "itemId": "it_local",
+          "date": "2026-09-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc12_k7",
+          "voucherId": "vc12",
+          "voucherNo": "4",
+          "childId": "k7",
+          "itemId": "it_local",
+          "date": "2026-09-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc12_k8",
+          "voucherId": "vc12",
+          "voucherNo": "4",
+          "childId": "k8",
+          "itemId": "it_local",
+          "date": "2026-09-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc13_k1",
+          "voucherId": "vc13",
+          "voucherNo": "5",
+          "childId": "k1",
+          "itemId": "it_sa",
+          "date": "2026-12-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc13_k3",
+          "voucherId": "vc13",
+          "voucherNo": "5",
+          "childId": "k3",
+          "itemId": "it_sa",
+          "date": "2026-12-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc13_k6",
+          "voucherId": "vc13",
+          "voucherNo": "5",
+          "childId": "k6",
+          "itemId": "it_sa",
+          "date": "2026-12-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc13_k7",
+          "voucherId": "vc13",
+          "voucherNo": "5",
+          "childId": "k7",
+          "itemId": "it_sa",
+          "date": "2026-12-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc13_k8",
+          "voucherId": "vc13",
+          "voucherNo": "5",
+          "childId": "k8",
+          "itemId": "it_sa",
+          "date": "2026-12-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc14_k1",
+          "voucherId": "vc14",
+          "voucherNo": "5",
+          "childId": "k1",
+          "itemId": "it_bus",
+          "date": "2026-12-21",
+          "amount": 19998,
+          "fee": 2,
+          "memo": ""
+        },
+        {
+          "id": "vc14_k3",
+          "voucherId": "vc14",
+          "voucherNo": "5",
+          "childId": "k3",
+          "itemId": "it_bus",
+          "date": "2026-12-21",
+          "amount": 19998,
+          "fee": 2,
+          "memo": ""
+        },
+        {
+          "id": "vc14_k7",
+          "voucherId": "vc14",
+          "voucherNo": "5",
+          "childId": "k7",
+          "itemId": "it_bus",
+          "date": "2026-12-21",
+          "amount": 19998,
+          "fee": 2,
+          "memo": ""
+        },
+        {
+          "id": "vc15_k1",
+          "voucherId": "vc15",
+          "voucherNo": "5",
+          "childId": "k1",
+          "itemId": "it_local",
+          "date": "2026-12-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc15_k3",
+          "voucherId": "vc15",
+          "voucherNo": "5",
+          "childId": "k3",
+          "itemId": "it_local",
+          "date": "2026-12-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc15_k6",
+          "voucherId": "vc15",
+          "voucherNo": "5",
+          "childId": "k6",
+          "itemId": "it_local",
+          "date": "2026-12-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc15_k7",
+          "voucherId": "vc15",
+          "voucherNo": "5",
+          "childId": "k7",
+          "itemId": "it_local",
+          "date": "2026-12-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc15_k8",
+          "voucherId": "vc15",
+          "voucherNo": "5",
+          "childId": "k8",
+          "itemId": "it_local",
+          "date": "2026-12-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc16_k1",
+          "voucherId": "vc16",
+          "voucherNo": "6",
+          "childId": "k1",
+          "itemId": "it_sa",
+          "date": "2027-02-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc16_k3",
+          "voucherId": "vc16",
+          "voucherNo": "6",
+          "childId": "k3",
+          "itemId": "it_sa",
+          "date": "2027-02-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc16_k6",
+          "voucherId": "vc16",
+          "voucherNo": "6",
+          "childId": "k6",
+          "itemId": "it_sa",
+          "date": "2027-02-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc16_k7",
+          "voucherId": "vc16",
+          "voucherNo": "6",
+          "childId": "k7",
+          "itemId": "it_sa",
+          "date": "2027-02-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc16_k8",
+          "voucherId": "vc16",
+          "voucherNo": "6",
+          "childId": "k8",
+          "itemId": "it_sa",
+          "date": "2027-02-21",
+          "amount": 36997,
+          "fee": 3,
+          "memo": ""
+        },
+        {
+          "id": "vc17_k1",
+          "voucherId": "vc17",
+          "voucherNo": "6",
+          "childId": "k1",
+          "itemId": "it_bus",
+          "date": "2027-02-21",
+          "amount": 19998,
+          "fee": 2,
+          "memo": ""
+        },
+        {
+          "id": "vc17_k3",
+          "voucherId": "vc17",
+          "voucherNo": "6",
+          "childId": "k3",
+          "itemId": "it_bus",
+          "date": "2027-02-21",
+          "amount": 19998,
+          "fee": 2,
+          "memo": ""
+        },
+        {
+          "id": "vc17_k7",
+          "voucherId": "vc17",
+          "voucherNo": "6",
+          "childId": "k7",
+          "itemId": "it_bus",
+          "date": "2027-02-21",
+          "amount": 19998,
+          "fee": 2,
+          "memo": ""
+        },
+        {
+          "id": "vc18_k1",
+          "voucherId": "vc18",
+          "voucherNo": "6",
+          "childId": "k1",
+          "itemId": "it_local",
+          "date": "2027-02-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc18_k3",
+          "voucherId": "vc18",
+          "voucherNo": "6",
+          "childId": "k3",
+          "itemId": "it_local",
+          "date": "2027-02-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc18_k6",
+          "voucherId": "vc18",
+          "voucherNo": "6",
+          "childId": "k6",
+          "itemId": "it_local",
+          "date": "2027-02-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc18_k7",
+          "voucherId": "vc18",
+          "voucherNo": "6",
+          "childId": "k7",
+          "itemId": "it_local",
+          "date": "2027-02-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc18_k8",
+          "voucherId": "vc18",
+          "voucherNo": "6",
+          "childId": "k8",
+          "itemId": "it_local",
+          "date": "2027-02-21",
+          "amount": 9999,
+          "fee": 1,
+          "memo": ""
+        },
+        {
+          "id": "vc19_k7",
+          "voucherId": "vc19",
+          "voucherNo": "7",
+          "childId": "k7",
+          "itemId": "it_album",
+          "date": "2026-11-20",
+          "amount": 49995,
+          "fee": 5,
+          "memo": ""
+        },
+        {
+          "id": "vc19_k8",
+          "voucherId": "vc19",
+          "voucherNo": "7",
+          "childId": "k8",
+          "itemId": "it_album",
+          "date": "2026-11-20",
+          "amount": 49995,
+          "fee": 5,
+          "memo": ""
+        }
+      ],
+      "expenses": [
+        {
+          "id": "ex01",
+          "date": "2026-03-27",
+          "voucherNo": "101",
+          "itemId": "it_prep",
+          "summary": "원복 일괄구입",
+          "total": 520000,
+          "needAmount": 520000,
+          "operAmount": 0,
+          "memo": "",
+          "overrides": [],
+          "allocations": [
+            {
+              "childId": "k1",
+              "amount": 86667
+            },
+            {
+              "childId": "k2",
+              "amount": 86667
+            },
+            {
+              "childId": "k3",
+              "amount": 86667
+            },
+            {
+              "childId": "k4",
+              "amount": 86667
+            },
+            {
+              "childId": "k7",
+              "amount": 86666
+            },
+            {
+              "childId": "k8",
+              "amount": 86666
+            }
+          ]
+        },
+        {
+          "id": "ex02",
+          "date": "2026-04-10",
+          "voucherNo": "102",
+          "itemId": "it_field",
+          "summary": "봄 현장학습 입장료",
+          "total": 100000,
+          "needAmount": 100000,
+          "operAmount": 0,
+          "memo": "",
+          "overrides": [],
+          "allocations": [
+            {
+              "childId": "k1",
+              "amount": 16667
+            },
+            {
+              "childId": "k2",
+              "amount": 16667
+            },
+            {
+              "childId": "k3",
+              "amount": 16667
+            },
+            {
+              "childId": "k4",
+              "amount": 16667
+            },
+            {
+              "childId": "k7",
+              "amount": 16666
+            },
+            {
+              "childId": "k8",
+              "amount": 16666
+            }
+          ]
+        },
+        {
+          "id": "ex03",
+          "date": "2026-06-25",
+          "voucherNo": "103",
+          "itemId": "it_bus",
+          "summary": "1분기 유류비",
+          "total": 150000,
+          "needAmount": 120000,
+          "operAmount": 30000,
+          "memo": "유류비 일부는 운영비 부담",
+          "overrides": [],
+          "allocations": [
+            {
+              "childId": "k1",
+              "amount": 40000
+            },
+            {
+              "childId": "k3",
+              "amount": 40000
+            },
+            {
+              "childId": "k7",
+              "amount": 40000
+            }
+          ]
+        },
+        {
+          "id": "ex04",
+          "date": "2026-06-25",
+          "voucherNo": "104",
+          "itemId": "it_event",
+          "summary": "6월 물놀이 용품",
+          "total": 90000,
+          "needAmount": 90000,
+          "operAmount": 0,
+          "memo": "",
+          "overrides": [
+            {
+              "childId": "k2",
+              "include": true,
+              "reason": "6월 15일까지 참여"
+            }
+          ],
+          "allocations": [
+            {
+              "childId": "k1",
+              "amount": 15000
+            },
+            {
+              "childId": "k3",
+              "amount": 15000
+            },
+            {
+              "childId": "k4",
+              "amount": 15000
+            },
+            {
+              "childId": "k7",
+              "amount": 15000
+            },
+            {
+              "childId": "k8",
+              "amount": 15000
+            },
+            {
+              "childId": "k2",
+              "amount": 15000
+            }
+          ]
+        },
+        {
+          "id": "ex05",
+          "date": "2026-10-08",
+          "voucherNo": "105",
+          "itemId": "it_sa",
+          "summary": "10월 특별활동비 업체 지급",
+          "total": 180000,
+          "needAmount": 180000,
+          "operAmount": 0,
+          "memo": "",
+          "overrides": [],
+          "allocations": [
+            {
+              "childId": "k1",
+              "amount": 25715
+            },
+            {
+              "childId": "k3",
+              "amount": 25715
+            },
+            {
+              "childId": "k6",
+              "amount": 25714
+            },
+            {
+              "childId": "k7",
+              "amount": 25714
+            },
+            {
+              "childId": "k8",
+              "amount": 25714
+            },
+            {
+              "childId": "k4",
+              "amount": 25714
+            },
+            {
+              "childId": "k5",
+              "amount": 25714
+            }
+          ]
+        },
+        {
+          "id": "ex06",
+          "date": "2027-02-10",
+          "voucherNo": "106",
+          "itemId": "it_album",
+          "summary": "졸업앨범 제작비",
+          "total": 95000,
+          "needAmount": 95000,
+          "operAmount": 0,
+          "memo": "",
+          "overrides": [],
+          "allocations": [
+            {
+              "childId": "k7",
+              "amount": 47500
+            },
+            {
+              "childId": "k8",
+              "amount": 47500
+            }
+          ]
+        },
+        {
+          "id": "ex07",
+          "date": "2026-12-20",
+          "voucherNo": "107",
+          "itemId": "it_local",
+          "summary": "4분기 특성화 교재교구",
+          "total": 120000,
+          "needAmount": 120000,
+          "operAmount": 0,
+          "memo": "",
+          "overrides": [],
+          "allocations": [
+            {
+              "childId": "k1",
+              "amount": 24000
+            },
+            {
+              "childId": "k3",
+              "amount": 24000
+            },
+            {
+              "childId": "k6",
+              "amount": 24000
+            },
+            {
+              "childId": "k7",
+              "amount": 24000
+            },
+            {
+              "childId": "k8",
+              "amount": 24000
+            }
+          ]
+        }
+      ]
+    },
+    "2027": {
+      "classes": [
+        {
+          "id": "cl_a",
+          "name": "햇살반"
+        },
+        {
+          "id": "cl_b",
+          "name": "별빛반"
+        },
+        {
+          "id": "cl_c",
+          "name": "한빛반"
+        }
+      ],
+      "children": [
+        {
+          "id": "k1",
+          "name": "김서우",
+          "admitDate": "2026-03-02",
+          "leaveDate": "",
+          "memo": "",
+          "classHistory": [
+            {
+              "classId": "cl_a",
+              "startDate": "2027-03-01"
+            }
+          ],
+          "consignPeriods": []
+        },
+        {
+          "id": "k3",
+          "name": "박도윤",
+          "admitDate": "2026-03-02",
+          "leaveDate": "",
+          "memo": "9월 반 이동",
+          "classHistory": [
+            {
+              "classId": "cl_b",
+              "startDate": "2027-03-01"
+            }
+          ],
+          "consignPeriods": []
+        },
+        {
+          "id": "k5",
+          "name": "정유나",
+          "admitDate": "2026-03-02",
+          "leaveDate": "",
+          "memo": "처음부터 위탁",
+          "classHistory": [
+            {
+              "classId": "cl_b",
+              "startDate": "2027-03-01"
+            }
+          ],
+          "consignPeriods": [
+            {
+              "id": "cp2",
+              "startMonth": "2026-03",
+              "endMonth": null,
+              "employer": "여수광양항만공사"
+            }
+          ]
+        },
+        {
+          "id": "k4",
+          "name": "최지안",
+          "admitDate": "2026-03-02",
+          "leaveDate": "",
+          "memo": "10월 위탁 전환",
+          "classHistory": [
+            {
+              "classId": "cl_b",
+              "startDate": "2027-03-01"
+            }
+          ],
+          "consignPeriods": [
+            {
+              "id": "cp1",
+              "startMonth": "2026-10",
+              "endMonth": null,
+              "employer": "한국조선해양"
+            }
+          ]
+        },
+        {
+          "id": "k8",
+          "name": "강시우",
+          "admitDate": "2026-03-02",
+          "leaveDate": "",
+          "memo": "",
+          "classHistory": [
+            {
+              "classId": "cl_c",
+              "startDate": "2027-03-01"
+            }
+          ],
+          "consignPeriods": []
+        },
+        {
+          "id": "k7",
+          "name": "오하린",
+          "admitDate": "2026-03-02",
+          "leaveDate": "",
+          "memo": "",
+          "classHistory": [
+            {
+              "classId": "cl_c",
+              "startDate": "2027-03-01"
+            }
+          ],
+          "consignPeriods": []
+        },
+        {
+          "id": "k6",
+          "name": "한서준",
+          "admitDate": "2026-08-03",
+          "leaveDate": "",
+          "memo": "중간입소",
+          "classHistory": [
+            {
+              "classId": "cl_c",
+              "startDate": "2027-03-01"
+            }
+          ],
+          "consignPeriods": []
+        }
+      ],
+      "items": [
+        {
+          "id": "it_prep",
+          "name": "입학준비금",
+          "group": "기타필요경비",
+          "targetMode": "fixed",
+          "enabled": true,
+          "special": "prep",
+          "cycle": "year",
+          "stdAmount": 0,
+          "note": "신청 항목만"
+        },
+        {
+          "id": "it_sa",
+          "name": "특별활동비",
+          "group": "특별활동비",
+          "targetMode": "fixed",
+          "enabled": true,
+          "cycle": "monthly",
+          "stdAmount": 36997,
+          "note": ""
+        },
+        {
+          "id": "it_field",
+          "name": "현장학습비",
+          "group": "기타필요경비",
+          "targetMode": "event",
+          "enabled": true,
+          "cycle": "adhoc",
+          "stdAmount": 29997,
+          "note": ""
+        },
+        {
+          "id": "it_bus",
+          "name": "차량운행비",
+          "group": "기타필요경비",
+          "targetMode": "fixed",
+          "enabled": true,
+          "cycle": "monthly",
+          "stdAmount": 19998,
+          "note": "이용 원아만"
+        },
+        {
+          "id": "it_event",
+          "name": "행사비",
+          "group": "기타필요경비",
+          "targetMode": "event",
+          "enabled": true,
+          "cycle": "adhoc",
+          "stdAmount": 49995,
+          "note": ""
+        },
+        {
+          "id": "it_album",
+          "name": "앨범비",
+          "group": "기타필요경비",
+          "targetMode": "fixed",
+          "enabled": true,
+          "cycle": "year",
+          "stdAmount": 49995,
+          "note": "졸업 신청자만"
+        },
+        {
+          "id": "it_meal",
+          "name": "급식비",
+          "group": "기타필요경비",
+          "targetMode": "fixed",
+          "enabled": false,
+          "cycle": "monthly",
+          "stdAmount": 0,
+          "note": "쓰지 않는 세목"
+        },
+        {
+          "id": "it_local",
+          "name": "기타 시·도 특성화비용",
+          "group": "기타필요경비",
+          "targetMode": "fixed",
+          "enabled": true,
+          "cycle": "monthly",
+          "stdAmount": 9999,
+          "note": ""
+        }
+      ],
+      "rosters": [
+        {
+          "id": "rs1",
+          "name": "통학차량 이용 원아",
+          "itemId": "it_bus",
+          "childIds": [
+            "k1",
+            "k3",
+            "k7"
+          ]
+        },
+        {
+          "id": "rs2",
+          "name": "졸업앨범 신청 원아",
+          "itemId": "it_album",
+          "childIds": [
+            "k7",
+            "k8"
+          ]
+        }
+      ],
+      "vouchers": [
+        {
+          "id": "vc_z3lvavznil",
+          "date": "2027-03-20",
+          "voucherNo": "1",
+          "itemId": "it_prep",
+          "summary": "기타필요경비 아이행복카드 결제분 — 입학준비금 · 행사비",
+          "perAmount": 100000,
+          "cardFee": 0,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 100000,
+              "memo": ""
+            }
+          ],
+          "total": 100000
+        },
+        {
+          "id": "vc_j8w86kunil",
+          "date": "2027-03-20",
+          "voucherNo": "1",
+          "itemId": "it_event",
+          "summary": "기타필요경비 아이행복카드 결제분 — 입학준비금 · 행사비",
+          "perAmount": 50000,
+          "cardFee": 6,
+          "lines": [
+            {
+              "childId": "k1",
+              "amount": 49994,
+              "memo": ""
+            }
+          ],
+          "total": 49994
+        }
+      ],
+      "receipts": [
+        {
+          "id": "vc_z3lvavznil_k1",
+          "voucherId": "vc_z3lvavznil",
+          "voucherNo": "1",
+          "childId": "k1",
+          "itemId": "it_prep",
+          "date": "2027-03-20",
+          "amount": 100000,
+          "fee": 0,
+          "memo": ""
+        },
+        {
+          "id": "vc_j8w86kunil_k1",
+          "voucherId": "vc_j8w86kunil",
+          "voucherNo": "1",
+          "childId": "k1",
+          "itemId": "it_event",
+          "date": "2027-03-20",
+          "amount": 49994,
+          "fee": 6,
+          "memo": ""
+        }
+      ],
+      "expenses": []
+    }
+  },
+  "lastBackupAt": "2026-09-18T06:26:48.061Z",
+  "cardFeeMode": "net",
+  "classes": [
+    {
+      "id": "cl_a",
+      "name": "햇살반"
+    },
+    {
+      "id": "cl_b",
+      "name": "별빛반"
+    },
+    {
+      "id": "cl_c",
+      "name": "한빛반"
+    }
+  ],
+  "children": [
+    {
+      "id": "k1",
+      "name": "김서우",
+      "admitDate": "2026-03-02",
+      "leaveDate": "",
+      "memo": "",
+      "classHistory": [
+        {
+          "classId": "cl_a",
+          "startDate": "2026-03-02"
+        }
+      ],
+      "consignPeriods": []
+    },
+    {
+      "id": "k2",
+      "name": "이하람",
+      "admitDate": "2026-03-02",
+      "leaveDate": "2026-06-15",
+      "memo": "중간퇴소",
+      "classHistory": [
+        {
+          "classId": "cl_a",
+          "startDate": "2026-03-02"
+        }
+      ],
+      "consignPeriods": []
+    },
+    {
+      "id": "k3",
+      "name": "박도윤",
+      "admitDate": "2026-03-02",
+      "leaveDate": "",
+      "memo": "9월 반 이동",
+      "classHistory": [
+        {
+          "classId": "cl_a",
+          "startDate": "2026-03-02"
+        },
+        {
+          "classId": "cl_b",
+          "startDate": "2026-09-01"
+        }
+      ],
+      "consignPeriods": []
+    },
+    {
+      "id": "k4",
+      "name": "최지안",
+      "admitDate": "2026-03-02",
+      "leaveDate": "",
+      "memo": "10월 위탁 전환",
+      "classHistory": [
+        {
+          "classId": "cl_b",
+          "startDate": "2026-03-02"
+        }
+      ],
+      "consignPeriods": [
+        {
+          "id": "cp1",
+          "startMonth": "2026-10",
+          "endMonth": null,
+          "employer": "한국조선해양"
+        }
+      ]
+    },
+    {
+      "id": "k5",
+      "name": "정유나",
+      "admitDate": "2026-03-02",
+      "leaveDate": "",
+      "memo": "처음부터 위탁",
+      "classHistory": [
+        {
+          "classId": "cl_b",
+          "startDate": "2026-03-02"
+        }
+      ],
+      "consignPeriods": [
+        {
+          "id": "cp2",
+          "startMonth": "2026-03",
+          "endMonth": null,
+          "employer": "여수광양항만공사"
+        }
+      ]
+    },
+    {
+      "id": "k6",
+      "name": "한서준",
+      "admitDate": "2026-08-03",
+      "leaveDate": "",
+      "memo": "중간입소",
+      "classHistory": [
+        {
+          "classId": "cl_c",
+          "startDate": "2026-08-03"
+        }
+      ],
+      "consignPeriods": []
+    },
+    {
+      "id": "k7",
+      "name": "오하린",
+      "admitDate": "2026-03-02",
+      "leaveDate": "",
+      "memo": "",
+      "classHistory": [
+        {
+          "classId": "cl_c",
+          "startDate": "2026-03-02"
+        }
+      ],
+      "consignPeriods": []
+    },
+    {
+      "id": "k8",
+      "name": "강시우",
+      "admitDate": "2026-03-02",
+      "leaveDate": "",
+      "memo": "",
+      "classHistory": [
+        {
+          "classId": "cl_c",
+          "startDate": "2026-03-02"
+        }
+      ],
+      "consignPeriods": []
+    }
+  ],
+  "items": [
+    {
+      "id": "it_prep",
+      "name": "입학준비금",
+      "group": "기타필요경비",
+      "targetMode": "fixed",
+      "enabled": true,
+      "special": "prep",
+      "cycle": "year",
+      "stdAmount": 0,
+      "note": "신청 항목만"
+    },
+    {
+      "id": "it_sa",
+      "name": "특별활동비",
+      "group": "특별활동비",
+      "targetMode": "fixed",
+      "enabled": true,
+      "cycle": "monthly",
+      "stdAmount": 36997,
+      "note": ""
+    },
+    {
+      "id": "it_field",
+      "name": "현장학습비",
+      "group": "기타필요경비",
+      "targetMode": "event",
+      "enabled": true,
+      "cycle": "adhoc",
+      "stdAmount": 29997,
+      "note": ""
+    },
+    {
+      "id": "it_bus",
+      "name": "차량운행비",
+      "group": "기타필요경비",
+      "targetMode": "fixed",
+      "enabled": true,
+      "cycle": "monthly",
+      "stdAmount": 19998,
+      "note": "이용 원아만"
+    },
+    {
+      "id": "it_event",
+      "name": "행사비",
+      "group": "기타필요경비",
+      "targetMode": "event",
+      "enabled": true,
+      "cycle": "adhoc",
+      "stdAmount": 49995,
+      "note": ""
+    },
+    {
+      "id": "it_album",
+      "name": "앨범비",
+      "group": "기타필요경비",
+      "targetMode": "fixed",
+      "enabled": true,
+      "cycle": "year",
+      "stdAmount": 49995,
+      "note": "졸업 신청자만"
+    },
+    {
+      "id": "it_meal",
+      "name": "급식비",
+      "group": "기타필요경비",
+      "targetMode": "fixed",
+      "enabled": false,
+      "cycle": "monthly",
+      "stdAmount": 0,
+      "note": "쓰지 않는 세목"
+    },
+    {
+      "id": "it_local",
+      "name": "기타 시·도 특성화비용",
+      "group": "기타필요경비",
+      "targetMode": "fixed",
+      "enabled": true,
+      "cycle": "monthly",
+      "stdAmount": 9999,
+      "note": ""
+    }
+  ],
+  "rosters": [
+    {
+      "id": "rs1",
+      "name": "통학차량 이용 원아",
+      "itemId": "it_bus",
+      "childIds": [
+        "k1",
+        "k3",
+        "k7"
+      ]
+    },
+    {
+      "id": "rs2",
+      "name": "졸업앨범 신청 원아",
+      "itemId": "it_album",
+      "childIds": [
+        "k7",
+        "k8"
+      ]
+    }
+  ],
+  "vouchers": [
+    {
+      "id": "vc01",
+      "date": "2026-03-20",
+      "voucherNo": "1",
+      "itemId": "it_prep",
+      "summary": "기타필요경비 아이행복카드 결제분 — 입학준비금 · 현장학습비 · 행사비",
+      "perAmount": 99990,
+      "cardFee": 0,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 99990,
+          "memo": ""
+        },
+        {
+          "childId": "k2",
+          "amount": 99990,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 99990,
+          "memo": ""
+        },
+        {
+          "childId": "k4",
+          "amount": 99990,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 99990,
+          "memo": ""
+        },
+        {
+          "childId": "k8",
+          "amount": 99990,
+          "memo": ""
+        }
+      ],
+      "total": 599940
+    },
+    {
+      "id": "vc02",
+      "date": "2026-03-20",
+      "voucherNo": "1",
+      "itemId": "it_field",
+      "summary": "기타필요경비 아이행복카드 결제분 — 입학준비금 · 현장학습비 · 행사비",
+      "perAmount": 29997,
+      "cardFee": 18,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 29997,
+          "memo": ""
+        },
+        {
+          "childId": "k2",
+          "amount": 29997,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 29997,
+          "memo": ""
+        },
+        {
+          "childId": "k4",
+          "amount": 29997,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 29997,
+          "memo": ""
+        },
+        {
+          "childId": "k8",
+          "amount": 29997,
+          "memo": ""
+        }
+      ],
+      "total": 179982
+    },
+    {
+      "id": "vc03",
+      "date": "2026-03-20",
+      "voucherNo": "1",
+      "itemId": "it_event",
+      "summary": "기타필요경비 아이행복카드 결제분 — 입학준비금 · 현장학습비 · 행사비",
+      "perAmount": 49995,
+      "cardFee": 30,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 49995,
+          "memo": ""
+        },
+        {
+          "childId": "k2",
+          "amount": 49995,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 49995,
+          "memo": ""
+        },
+        {
+          "childId": "k4",
+          "amount": 49995,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 49995,
+          "memo": ""
+        },
+        {
+          "childId": "k8",
+          "amount": 49995,
+          "memo": ""
+        }
+      ],
+      "total": 299970
+    },
+    {
+      "id": "vc04",
+      "date": "2026-03-21",
+      "voucherNo": "2",
+      "itemId": "it_sa",
+      "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+      "perAmount": 36997,
+      "cardFee": 18,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k2",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k4",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k8",
+          "amount": 36997,
+          "memo": ""
+        }
+      ],
+      "total": 221982
+    },
+    {
+      "id": "vc05",
+      "date": "2026-03-21",
+      "voucherNo": "2",
+      "itemId": "it_bus",
+      "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+      "perAmount": 19998,
+      "cardFee": 6,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 19998,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 19998,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 19998,
+          "memo": ""
+        }
+      ],
+      "total": 59994
+    },
+    {
+      "id": "vc06",
+      "date": "2026-03-21",
+      "voucherNo": "2",
+      "itemId": "it_local",
+      "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+      "perAmount": 9999,
+      "cardFee": 6,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k2",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k4",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k8",
+          "amount": 9999,
+          "memo": ""
+        }
+      ],
+      "total": 59994
+    },
+    {
+      "id": "vc07",
+      "date": "2026-06-21",
+      "voucherNo": "3",
+      "itemId": "it_sa",
+      "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+      "perAmount": 36997,
+      "cardFee": 15,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k4",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k8",
+          "amount": 36997,
+          "memo": ""
+        }
+      ],
+      "total": 184985
+    },
+    {
+      "id": "vc08",
+      "date": "2026-06-21",
+      "voucherNo": "3",
+      "itemId": "it_bus",
+      "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+      "perAmount": 19998,
+      "cardFee": 6,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 19998,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 19998,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 19998,
+          "memo": ""
+        }
+      ],
+      "total": 59994
+    },
+    {
+      "id": "vc09",
+      "date": "2026-06-21",
+      "voucherNo": "3",
+      "itemId": "it_local",
+      "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+      "perAmount": 9999,
+      "cardFee": 5,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k4",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k8",
+          "amount": 9999,
+          "memo": ""
+        }
+      ],
+      "total": 49995
+    },
+    {
+      "id": "vc10",
+      "date": "2026-09-21",
+      "voucherNo": "4",
+      "itemId": "it_sa",
+      "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+      "perAmount": 36997,
+      "cardFee": 18,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k4",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k6",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k8",
+          "amount": 36997,
+          "memo": ""
+        }
+      ],
+      "total": 221982
+    },
+    {
+      "id": "vc11",
+      "date": "2026-09-21",
+      "voucherNo": "4",
+      "itemId": "it_bus",
+      "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+      "perAmount": 19998,
+      "cardFee": 6,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 19998,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 19998,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 19998,
+          "memo": ""
+        }
+      ],
+      "total": 59994
+    },
+    {
+      "id": "vc12",
+      "date": "2026-09-21",
+      "voucherNo": "4",
+      "itemId": "it_local",
+      "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+      "perAmount": 9999,
+      "cardFee": 6,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k4",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k6",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k8",
+          "amount": 9999,
+          "memo": ""
+        }
+      ],
+      "total": 59994
+    },
+    {
+      "id": "vc13",
+      "date": "2026-12-21",
+      "voucherNo": "5",
+      "itemId": "it_sa",
+      "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+      "perAmount": 36997,
+      "cardFee": 15,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k6",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k8",
+          "amount": 36997,
+          "memo": ""
+        }
+      ],
+      "total": 184985
+    },
+    {
+      "id": "vc14",
+      "date": "2026-12-21",
+      "voucherNo": "5",
+      "itemId": "it_bus",
+      "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+      "perAmount": 19998,
+      "cardFee": 6,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 19998,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 19998,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 19998,
+          "memo": ""
+        }
+      ],
+      "total": 59994
+    },
+    {
+      "id": "vc15",
+      "date": "2026-12-21",
+      "voucherNo": "5",
+      "itemId": "it_local",
+      "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+      "perAmount": 9999,
+      "cardFee": 5,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k6",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k8",
+          "amount": 9999,
+          "memo": ""
+        }
+      ],
+      "total": 49995
+    },
+    {
+      "id": "vc16",
+      "date": "2027-02-21",
+      "voucherNo": "6",
+      "itemId": "it_sa",
+      "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+      "perAmount": 36997,
+      "cardFee": 15,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k6",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 36997,
+          "memo": ""
+        },
+        {
+          "childId": "k8",
+          "amount": 36997,
+          "memo": ""
+        }
+      ],
+      "total": 184985
+    },
+    {
+      "id": "vc17",
+      "date": "2027-02-21",
+      "voucherNo": "6",
+      "itemId": "it_bus",
+      "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+      "perAmount": 19998,
+      "cardFee": 6,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 19998,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 19998,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 19998,
+          "memo": ""
+        }
+      ],
+      "total": 59994
+    },
+    {
+      "id": "vc18",
+      "date": "2027-02-21",
+      "voucherNo": "6",
+      "itemId": "it_local",
+      "summary": "기타필요경비 아이행복카드 결제분 — 특별활동비 · 차량운행비 · 기타 시·도 특성화비용",
+      "perAmount": 9999,
+      "cardFee": 5,
+      "lines": [
+        {
+          "childId": "k1",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k3",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k6",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k7",
+          "amount": 9999,
+          "memo": ""
+        },
+        {
+          "childId": "k8",
+          "amount": 9999,
+          "memo": ""
+        }
+      ],
+      "total": 49995
+    },
+    {
+      "id": "vc19",
+      "date": "2026-11-20",
+      "voucherNo": "7",
+      "itemId": "it_album",
+      "summary": "졸업앨범비 수납",
+      "perAmount": 49995,
+      "cardFee": 10,
+      "lines": [
+        {
+          "childId": "k7",
+          "amount": 49995,
+          "memo": ""
+        },
+        {
+          "childId": "k8",
+          "amount": 49995,
+          "memo": ""
+        }
+      ],
+      "total": 99990
+    }
+  ],
+  "receipts": [
+    {
+      "id": "vc01_k1",
+      "voucherId": "vc01",
+      "voucherNo": "1",
+      "childId": "k1",
+      "itemId": "it_prep",
+      "date": "2026-03-20",
+      "amount": 99990,
+      "fee": 0,
+      "memo": ""
+    },
+    {
+      "id": "vc01_k2",
+      "voucherId": "vc01",
+      "voucherNo": "1",
+      "childId": "k2",
+      "itemId": "it_prep",
+      "date": "2026-03-20",
+      "amount": 99990,
+      "fee": 0,
+      "memo": ""
+    },
+    {
+      "id": "vc01_k3",
+      "voucherId": "vc01",
+      "voucherNo": "1",
+      "childId": "k3",
+      "itemId": "it_prep",
+      "date": "2026-03-20",
+      "amount": 99990,
+      "fee": 0,
+      "memo": ""
+    },
+    {
+      "id": "vc01_k4",
+      "voucherId": "vc01",
+      "voucherNo": "1",
+      "childId": "k4",
+      "itemId": "it_prep",
+      "date": "2026-03-20",
+      "amount": 99990,
+      "fee": 0,
+      "memo": ""
+    },
+    {
+      "id": "vc01_k7",
+      "voucherId": "vc01",
+      "voucherNo": "1",
+      "childId": "k7",
+      "itemId": "it_prep",
+      "date": "2026-03-20",
+      "amount": 99990,
+      "fee": 0,
+      "memo": ""
+    },
+    {
+      "id": "vc01_k8",
+      "voucherId": "vc01",
+      "voucherNo": "1",
+      "childId": "k8",
+      "itemId": "it_prep",
+      "date": "2026-03-20",
+      "amount": 99990,
+      "fee": 0,
+      "memo": ""
+    },
+    {
+      "id": "vc02_k1",
+      "voucherId": "vc02",
+      "voucherNo": "1",
+      "childId": "k1",
+      "itemId": "it_field",
+      "date": "2026-03-20",
+      "amount": 29997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc02_k2",
+      "voucherId": "vc02",
+      "voucherNo": "1",
+      "childId": "k2",
+      "itemId": "it_field",
+      "date": "2026-03-20",
+      "amount": 29997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc02_k3",
+      "voucherId": "vc02",
+      "voucherNo": "1",
+      "childId": "k3",
+      "itemId": "it_field",
+      "date": "2026-03-20",
+      "amount": 29997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc02_k4",
+      "voucherId": "vc02",
+      "voucherNo": "1",
+      "childId": "k4",
+      "itemId": "it_field",
+      "date": "2026-03-20",
+      "amount": 29997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc02_k7",
+      "voucherId": "vc02",
+      "voucherNo": "1",
+      "childId": "k7",
+      "itemId": "it_field",
+      "date": "2026-03-20",
+      "amount": 29997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc02_k8",
+      "voucherId": "vc02",
+      "voucherNo": "1",
+      "childId": "k8",
+      "itemId": "it_field",
+      "date": "2026-03-20",
+      "amount": 29997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc03_k1",
+      "voucherId": "vc03",
+      "voucherNo": "1",
+      "childId": "k1",
+      "itemId": "it_event",
+      "date": "2026-03-20",
+      "amount": 49995,
+      "fee": 5,
+      "memo": ""
+    },
+    {
+      "id": "vc03_k2",
+      "voucherId": "vc03",
+      "voucherNo": "1",
+      "childId": "k2",
+      "itemId": "it_event",
+      "date": "2026-03-20",
+      "amount": 49995,
+      "fee": 5,
+      "memo": ""
+    },
+    {
+      "id": "vc03_k3",
+      "voucherId": "vc03",
+      "voucherNo": "1",
+      "childId": "k3",
+      "itemId": "it_event",
+      "date": "2026-03-20",
+      "amount": 49995,
+      "fee": 5,
+      "memo": ""
+    },
+    {
+      "id": "vc03_k4",
+      "voucherId": "vc03",
+      "voucherNo": "1",
+      "childId": "k4",
+      "itemId": "it_event",
+      "date": "2026-03-20",
+      "amount": 49995,
+      "fee": 5,
+      "memo": ""
+    },
+    {
+      "id": "vc03_k7",
+      "voucherId": "vc03",
+      "voucherNo": "1",
+      "childId": "k7",
+      "itemId": "it_event",
+      "date": "2026-03-20",
+      "amount": 49995,
+      "fee": 5,
+      "memo": ""
+    },
+    {
+      "id": "vc03_k8",
+      "voucherId": "vc03",
+      "voucherNo": "1",
+      "childId": "k8",
+      "itemId": "it_event",
+      "date": "2026-03-20",
+      "amount": 49995,
+      "fee": 5,
+      "memo": ""
+    },
+    {
+      "id": "vc04_k1",
+      "voucherId": "vc04",
+      "voucherNo": "2",
+      "childId": "k1",
+      "itemId": "it_sa",
+      "date": "2026-03-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc04_k2",
+      "voucherId": "vc04",
+      "voucherNo": "2",
+      "childId": "k2",
+      "itemId": "it_sa",
+      "date": "2026-03-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc04_k3",
+      "voucherId": "vc04",
+      "voucherNo": "2",
+      "childId": "k3",
+      "itemId": "it_sa",
+      "date": "2026-03-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc04_k4",
+      "voucherId": "vc04",
+      "voucherNo": "2",
+      "childId": "k4",
+      "itemId": "it_sa",
+      "date": "2026-03-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc04_k7",
+      "voucherId": "vc04",
+      "voucherNo": "2",
+      "childId": "k7",
+      "itemId": "it_sa",
+      "date": "2026-03-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc04_k8",
+      "voucherId": "vc04",
+      "voucherNo": "2",
+      "childId": "k8",
+      "itemId": "it_sa",
+      "date": "2026-03-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc05_k1",
+      "voucherId": "vc05",
+      "voucherNo": "2",
+      "childId": "k1",
+      "itemId": "it_bus",
+      "date": "2026-03-21",
+      "amount": 19998,
+      "fee": 2,
+      "memo": ""
+    },
+    {
+      "id": "vc05_k3",
+      "voucherId": "vc05",
+      "voucherNo": "2",
+      "childId": "k3",
+      "itemId": "it_bus",
+      "date": "2026-03-21",
+      "amount": 19998,
+      "fee": 2,
+      "memo": ""
+    },
+    {
+      "id": "vc05_k7",
+      "voucherId": "vc05",
+      "voucherNo": "2",
+      "childId": "k7",
+      "itemId": "it_bus",
+      "date": "2026-03-21",
+      "amount": 19998,
+      "fee": 2,
+      "memo": ""
+    },
+    {
+      "id": "vc06_k1",
+      "voucherId": "vc06",
+      "voucherNo": "2",
+      "childId": "k1",
+      "itemId": "it_local",
+      "date": "2026-03-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc06_k2",
+      "voucherId": "vc06",
+      "voucherNo": "2",
+      "childId": "k2",
+      "itemId": "it_local",
+      "date": "2026-03-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc06_k3",
+      "voucherId": "vc06",
+      "voucherNo": "2",
+      "childId": "k3",
+      "itemId": "it_local",
+      "date": "2026-03-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc06_k4",
+      "voucherId": "vc06",
+      "voucherNo": "2",
+      "childId": "k4",
+      "itemId": "it_local",
+      "date": "2026-03-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc06_k7",
+      "voucherId": "vc06",
+      "voucherNo": "2",
+      "childId": "k7",
+      "itemId": "it_local",
+      "date": "2026-03-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc06_k8",
+      "voucherId": "vc06",
+      "voucherNo": "2",
+      "childId": "k8",
+      "itemId": "it_local",
+      "date": "2026-03-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc07_k1",
+      "voucherId": "vc07",
+      "voucherNo": "3",
+      "childId": "k1",
+      "itemId": "it_sa",
+      "date": "2026-06-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc07_k3",
+      "voucherId": "vc07",
+      "voucherNo": "3",
+      "childId": "k3",
+      "itemId": "it_sa",
+      "date": "2026-06-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc07_k4",
+      "voucherId": "vc07",
+      "voucherNo": "3",
+      "childId": "k4",
+      "itemId": "it_sa",
+      "date": "2026-06-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc07_k7",
+      "voucherId": "vc07",
+      "voucherNo": "3",
+      "childId": "k7",
+      "itemId": "it_sa",
+      "date": "2026-06-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc07_k8",
+      "voucherId": "vc07",
+      "voucherNo": "3",
+      "childId": "k8",
+      "itemId": "it_sa",
+      "date": "2026-06-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc08_k1",
+      "voucherId": "vc08",
+      "voucherNo": "3",
+      "childId": "k1",
+      "itemId": "it_bus",
+      "date": "2026-06-21",
+      "amount": 19998,
+      "fee": 2,
+      "memo": ""
+    },
+    {
+      "id": "vc08_k3",
+      "voucherId": "vc08",
+      "voucherNo": "3",
+      "childId": "k3",
+      "itemId": "it_bus",
+      "date": "2026-06-21",
+      "amount": 19998,
+      "fee": 2,
+      "memo": ""
+    },
+    {
+      "id": "vc08_k7",
+      "voucherId": "vc08",
+      "voucherNo": "3",
+      "childId": "k7",
+      "itemId": "it_bus",
+      "date": "2026-06-21",
+      "amount": 19998,
+      "fee": 2,
+      "memo": ""
+    },
+    {
+      "id": "vc09_k1",
+      "voucherId": "vc09",
+      "voucherNo": "3",
+      "childId": "k1",
+      "itemId": "it_local",
+      "date": "2026-06-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc09_k3",
+      "voucherId": "vc09",
+      "voucherNo": "3",
+      "childId": "k3",
+      "itemId": "it_local",
+      "date": "2026-06-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc09_k4",
+      "voucherId": "vc09",
+      "voucherNo": "3",
+      "childId": "k4",
+      "itemId": "it_local",
+      "date": "2026-06-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc09_k7",
+      "voucherId": "vc09",
+      "voucherNo": "3",
+      "childId": "k7",
+      "itemId": "it_local",
+      "date": "2026-06-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc09_k8",
+      "voucherId": "vc09",
+      "voucherNo": "3",
+      "childId": "k8",
+      "itemId": "it_local",
+      "date": "2026-06-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc10_k1",
+      "voucherId": "vc10",
+      "voucherNo": "4",
+      "childId": "k1",
+      "itemId": "it_sa",
+      "date": "2026-09-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc10_k3",
+      "voucherId": "vc10",
+      "voucherNo": "4",
+      "childId": "k3",
+      "itemId": "it_sa",
+      "date": "2026-09-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc10_k4",
+      "voucherId": "vc10",
+      "voucherNo": "4",
+      "childId": "k4",
+      "itemId": "it_sa",
+      "date": "2026-09-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc10_k6",
+      "voucherId": "vc10",
+      "voucherNo": "4",
+      "childId": "k6",
+      "itemId": "it_sa",
+      "date": "2026-09-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc10_k7",
+      "voucherId": "vc10",
+      "voucherNo": "4",
+      "childId": "k7",
+      "itemId": "it_sa",
+      "date": "2026-09-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc10_k8",
+      "voucherId": "vc10",
+      "voucherNo": "4",
+      "childId": "k8",
+      "itemId": "it_sa",
+      "date": "2026-09-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc11_k1",
+      "voucherId": "vc11",
+      "voucherNo": "4",
+      "childId": "k1",
+      "itemId": "it_bus",
+      "date": "2026-09-21",
+      "amount": 19998,
+      "fee": 2,
+      "memo": ""
+    },
+    {
+      "id": "vc11_k3",
+      "voucherId": "vc11",
+      "voucherNo": "4",
+      "childId": "k3",
+      "itemId": "it_bus",
+      "date": "2026-09-21",
+      "amount": 19998,
+      "fee": 2,
+      "memo": ""
+    },
+    {
+      "id": "vc11_k7",
+      "voucherId": "vc11",
+      "voucherNo": "4",
+      "childId": "k7",
+      "itemId": "it_bus",
+      "date": "2026-09-21",
+      "amount": 19998,
+      "fee": 2,
+      "memo": ""
+    },
+    {
+      "id": "vc12_k1",
+      "voucherId": "vc12",
+      "voucherNo": "4",
+      "childId": "k1",
+      "itemId": "it_local",
+      "date": "2026-09-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc12_k3",
+      "voucherId": "vc12",
+      "voucherNo": "4",
+      "childId": "k3",
+      "itemId": "it_local",
+      "date": "2026-09-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc12_k4",
+      "voucherId": "vc12",
+      "voucherNo": "4",
+      "childId": "k4",
+      "itemId": "it_local",
+      "date": "2026-09-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc12_k6",
+      "voucherId": "vc12",
+      "voucherNo": "4",
+      "childId": "k6",
+      "itemId": "it_local",
+      "date": "2026-09-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc12_k7",
+      "voucherId": "vc12",
+      "voucherNo": "4",
+      "childId": "k7",
+      "itemId": "it_local",
+      "date": "2026-09-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc12_k8",
+      "voucherId": "vc12",
+      "voucherNo": "4",
+      "childId": "k8",
+      "itemId": "it_local",
+      "date": "2026-09-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc13_k1",
+      "voucherId": "vc13",
+      "voucherNo": "5",
+      "childId": "k1",
+      "itemId": "it_sa",
+      "date": "2026-12-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc13_k3",
+      "voucherId": "vc13",
+      "voucherNo": "5",
+      "childId": "k3",
+      "itemId": "it_sa",
+      "date": "2026-12-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc13_k6",
+      "voucherId": "vc13",
+      "voucherNo": "5",
+      "childId": "k6",
+      "itemId": "it_sa",
+      "date": "2026-12-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc13_k7",
+      "voucherId": "vc13",
+      "voucherNo": "5",
+      "childId": "k7",
+      "itemId": "it_sa",
+      "date": "2026-12-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc13_k8",
+      "voucherId": "vc13",
+      "voucherNo": "5",
+      "childId": "k8",
+      "itemId": "it_sa",
+      "date": "2026-12-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc14_k1",
+      "voucherId": "vc14",
+      "voucherNo": "5",
+      "childId": "k1",
+      "itemId": "it_bus",
+      "date": "2026-12-21",
+      "amount": 19998,
+      "fee": 2,
+      "memo": ""
+    },
+    {
+      "id": "vc14_k3",
+      "voucherId": "vc14",
+      "voucherNo": "5",
+      "childId": "k3",
+      "itemId": "it_bus",
+      "date": "2026-12-21",
+      "amount": 19998,
+      "fee": 2,
+      "memo": ""
+    },
+    {
+      "id": "vc14_k7",
+      "voucherId": "vc14",
+      "voucherNo": "5",
+      "childId": "k7",
+      "itemId": "it_bus",
+      "date": "2026-12-21",
+      "amount": 19998,
+      "fee": 2,
+      "memo": ""
+    },
+    {
+      "id": "vc15_k1",
+      "voucherId": "vc15",
+      "voucherNo": "5",
+      "childId": "k1",
+      "itemId": "it_local",
+      "date": "2026-12-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc15_k3",
+      "voucherId": "vc15",
+      "voucherNo": "5",
+      "childId": "k3",
+      "itemId": "it_local",
+      "date": "2026-12-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc15_k6",
+      "voucherId": "vc15",
+      "voucherNo": "5",
+      "childId": "k6",
+      "itemId": "it_local",
+      "date": "2026-12-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc15_k7",
+      "voucherId": "vc15",
+      "voucherNo": "5",
+      "childId": "k7",
+      "itemId": "it_local",
+      "date": "2026-12-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc15_k8",
+      "voucherId": "vc15",
+      "voucherNo": "5",
+      "childId": "k8",
+      "itemId": "it_local",
+      "date": "2026-12-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc16_k1",
+      "voucherId": "vc16",
+      "voucherNo": "6",
+      "childId": "k1",
+      "itemId": "it_sa",
+      "date": "2027-02-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc16_k3",
+      "voucherId": "vc16",
+      "voucherNo": "6",
+      "childId": "k3",
+      "itemId": "it_sa",
+      "date": "2027-02-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc16_k6",
+      "voucherId": "vc16",
+      "voucherNo": "6",
+      "childId": "k6",
+      "itemId": "it_sa",
+      "date": "2027-02-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc16_k7",
+      "voucherId": "vc16",
+      "voucherNo": "6",
+      "childId": "k7",
+      "itemId": "it_sa",
+      "date": "2027-02-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc16_k8",
+      "voucherId": "vc16",
+      "voucherNo": "6",
+      "childId": "k8",
+      "itemId": "it_sa",
+      "date": "2027-02-21",
+      "amount": 36997,
+      "fee": 3,
+      "memo": ""
+    },
+    {
+      "id": "vc17_k1",
+      "voucherId": "vc17",
+      "voucherNo": "6",
+      "childId": "k1",
+      "itemId": "it_bus",
+      "date": "2027-02-21",
+      "amount": 19998,
+      "fee": 2,
+      "memo": ""
+    },
+    {
+      "id": "vc17_k3",
+      "voucherId": "vc17",
+      "voucherNo": "6",
+      "childId": "k3",
+      "itemId": "it_bus",
+      "date": "2027-02-21",
+      "amount": 19998,
+      "fee": 2,
+      "memo": ""
+    },
+    {
+      "id": "vc17_k7",
+      "voucherId": "vc17",
+      "voucherNo": "6",
+      "childId": "k7",
+      "itemId": "it_bus",
+      "date": "2027-02-21",
+      "amount": 19998,
+      "fee": 2,
+      "memo": ""
+    },
+    {
+      "id": "vc18_k1",
+      "voucherId": "vc18",
+      "voucherNo": "6",
+      "childId": "k1",
+      "itemId": "it_local",
+      "date": "2027-02-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc18_k3",
+      "voucherId": "vc18",
+      "voucherNo": "6",
+      "childId": "k3",
+      "itemId": "it_local",
+      "date": "2027-02-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc18_k6",
+      "voucherId": "vc18",
+      "voucherNo": "6",
+      "childId": "k6",
+      "itemId": "it_local",
+      "date": "2027-02-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc18_k7",
+      "voucherId": "vc18",
+      "voucherNo": "6",
+      "childId": "k7",
+      "itemId": "it_local",
+      "date": "2027-02-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc18_k8",
+      "voucherId": "vc18",
+      "voucherNo": "6",
+      "childId": "k8",
+      "itemId": "it_local",
+      "date": "2027-02-21",
+      "amount": 9999,
+      "fee": 1,
+      "memo": ""
+    },
+    {
+      "id": "vc19_k7",
+      "voucherId": "vc19",
+      "voucherNo": "7",
+      "childId": "k7",
+      "itemId": "it_album",
+      "date": "2026-11-20",
+      "amount": 49995,
+      "fee": 5,
+      "memo": ""
+    },
+    {
+      "id": "vc19_k8",
+      "voucherId": "vc19",
+      "voucherNo": "7",
+      "childId": "k8",
+      "itemId": "it_album",
+      "date": "2026-11-20",
+      "amount": 49995,
+      "fee": 5,
+      "memo": ""
+    }
+  ],
+  "expenses": [
+    {
+      "id": "ex01",
+      "date": "2026-03-27",
+      "voucherNo": "101",
+      "itemId": "it_prep",
+      "summary": "원복 일괄구입",
+      "total": 520000,
+      "needAmount": 520000,
+      "operAmount": 0,
+      "memo": "",
+      "overrides": [],
+      "allocations": [
+        {
+          "childId": "k1",
+          "amount": 86667
+        },
+        {
+          "childId": "k2",
+          "amount": 86667
+        },
+        {
+          "childId": "k3",
+          "amount": 86667
+        },
+        {
+          "childId": "k4",
+          "amount": 86667
+        },
+        {
+          "childId": "k7",
+          "amount": 86666
+        },
+        {
+          "childId": "k8",
+          "amount": 86666
+        }
+      ]
+    },
+    {
+      "id": "ex02",
+      "date": "2026-04-10",
+      "voucherNo": "102",
+      "itemId": "it_field",
+      "summary": "봄 현장학습 입장료",
+      "total": 100000,
+      "needAmount": 100000,
+      "operAmount": 0,
+      "memo": "",
+      "overrides": [],
+      "allocations": [
+        {
+          "childId": "k1",
+          "amount": 16667
+        },
+        {
+          "childId": "k2",
+          "amount": 16667
+        },
+        {
+          "childId": "k3",
+          "amount": 16667
+        },
+        {
+          "childId": "k4",
+          "amount": 16667
+        },
+        {
+          "childId": "k7",
+          "amount": 16666
+        },
+        {
+          "childId": "k8",
+          "amount": 16666
+        }
+      ]
+    },
+    {
+      "id": "ex03",
+      "date": "2026-06-25",
+      "voucherNo": "103",
+      "itemId": "it_bus",
+      "summary": "1분기 유류비",
+      "total": 150000,
+      "needAmount": 120000,
+      "operAmount": 30000,
+      "memo": "유류비 일부는 운영비 부담",
+      "overrides": [],
+      "allocations": [
+        {
+          "childId": "k1",
+          "amount": 40000
+        },
+        {
+          "childId": "k3",
+          "amount": 40000
+        },
+        {
+          "childId": "k7",
+          "amount": 40000
+        }
+      ]
+    },
+    {
+      "id": "ex04",
+      "date": "2026-06-25",
+      "voucherNo": "104",
+      "itemId": "it_event",
+      "summary": "6월 물놀이 용품",
+      "total": 90000,
+      "needAmount": 90000,
+      "operAmount": 0,
+      "memo": "",
+      "overrides": [
+        {
+          "childId": "k2",
+          "include": true,
+          "reason": "6월 15일까지 참여"
+        }
+      ],
+      "allocations": [
+        {
+          "childId": "k1",
+          "amount": 15000
+        },
+        {
+          "childId": "k3",
+          "amount": 15000
+        },
+        {
+          "childId": "k4",
+          "amount": 15000
+        },
+        {
+          "childId": "k7",
+          "amount": 15000
+        },
+        {
+          "childId": "k8",
+          "amount": 15000
+        },
+        {
+          "childId": "k2",
+          "amount": 15000
+        }
+      ]
+    },
+    {
+      "id": "ex05",
+      "date": "2026-10-08",
+      "voucherNo": "105",
+      "itemId": "it_sa",
+      "summary": "10월 특별활동비 업체 지급",
+      "total": 180000,
+      "needAmount": 180000,
+      "operAmount": 0,
+      "memo": "",
+      "overrides": [],
+      "allocations": [
+        {
+          "childId": "k1",
+          "amount": 25715
+        },
+        {
+          "childId": "k3",
+          "amount": 25715
+        },
+        {
+          "childId": "k6",
+          "amount": 25714
+        },
+        {
+          "childId": "k7",
+          "amount": 25714
+        },
+        {
+          "childId": "k8",
+          "amount": 25714
+        },
+        {
+          "childId": "k4",
+          "amount": 25714
+        },
+        {
+          "childId": "k5",
+          "amount": 25714
+        }
+      ]
+    },
+    {
+      "id": "ex06",
+      "date": "2027-02-10",
+      "voucherNo": "106",
+      "itemId": "it_album",
+      "summary": "졸업앨범 제작비",
+      "total": 95000,
+      "needAmount": 95000,
+      "operAmount": 0,
+      "memo": "",
+      "overrides": [],
+      "allocations": [
+        {
+          "childId": "k7",
+          "amount": 47500
+        },
+        {
+          "childId": "k8",
+          "amount": 47500
+        }
+      ]
+    },
+    {
+      "id": "ex07",
+      "date": "2026-12-20",
+      "voucherNo": "107",
+      "itemId": "it_local",
+      "summary": "4분기 특성화 교재교구",
+      "total": 120000,
+      "needAmount": 120000,
+      "operAmount": 0,
+      "memo": "",
+      "overrides": [],
+      "allocations": [
+        {
+          "childId": "k1",
+          "amount": 24000
+        },
+        {
+          "childId": "k3",
+          "amount": 24000
+        },
+        {
+          "childId": "k6",
+          "amount": 24000
+        },
+        {
+          "childId": "k7",
+          "amount": 24000
+        },
+        {
+          "childId": "k8",
+          "amount": 24000
+        }
+      ]
+    }
+  ]
+}
