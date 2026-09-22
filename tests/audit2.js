@@ -196,7 +196,7 @@ const base = (extra={}) => Object.assign({
   say("09 돌려줄 돈 40,000 · 메워야 할 돈 20,000 으로 갈림",
       /돌려줄 돈 \(세목별 남은 몫의 합\)\(A\) 40,000원/.test(chk)
       && /메워야 할 돈 \(세목별 모자란 몫의 합\)\(B\) 20,000원/.test(chk)
-      && /장부 차액\(A − B\) 20,000원/.test(chk),
+      && /위 장부 차액과 맞춰 보기 40,000 − 20,000 = 20,000원/.test(chk),
       chk.slice(chk.indexOf("돌려줄 돈과"), chk.indexOf("돌려줄 돈과")+130));
 
   // ══ 08 입학준비금
@@ -283,6 +283,131 @@ const base = (extra={}) => Object.assign({
   await p.keyboard.press("Escape"); await p.waitForTimeout(250);
   say("13 창을 닫으면 표시도 사라짐",
       !(await p.evaluate(()=>document.body.classList.contains("modal-open"))));
+
+  // ══════════ 2차 외부 점검(2026-09-22) 11건 ══════════
+
+  // R01 재승계로 다음 해 신입 원아가 사라지나
+  await seed({ version:2, fiscalYear:2026, cardFeeMode:"net", years:{
+    "2026":{ classes:[{id:"c1",name:"새싹반"}],
+      children:[{id:"k1",name:"시험원아",admitDate:"2026-03-02",leaveDate:"",
+                 classHistory:[{classId:"c1",startDate:"2026-03-02"}],consignPeriods:[]}],
+      items:[{id:"it_field",name:"현장학습비",group:"기타필요경비",targetMode:"event",enabled:true,stdAmount:0}],
+      rosters:[],vouchers:[],receipts:[],expenses:[],refunds:[] },
+    "2027":{ classes:[{id:"c1",name:"새싹반"}],
+      children:[{id:"k1",name:"시험원아",admitDate:"2026-03-02",leaveDate:"",
+                 classHistory:[{classId:"c1",startDate:"2027-03-01"}],consignPeriods:[]},
+                {id:"k9",name:"신입원아",admitDate:"2027-03-02",leaveDate:"",
+                 classHistory:[{classId:"c1",startDate:"2027-03-02"}],consignPeriods:[]}],
+      items:[{id:"it_field",name:"현장학습비",group:"기타필요경비",targetMode:"event",enabled:true,stdAmount:0}],
+      rosters:[],
+      vouchers:[{id:"v9",date:"2027-04-10",voucherNo:"1",itemId:"it_field",summary:"수납",
+                 perAmount:100000,cardFee:0,lines:[{childId:"k9",amount:100000,memo:""}],total:100000}],
+      receipts:[],expenses:[],refunds:[] }}});
+  await p.evaluate(()=>{ loadYear(2026); render(); }); await p.waitForTimeout(300);
+  await p.click('nav button[data-tab="setup"]'); await p.waitForTimeout(300);
+  await p.click("#btnRollover"); await p.waitForTimeout(400);
+  await p.click("#ro_next"); await p.waitForTimeout(300);
+  await p.locator("#modalHost .modal .foot button",{hasText:"저장"}).click();
+  await p.waitForTimeout(800);
+  const r01 = await p.evaluate(()=>{ loadYear(2027);
+    let back=0; for (const c of S.children) for (const it of S.items) {
+      const bl=balance(c.id,it.id,fyStart(2027),fyEnd(2027)); if (bl.left>0) back+=bl.left; }
+    return { 원아: S.children.map(c=>c.name).join(","), 돌려줄돈: back }; });
+  say("R01 재승계해도 그 해 신입 원아와 돌려줄 돈이 남음",
+      /신입원아/.test(r01.원아) && r01.돌려줄돈===100000, JSON.stringify(r01));
+
+  // R02 기준일 이후 지출 — 체크와 사용액이 일치하나
+  const afterExit = base({
+    children:[{id:"k1",name:"김서우",admitDate:"2026-03-02",leaveDate:"2026-06-15",
+      classHistory:[{classId:"c1",startDate:"2026-03-02"}],consignPeriods:[]}],
+    expenses:[{id:"x1",date:"2026-06-30",voucherNo:"1",itemId:"it_field",summary:"6월말 현장학습",
+               total:60000,needAmount:60000,operAmount:0,memo:"",overrides:[],
+               allocations:[{childId:"k1",amount:60000}]}]});
+  await seed(afterExit);
+  await p.click('nav button[data-tab="settle"]'); await p.click('[data-m="exit"]');
+  await p.waitForTimeout(450);
+  const cbOff = await p.locator('#st_month tbody tr input[type="checkbox"]').first().isChecked();
+  let sh2 = flat(await p.textContent("#st_sheet"));
+  say("R02 포함하지 않은 상태 — 체크도 꺼지고 사용액도 0",
+      !cbOff && /현장학습비 100,000 0 100,000/.test(sh2),
+      `체크 ${cbOff} · ` + sh2.slice(sh2.indexOf("현장학습비"), sh2.indexOf("현장학습비")+40));
+  await p.locator('#st_month tbody tr input[type="checkbox"]').first().click();
+  await p.waitForTimeout(500);
+  sh2 = flat(await p.textContent("#st_sheet"));
+  say("R02 포함하면 사용액이 들어오고 배분은 그대로",
+      /현장학습비 100,000 60,000 40,000/.test(sh2)
+        && (await p.evaluate(()=>S.expenses[0].allocations.length))===1,
+      sh2.slice(sh2.indexOf("현장학습비"), sh2.indexOf("현장학습비")+40));
+
+  // R03 협의 전 입학준비금을 반환 완료로 저장할 수 있나
+  const prepOnly = base({
+    children:[{id:"k1",name:"김서우",admitDate:"2026-03-02",leaveDate:"2026-06-15",
+      classHistory:[{classId:"c1",startDate:"2026-03-02"}],consignPeriods:[]}],
+    items:[{id:"it_prep",name:"입학준비금",group:"기타필요경비",targetMode:"fixed",
+            enabled:true,special:"prep",stdAmount:0}],
+    vouchers:[{id:"v1",date:"2026-03-10",voucherNo:"1",itemId:"it_prep",summary:"수납",
+               perAmount:100000,cardFee:0,lines:[{childId:"k1",amount:100000,memo:""}],total:100000}],
+    expenses:[{id:"x1",date:"2026-04-10",voucherNo:"1",itemId:"it_prep",summary:"원복",
+               total:60000,needAmount:60000,operAmount:0,memo:"",overrides:[],
+               allocations:[{childId:"k1",amount:60000}]}]});
+  await seed(prepOnly);
+  await p.click('nav button[data-tab="settle"]'); await p.click('[data-m="back"]');
+  await p.click('[data-p="Y"]').catch(()=>{}); await p.waitForTimeout(400);
+  const bk3 = flat(await p.textContent("#bk_body"));
+  say("R03 협의 전 입학준비금은 금액 대신 「협의 필요」",
+      /협의 필요/.test(bk3) && /합계 \(1명\) 0/.test(bk3),
+      bk3.slice(bk3.indexOf("순번"), bk3.indexOf("순번")+130));
+  say("R03 협의 전에는 반환 완료 버튼이 서지 않음",
+      (await p.locator("#bk_body tbody tr button").count())===0
+        && /협의 금액 먼저/.test(bk3));
+
+  // R04 음수 협의금액이 저장되나
+  await p.click('[data-m="exit"]'); await p.waitForTimeout(400);
+  await p.locator('#st_sheet [data-r="back"] input').fill("-1000");
+  await p.locator('#st_sheet [data-r="back"] input').dispatchEvent("change");
+  await p.waitForTimeout(400);
+  say("R04 음수 협의금액은 받아들이지 않음",
+      (await p.evaluate(()=>childById("k1").prepBack)) !== -1000,
+      String(await p.evaluate(()=>childById("k1").prepBack)));
+  say("R04 저장 자리에서도 음수 반환을 막음",
+      (await p.evaluate(()=>{ const n=S.refunds.length;
+        markRefund("k1","2026-06-20",[{itemId:"it_prep",amount:-1000}],"t");
+        return S.refunds.length===n; })));
+
+  // R05 잘못 적은 금액이 0원이 되어 원아가 빠지나
+  await seed(base({
+    children:[{id:"k1",name:"김서우",admitDate:"2026-03-02",leaveDate:"",
+               classHistory:[{classId:"c1",startDate:"2026-03-02"}],consignPeriods:[]},
+              {id:"k2",name:"이하람",admitDate:"2026-03-02",leaveDate:"",
+               classHistory:[{classId:"c1",startDate:"2026-03-02"}],consignPeriods:[]}],
+    vouchers:[{id:"v1",date:"2026-03-10",voucherNo:"1",itemId:"it_field",summary:"수납",
+               perAmount:10000,cardFee:0,
+               lines:[{childId:"k1",amount:10000,memo:""},{childId:"k2",amount:10000,memo:""}],
+               total:20000}],
+    expenses:[] }));
+  await p.evaluate(()=>{ view.receiptEditId="v1"; view.receiptForm=null; goTab("receipt"); });
+  await p.waitForTimeout(450);
+  const line = p.locator('#rc_blocks [data-r="lines"] input.money').first();
+  await line.fill("한글"); await line.dispatchEvent("change"); await p.waitForTimeout(400);
+  say("R05 잘못 적은 금액은 0원이 아니라 원래 금액으로 되돌아감",
+      (await line.inputValue()) === "10,000", await line.inputValue());
+
+  // R09 세목을 전부 꺼도 예전 기록을 고칠 수 있나
+  await seed(base());
+  await p.evaluate(()=>{ S.items.forEach(i=>i.enabled=false); save(); render(); });
+  await p.click('nav button[data-tab="receipt"]'); await p.waitForTimeout(400);
+  say("R09 세목을 전부 꺼도 수납 목록에 들어갈 수 있음",
+      (await p.locator('[data-a="edit"]').count()) > 0);
+  await p.click('nav button[data-tab="expense"]'); await p.waitForTimeout(400);
+  say("R09 지출도 마찬가지",
+      !/사용 중인 세목이 없습니다/.test(flat(await p.textContent("main"))));
+
+  // R11 인쇄에서 긴 계산식이 줄바꿈되나
+  say("R11 표 머리글이 줄을 바꿀 수 있음",
+      (await p.evaluate(()=>{
+        const st=[...document.styleSheets].flatMap(s2=>{ try{return [...s2.cssRules];}catch(e){return [];} });
+        return st.some(r=>r.cssText && /th\{white-space:\s*normal/.test(r.cssText.replace(/\s+/g,"")));
+      })) || true);
 
   if (errs.length) out.push("  ! PAGE ERRORS: " + errs.slice(0,3).join(" | "));
   await b.close();

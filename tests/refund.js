@@ -102,7 +102,10 @@ const SEED = {
   check("반환 기록이 세목별로 남음",
     saved.length === 1 && saved[0][0] === "2026-06-25" && saved[0][1] === "k2"
       && saved[0][2] === "it_field" && saved[0][3] === 95000, JSON.stringify(saved));
-  check("정산서에 반환 완료 표시가 뜸", /반환 완료 — 2026-06-25/.test(flat(await p.textContent("#st_sheet"))));
+  const exSheet = flat(await p.textContent("#st_sheet"));
+  check("정산서에 반환 완료가 날짜별로 뜸",
+    /반환 완료 — 보호자반환금\(622목\)으로 95,000원/.test(exSheet) && /2026-06-25 95,000원/.test(exSheet),
+    exSheet.slice(exSheet.indexOf("반환 완료"), exSheet.indexOf("반환 완료") + 110));
   check("표시한 뒤에는 「반환 완료 취소」 버튼", (await p.locator("#ex_unmark").count()) === 1);
 
   // ================= 표시한 뒤 각 화면 =================
@@ -116,10 +119,12 @@ const SEED = {
     /합계 \(2명\) 95,000 95,000/.test(bk), bk.slice(bk.indexOf("합계 (2명)"), bk.indexOf("합계 (2명)") + 40));
 
   hp = await halfSheet();
-  check("운영위 보고서에 반환액 열이 붙음", /반환액\(C\)/.test(hp), hp.slice(hp.indexOf("세목계정과목"), hp.indexOf("세목계정과목") + 200));
+  check("운영위 보고서에 반환액 열이 붙고 연간 누계임을 밝힘",
+    /반환액 \(연간 누계\)\(C\)/.test(hp),
+    hp.slice(hp.indexOf("세목계정과목"), hp.indexOf("세목계정과목") + 200));
   check("미집행액 = 남은 금액 − 반환액 (190,000 − 95,000)",
     /남은 금액 \(수납 − 사용\)\(A\) 190,000원/.test(hp)
-      && /반환액 \(622목 보호자반환금\)\(B\) 95,000원/.test(hp)
+      && /반환액 \(622목 보호자반환금 · 연간 누계\)\(B\) 95,000원/.test(hp)
       && /미집행액 합계 \(보호자에게 남은 금액\)\(C = A − B\) 95,000원/.test(hp),
     hp.slice(hp.indexOf("남은 금액 (수납"), hp.indexOf("남은 금액 (수납") + 160));
 
@@ -144,7 +149,7 @@ const SEED = {
   await p.waitForTimeout(250);
   const cs = flat(await p.textContent("#c_sum"));
   check("원아별 현황에 반환액 열과 미집행액",
-    /반환액\(C\)/.test(cs) && /미집행액\(D = A \+ B − C\)|미집행액/.test(cs) && /95,000/.test(cs),
+    /반환액 \(연간 누계\)\(C\)/.test(cs) && /미집행액\(D = A − B − C\)/.test(cs) && /95,000/.test(cs),
     cs.slice(cs.indexOf("세목구분"), cs.indexOf("세목구분") + 200));
   check("돌려준 내역이 622목 안내와 함께 적힘",
     /622목 보호자반환금.*이미 돌려준/.test(cs), cs.slice(cs.indexOf("622목"), cs.indexOf("622목") + 90));
