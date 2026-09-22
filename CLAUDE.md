@@ -53,7 +53,7 @@ build.py                 위 둘을 묶어 어린이집살림도우미.html을 �
 
 ```bash
 python3 build.py
-for t in flow reports dummy rollover audit launcher compat compat-settle items refund audit2; do
+for t in flow reports dummy rollover audit launcher compat compat-settle items refund audit2 split; do
   node tests/$t.js || echo "$t 실패"
 done
 ```
@@ -70,7 +70,8 @@ done
 | `compat-settle` | **배포한 정산 프로그램의 백업이 숫자 그대로 열리는지** |
 | `items` | 세목이 모든 화면·서류에 따라붙는지 |
 | `refund` | 「반환 완료로 표시」·「반환 완료 취소」가 모든 표에 따라붙는지 |
-| `audit2` | **1차 외부 점검(2026-09-21)에서 걸린 15건이 되살아나지 않는지** |
+| `audit2` | **외부 점검 26건(1차 15 · 2차 11)이 되살아나지 않는지** |
+| `split` | 「원아별로 나누기」 — 잔액까지만 담고 남는 몫이 운영비로 넘어가는지 |
 
 Playwright는 `NODE_PATH`에 설치해 두고 쓴다. 브라우저는
 `/opt/pw-browsers/chromium-1194/chrome-linux/chrome`.
@@ -102,6 +103,19 @@ Playwright는 `NODE_PATH`에 설치해 두고 쓴다. 브라우저는
 
 1차(09-21) 15건, 2차(09-22) 11건. 전부 고쳤고 `tests/audit2.js`에 못 박았다.
 **새 기능을 붙이거나 값을 고칠 때 이 목록을 먼저 훑는다.**
+
+### 회계 제도가 정한 것 — 프로그램이 여기에 맞춰야 한다
+
+- **지출결의서는 달이 지나면 확정된다.** 시에 매월 회계보고를 하므로 **전월 건은 고칠 수 없다.**
+  그래서 「연말에 모아서 정리」하는 방식은 쓸 수 없다. 갈라야 할 것은 **그 달에 등록할 때**
+  갈라 두어야 한다. `openAllocModal()`이 그 자리다.
+- **모자란 몫을 균등배분 안에서 처리할 수 없다.** 모자람은 원아마다 다른데 운영비 부담분은
+  지출건에 한 칸뿐이고, 필요경비를 줄이면 1/n이 다시 바뀌어 **순환한다**(실제로 4회를 돌려도
+  0이 되지 않았다). 유일한 해법은 **원아별로 금액을 달리 담는 것**이다.
+- **수납이 덜 된 아이는 운영비로 메울 일이 아니다.** 잔액이 마이너스면 미수금이므로
+  「잔액까지만 나누기」가 건드리지 않는다.
+- **3분기까지는 초과가 용인된다.** 다음 분기 수납으로 메워지기 때문이다. 4분기부터만 알린다.
+  다만 「원아별로 나누기」 자체는 중간입소·위탁 전환 때문에 **늘 열어 둔다**.
 
 ### 돈에 관한 것
 

@@ -1091,6 +1091,47 @@ function monthBounds(dateStr){
 }
 
 /**
+ * 지금 폼의 원아별 배분.
+ *
+ * 기본은 균등배분이다. 그런데 4분기가 되면 원아마다 그동안 낸 돈이 달라
+ * 균등하게 나누면 어떤 아이는 낸 돈보다 많이 쓰게 된다. 지출결의서는 달이
+ * 지나면 확정되어 나중에 쪼갤 수 없으므로 그 달에 등록할 때 갈라 두어야 한다.
+ * 그래서 「원아별로 나누기」로 금액을 직접 정할 수 있고, 그때는 f.alloc에
+ * 원아별 금액이 담긴다. 필요경비 부담분은 그 합계가 되고, 총액에서 남은 몫은
+ * 운영비 부담분으로 넘어간다.
+ */
+function formAlloc(f, ids){
+  if (f.alloc) return ids.map(id => ({ childId: id, amount: f.alloc[id] || 0 }));
+  return allocate(f.needAmount, ids);
+}
+
+/** 균등배분 그대로인가 — 저장 칸을 늘리지 않고 견주어 본다 */
+function isEvenSplit(ex){
+  const ids = (ex.allocations || []).map(a => a.childId);
+  if (!ids.length) return true;
+  const even = allocate(ex.needAmount, ids);
+  return even.every((a, i) => a.amount === ex.allocations[i].amount);
+}
+
+/**
+ * 이 지출건을 빼고 센, 그 원아의 그 세목 잔액.
+ * 「원아별로 나누기」 창에서 얼마까지 담을 수 있는지 보여 주는 데 쓴다.
+ */
+function allocHeadroom(childId, itemId, editingId){
+  const fy = S.fiscalYear;
+  const b = balance(childId, itemId, fyStart(fy), fyEnd(fy));
+  let used = b.totalUsed;
+  if (editingId) {
+    const old = S.expenses.find(e => e.id === editingId);
+    if (old && old.itemId === itemId) {
+      const oa = (old.allocations || []).find(x => x.childId === childId);
+      if (oa) used -= oa.amount;
+    }
+  }
+  return b.income - used;
+}
+
+/**
  * 지출건의 대상 원아를 바꾸고 재배분한다. 순서는 항상 원아 정렬 순서로 고정.
  *
  * 대상이 한 명도 남지 않으면 손대지 않고 false를 돌려준다.
@@ -2629,9 +2670,12 @@ function renderExpense(root){
        : { date: editing.date, voucherNo: editing.voucherNo || "", itemId: editing.itemId, summary: editing.summary, total: editing.total,
            needAmount: editing.needAmount, memo: editing.memo || "", editOf: view.expenseEditId,
            targets: new Set(editing.allocations.map(a => a.childId)),
+           /* 균등배분이 아니게 저장된 건을 고칠 때는 그 금액을 그대로 이어받는다 */
+           alloc: isEvenSplit(editing) ? null
+                : editing.allocations.reduce((m, a) => (m[a.childId] = a.amount, m), {}),
            overrides: (editing.overrides || []).map(o => Object.assign({}, o)) })
     : Object.assign({ date: todayISO(), voucherNo: "", itemId: items[0].id, summary: "", total: 0, needAmount: 0,
-                      memo: "", editOf: null, targets: new Set(), overrides: [] },
+                      memo: "", editOf: null, targets: new Set(), alloc: null, overrides: [] },
                     prev && prev.keep ? prev : {});
   if (!(f.targets instanceof Set)) f.targets = new Set(f.targets || []);
   if (!Array.isArray(f.overrides)) f.overrides = [];
@@ -2740,7 +2784,7 @@ function renderExpense(root){
       btn.disabled = true; return;
     }
 
-    const alloc = allocate(A, ids);
+    const alloc = formAlloc(f, ids);
     const sum = alloc.reduce((s, a) => s + a.amount, 0);
     const q = Math.floor(A / n), r = A - q * n;
     const ovr = new Set(f.overrides.map(o => o.childId));
@@ -2749,14 +2793,29 @@ function renderExpense(root){
 
     prev.innerHTML = `
       <div class="note ${sum === A ? "ok" : "bad"}">
-        대상 <b>${n}명</b> · 1인당 <b>${won(r > 0 ? q + 1 : q)}원</b>${r > 0 ? ` (뒤 ${n - r}명은 ${won(q)}원)` : ""}
-        · 배분 합계 <b>${won(sum)}원</b> ${sum === A ? "= 필요경비 부담분 ✓" : "≠ 필요경비 부담분 ✗"}
+        ${f.alloc
+          ? `대상 <b>${n}명</b> · <b>원아별로 나눔</b> (균등배분 아님)
+             · 배분 합계 <b>${won(sum)}원</b> ${sum === A ? "= 필요경비 부담분 ✓" : "≠ 필요경비 부담분 ✗"}`
+          : `대상 <b>${n}명</b> · 1인당 <b>${won(r > 0 ? q + 1 : q)}원</b>${r > 0 ? ` (뒤 ${n - r}명은 ${won(q)}원)` : ""}
+             · 배분 합계 <b>${won(sum)}원</b> ${sum === A ? "= 필요경비 부담분 ✓" : "≠ 필요경비 부담분 ✗"}`}
       </div>
       ${outside.length ? `<div class="note bad">재원기간 밖 원아가 ${outside.length}명 포함되어 있습니다: ${outside.map(id => esc(childName(id))).join(", ")}</div>` : ""}
       ${kept.length ? `<div class="note warn">정산 화면에서 사유를 달아 포함한 재원기간 밖 원아 ${kept.length}명: ${
         kept.map(id => esc(childName(id)) + " — " + esc((f.overrides.find(o => o.childId === id) || {}).reason || "사유 없음")).join(" / ")}</div>` : ""}
       ${shortfallNote()}
-      <div class="hint">적요에 남는 형태 — <b>${esc(f.summary || "(적요)")} (${n}명 × ${won(r > 0 ? q + 1 : q)})</b></div>`;
+      <div class="hint">적요에 남는 형태 — <b>${esc(f.summary || "(적요)")} ${f.alloc
+        ? `(${n}명 · 원아별 배분)` : `(${n}명 × ${won(r > 0 ? q + 1 : q)})`}</b></div>`;
+    /* 원아마다 낸 돈이 달라 균등배분이 맞지 않을 때 — 잔액을 보며 직접 나눈다 */
+    const sp = el(`<div class="row no-print" style="margin-top:8px">
+      <button class="b" id="e_split2">원아별로 나누기…</button>
+      ${f.alloc ? `<button class="b" id="e_even">균등배분으로 되돌리기</button>` : ""}
+      <span class="hint" style="max-width:560px">원아마다 그동안 낸 돈이 달라 균등하게 나누면
+        잔액을 넘기는 아이가 생길 때 씁니다. 잔액까지만 담으면 남는 몫은
+        <b>운영비 부담분</b>으로 넘어가 기록에 남습니다.</span></div>`);
+    prev.appendChild(sp);
+    $("#e_split2", sp).onclick = () => openAllocModal(f, ids, editing ? editing.id : null,
+      () => { gEl.need.value = won(f.needAmount); syncSplit(); });
+    if (f.alloc) $("#e_even", sp).onclick = () => { f.alloc = null; syncSplit(); };
 
     const bad = sum !== A || outside.length > 0;
     guard.textContent = bad ? "저장 차단 — 위 경고를 해소하세요" : "";
@@ -2785,8 +2844,10 @@ function renderExpense(root){
         보호자에게 더 받을 수는 없으므로 모자란 몫은 <b>어린이집 운영비에서 나가야 합니다.</b>
         보호자 정산에서는 <b>잔액 0에서 멈추고 마이너스로 내려가지 않습니다.</b><br>
         <span class="hint">모자란 원아 — ${list}</span><br>
-        <span class="hint">그대로 등록해도 됩니다. 금액을 줄이거나 「필요경비 부담분」을 낮추고
-        그만큼을 운영비 부담분으로 돌리면 이 알림이 사라집니다.
+        <span class="hint"><b>그대로 등록해도 됩니다.</b> 다만 지출결의서는 달이 지나면 확정되어
+        나중에 쪼갤 수 없으므로, 이 달에 갈라 두는 편이 낫습니다.
+        아래 <b>「원아별로 나누기…」</b>에서 <b>「잔액까지만 나누기」</b>를 누르면
+        모자란 아이는 잔액에 맞춰 내려가고, 줄어든 몫이 <b>운영비 부담분</b>으로 넘어가 기록에 남습니다.<br>
         12월(4분기)부터만 알리는 이유는, 그 전에는 다음 분기 수납으로 메워지는 것이 보통이기 때문입니다.</span>
       </div>`;
     }
@@ -2831,7 +2892,7 @@ function renderExpense(root){
     const ids = targetIds();
     if (!ids.length) { alert("대상 원아를 지정하세요."); return; }
     if (!f.date) { alert("지출일을 입력하세요."); return; }
-    const alloc = allocate(f.needAmount, ids);
+    const alloc = formAlloc(f, ids);
     const sum = alloc.reduce((s, a) => s + a.amount, 0);
     if (sum !== f.needAmount) { alert("배분 합계가 필요경비 부담분과 일치하지 않아 저장할 수 없습니다."); return; }
 
@@ -2854,6 +2915,113 @@ function renderExpense(root){
   if (editing) $("#e_cancel", root).onclick = () => { view.expenseEditId = null; view.expenseForm = null; render(); };
 
   renderExpenseList($("#e_list", root));
+}
+
+/**
+ * 「원아별로 나누기」 창.
+ *
+ * 기본은 균등배분이다. 그런데 4분기가 되면 원아마다 그동안 낸 돈이 달라,
+ * 균등하게 나누면 어떤 아이는 낸 돈보다 많이 쓰게 된다. 지출결의서는 달이
+ * 지나면 확정되어 나중에 쪼갤 수 없으므로 **그 달에 등록할 때** 갈라 두어야 한다.
+ *
+ * 그래서 원아마다 그 세목의 지금 잔액을 옆에 보여 주고, 담을 금액을 직접 적게 한다.
+ * 「잔액까지만 나누기」를 누르면 잔액을 넘기는 아이만 잔액에 맞춰 내려가고,
+ * 줄어든 만큼은 총액이 고정이므로 저절로 **운영비 부담분**으로 넘어간다.
+ * 잔액이 이미 마이너스인 아이(수납이 덜 된 아이)는 건드리지 않는다 —
+ * 그건 운영비로 메울 일이 아니라 미수금이라 따로 볼 일이기 때문이다.
+ */
+function openAllocModal(f, ids, editingId, done){
+  const even = allocate(f.needAmount, ids);
+  const cur = {};
+  ids.forEach((id, i) => cur[id] = f.alloc ? (f.alloc[id] || 0) : even[i].amount);
+  const room = {};
+  ids.forEach(id => room[id] = allocHeadroom(id, f.itemId, editingId));
+
+  const body = el(`<div>
+    <div class="hint" style="margin-bottom:10px">
+      <b>${esc(itemName(f.itemId))}</b> · 지출일 ${esc(f.date)} · 대상 <b>${won(ids.length)}명</b><br>
+      기본은 <b>균등배분</b>입니다. 잔액을 넘기는 아이가 있을 때만 고치세요.
+      고친 만큼은 <b>운영비 부담분</b>으로 넘어갑니다.
+    </div>
+    <div class="row" style="margin-bottom:8px">
+      <button class="b" data-a="even">균등배분으로 되돌리기</button>
+      <button class="b pri" data-a="cap">잔액까지만 나누기</button>
+      <span class="hint">잔액이 마이너스인 아이는 그대로 둡니다.</span>
+    </div>
+    <div class="scroll" style="max-height:min(46vh,420px)">
+      <table style="margin:0"><thead><tr>
+        <th class="c" style="width:44px">순번</th><th style="width:96px">반</th><th style="width:90px">성명</th>
+        <th class="n" style="width:110px">이 세목 잔액</th>
+        <th class="n" style="width:120px">배분액</th>
+        <th style="width:96px"></th>
+      </tr></thead><tbody data-r="rows"></tbody></table>
+    </div>
+    <table class="sheet" style="margin-top:10px;max-width:none"><tbody data-r="foot"></tbody></table>
+  </div>`);
+
+  const tb = $('[data-r="rows"]', body), foot = $('[data-r="foot"]', body);
+
+  function redrawFoot(){
+    const sum = ids.reduce((t, id) => t + (cur[id] || 0), 0);
+    const oper = f.total - sum;
+    foot.innerHTML = `
+      <tr><th style="width:300px">배분 합계 → <b>필요경비 부담분</b>이 됩니다</th>
+        <td class="n"><b>${won(sum)}원</b></td></tr>
+      <tr><th>지출결의서 총액</th><td class="n">${won(f.total)}원</td></tr>
+      <tr class="sum"><th>남는 몫 → <b>운영비 부담분</b></th>
+        <td class="n"${oper < 0 ? ' style="color:var(--bad)"' : ""}>${won(oper)}원</td></tr>`;
+    return oper;
+  }
+
+  function draw(){
+    tb.innerHTML = "";
+    ids.forEach((id, i) => {
+      const c = childById(id);
+      const cls = (classAt(c, f.date) || currentClass(c) || {}).name || "-";
+      const over = cur[id] > room[id];
+      const tr = el(`<tr>
+        <td class="c">${i + 1}</td><td class="ui-center">${esc(cls)}</td>
+        <td class="ui-center">${esc(c ? c.name : "?")}</td>
+        <td class="n"${room[id] < 0 ? ' style="color:var(--bad)"' : ""}>${won(room[id])}</td>
+        <td class="n"><input class="money" style="width:106px;text-align:right" value="${won(cur[id])}"></td>
+        <td style="font-size:11px;color:var(--warn)">${
+          room[id] < 0 ? "미수금 있음" : (over ? "잔액 넘김" : "")}</td>
+      </tr>`);
+      $("input", tr).onchange = e => {
+        const n2 = moneyInput(e.target, cur[id], { min: 0 });
+        if (n2 === null) return;
+        cur[id] = n2; draw();
+      };
+      tb.appendChild(tr);
+    });
+    redrawFoot();
+  }
+
+  $('[data-a="even"]', body).onclick = () => {
+    const e2 = allocate(f.needAmount, ids);
+    ids.forEach((id, i) => cur[id] = e2[i].amount); draw();
+  };
+  $('[data-a="cap"]', body).onclick = () => {
+    /* 잔액이 마이너스인 아이는 건드리지 않는다 (미수금은 운영비로 메울 일이 아니다) */
+    ids.forEach(id => { if (room[id] >= 0 && cur[id] > room[id]) cur[id] = room[id]; });
+    draw();
+  };
+  draw();
+
+  openModal("원아별로 나누기 — " + itemName(f.itemId), body, () => {
+    const sum = ids.reduce((t, id) => t + (cur[id] || 0), 0);
+    if (f.total - sum < 0) {
+      alert("배분 합계가 지출결의서 총액을 넘습니다.\n금액을 다시 확인해 주세요.");
+      return false;
+    }
+    const e2 = allocate(sum, ids);
+    const same = ids.every((id, i) => cur[id] === e2[i].amount);
+    /* 균등배분과 같아졌으면 굳이 원아별 금액으로 들고 있지 않는다 */
+    f.alloc = same ? null : Object.assign({}, cur);
+    f.needAmount = sum;
+    if (done) done();
+    return true;
+  });
 }
 
 function renderExpenseList(host){
@@ -2946,7 +3114,12 @@ function openTargetListModal(expenseId, focusChildId){
       <tr><th>${col("지출결의서 총액", "A")}</th><td class="n">${won(ex.total)}원</td>
           <th>${col("필요경비 부담분", "B")}</th><td class="n">${won(ex.needAmount)}원</td></tr>
       <tr><th>${col("운영비 부담분", "C = A − B")}</th><td class="n">${won(ex.operAmount || 0)}원</td>
-          <th>1인당 배분</th><td class="n">${won(r > 0 ? q + 1 : q)}원${r > 0 ? ` (뒤 ${won(n - r)}명은 ${won(q)}원)` : ""}</td></tr>
+          <th>1인당 배분</th><td class="n">${isEvenSplit(ex)
+            ? won(r > 0 ? q + 1 : q) + "원" + (r > 0 ? ` (뒤 ${won(n - r)}명은 ${won(q)}원)` : "")
+            : "<b>원아별 배분</b>"}</td></tr>
+      ${isEvenSplit(ex) ? "" : `<tr><th>배분 방식</th><td colspan="3">원아마다 그 세목 잔액이 달라
+        <b>잔액 한도로 나눴습니다.</b> 균등배분으로는 낸 돈보다 많이 쓰게 되는 원아가 있어,
+        모자란 몫은 <b>운영비 부담분</b>으로 돌렸습니다.</td></tr>`}
       ${ex.memo ? `<tr><th>비고</th><td colspan="3" class="ui-prose">${esc(ex.memo)}</td></tr>` : ""}
     </table>
     <table style="margin-top:12px"><thead><tr>
@@ -4903,14 +5076,47 @@ const FAQ = [
          <tr><td><b>12월 ~ 익년 2월</b></td><td><b>알립니다.</b> 모자란 금액과 그 원아를 짚어 줍니다.</td></tr>
        </tbody></table>
 
-       <h4 style="margin:12px 0 4px">알림이 떴을 때 할 수 있는 것</h4>
+       <h4 style="margin:12px 0 4px">알림이 떴을 때 — 「원아별로 나누기」를 권합니다</h4>
+       <p><b>지출결의서는 달이 지나면 확정되어 나중에 쪼갤 수 없습니다.</b>
+         (시에 매월 회계보고를 하기 때문입니다) 그러니 모자란 몫을 운영비로 돌릴 생각이라면
+         <b>그 달에 등록하면서</b> 갈라 두어야 합니다.</p>
        <ol>
-         <li><b>그대로 등록한다</b> — 가장 흔합니다. 모자란 몫을 어린이집이 부담하는 것으로 정리됩니다.</li>
-         <li><b>「필요경비 부담분」을 낮춘다</b> — 모자란 만큼을 운영비 부담분으로 돌리면
-           그 금액이 애초에 원아에게 배분되지 않습니다. 회계상 더 깔끔한 쪽입니다.</li>
-         <li><b>지출 금액 자체를 다시 본다</b> — 잘못 적은 것은 아닌지 확인합니다.</li>
+         <li><b>「원아별로 나누기…」</b>를 누릅니다. 원아마다 <b>그 세목의 지금 잔액</b>이 옆에 뜹니다.</li>
+         <li><b>「잔액까지만 나누기」</b>를 누르면 잔액을 넘기는 아이만 잔액에 맞춰 내려갑니다.
+           나머지 아이는 그대로입니다.</li>
+         <li>줄어든 만큼은 <b>운영비 부담분</b>으로 저절로 넘어갑니다.
+           <b>지출결의서 총액은 그대로</b>라 결의서와 어긋나지 않습니다.</li>
+         <li>저장하면 명단 인쇄물에 <b>「원아별 배분 — 잔액 한도로 나눔」</b>이라고 찍혀
+           감사 때 배분 근거가 됩니다.</li>
        </ol>
+       <table><thead><tr><th style="width:150px">원아</th><th>잔액</th><th>균등배분</th><th>잔액까지만</th></tr></thead><tbody>
+         <tr><td>김서우</td><td class="n">100,000</td><td class="n">50,000</td><td class="n">50,000</td></tr>
+         <tr><td>이하람</td><td class="n">60,000</td><td class="n">50,000</td><td class="n">50,000</td></tr>
+         <tr><td>박도윤</td><td class="n">30,000</td><td class="n">50,000 ⚠</td><td class="n"><b>30,000</b></td></tr>
+         <tr class="sum"><td>필요경비 부담분</td><td></td><td class="n">150,000</td><td class="n"><b>130,000</b></td></tr>
+         <tr class="sum"><td>운영비 부담분</td><td></td><td class="n">0</td><td class="n"><b>20,000</b></td></tr>
+         <tr class="sum"><td>지출결의서 총액</td><td></td><td class="n">150,000</td><td class="n">150,000</td></tr>
+       </tbody></table>
+
+       <h4 style="margin:12px 0 4px">그대로 등록해도 됩니다</h4>
+       <p>그 자리에서 판단이 안 서면 <b>그대로 등록하셔도 막지 않습니다.</b>
+         모자란 몫은 어린이집이 부담한 것으로 정리되고, 보호자 서류에는 마이너스가 찍히지 않습니다.
+         다만 <b>운영비로 나갔다는 기록은 남지 않으므로</b>, 연말에 따로 정리하셔야 합니다.</p>
+       <p><b>수납이 덜 된 아이(잔액이 이미 마이너스)</b>는 「잔액까지만 나누기」가 건드리지 않습니다.
+         그건 운영비로 메울 일이 아니라 <b>미수금</b>이라 따로 보셔야 하기 때문입니다.</p>
        <p>12월이 지나면 <b>검증</b> 탭에서도 세목별로 잔액이 모자란 원아를 한 번에 볼 수 있습니다.</p>` },
+
+  { g:"지출", q:"원아마다 낸 돈이 달라 균등하게 나누면 안 맞습니다.",
+    k:"원아별 배분 나누기 균등배분 잔액 한도 운영비 4분기 지출결의서 확정",
+    a:`<p><b>지출 등록 → 배분 금액 확인 → 「원아별로 나누기…」</b>를 누르세요.
+         원아마다 <b>그 세목의 지금 잔액</b>을 옆에 놓고 금액을 직접 정할 수 있습니다.</p>
+       <p><b>기본은 여전히 균등배분입니다.</b> 「균등배분으로 되돌리기」로 언제든 돌아갑니다.
+         고친 건만 명단에 <b>「원아별 배분」</b>으로 표시됩니다.</p>
+       <p>배분 합계가 곧 <b>필요경비 부담분</b>이 되고, 지출결의서 총액에서 남는 몫이
+         <b>운영비 부담분</b>이 됩니다. <b>배분 합계와 필요경비 부담분이 1원이라도 어긋나면 저장이 막힙니다.</b></p>
+       <p>중간입소·위탁 전환처럼 4분기가 아니어도 균등이 안 맞는 경우가 있어
+         <b>언제든 쓸 수 있게</b> 열어 두었습니다.</p>
+       <div class="law">근거 — 사회복지법인 및 사회복지시설 재무·회계 규칙 제15조 (세목 간 상계 금지)</div>` },
 
   { g:"정산·보고", q:"보호자 안내문의 수납액이 통장 금액과 다릅니다.",
     k:"안내문 수납액 결제하신 금액 승인액 카드수수료 통장 다름 보호자",
@@ -5571,8 +5777,12 @@ function manualQuick(sources){
     나눠떨어지지 않으면 <b>남는 1원을 앞 순번에 붙여</b> 합계를 정확히 맞춥니다.<br>
     등록한 건은 <b>언제든 「수정」</b>할 수 있습니다.</blockquote>
   <div class="warn"><p><b>12월부터</b> 잔액이 모자라면 알림이 뜹니다.
-    <b>막는 것이 아니니 그대로 등록하셔도 됩니다.</b> 모자란 몫은 어린이집 운영비에서 나가고,
-    보호자 서류에는 마이너스가 찍히지 않습니다. (3~11월에는 다음 분기 수납으로 메워지므로 알리지 않습니다)</p></div>
+    <b>막는 것이 아니니 그대로 등록하셔도 됩니다.</b>
+    (3~11월에는 다음 분기 수납으로 메워지므로 알리지 않습니다)</p>
+    <p>다만 지출결의서는 <b>달이 지나면 확정되어 나중에 쪼갤 수 없으므로</b>,
+    그 달에 갈라 두는 편이 낫습니다. <b>「원아별로 나누기…」 → 「잔액까지만 나누기」</b>를 누르면
+    잔액을 넘기는 아이만 잔액에 맞춰 내려가고, 줄어든 몫은 <b>운영비 부담분</b>으로 넘어가
+    기록에 남습니다. 지출결의서 총액은 그대로입니다.</p></div>
 
   <h2>서류가 필요할 때</h2>
   <table>
@@ -5584,6 +5794,8 @@ function manualQuick(sources){
       <tr><td>2월말 반환 처리</td><td><b>정산·보고 → 반환 정산서 (전 원아)</b></td></tr>
       <tr><td>돌려줬다고 표시 · 취소</td><td><b>반환 정산서</b>나 <b>중간퇴소 정산</b>의
         「반환 완료로 표시」 · 「반환 완료 취소」</td></tr>
+      <tr><td>원아마다 낸 돈이 달라 균등배분이 안 맞을 때</td>
+        <td><b>지출 등록 → 배분 금액 확인 → 「원아별로 나누기…」</b></td></tr>
       <tr><td>그만둔 아이 정산서</td><td><b>정산·보고 → 중간퇴소·중간전환 정산</b></td></tr>
       <tr><td>수입대장 · 지출대장 (금액)</td><td><b>대장</b></td></tr>
       <tr><td>수입부 대장 (수납한 날짜)</td><td><b>대장 → 구분을 「기타필요경비 수입부 대장」으로</b></td></tr>
