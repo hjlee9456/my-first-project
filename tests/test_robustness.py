@@ -24,12 +24,14 @@ def test_long_and_korean_paths_scanned(base_dataset, tmp_path):
 def _deny(path: str):
     """읽기 거부를 만든다. 리눅스 root 는 권한을 무시하므로 None 을 돌려 모의로 대신한다."""
     if os.name == "nt":
-        # *S-1-1-0 = Everyone (윈도우 언어와 무관한 고유 번호)
-        subprocess.run(["icacls", path, "/deny", "*S-1-1-0:(R)"], check=True, capture_output=True)
-        return lambda: subprocess.run(["icacls", path, "/remove:d", "*S-1-1-0"], check=True, capture_output=True)
+        # *S-1-1-0 = Everyone (윈도우 언어와 무관한 고유 번호).
+        # (RD) = 파일 내용 읽기 / 폴더 목록 보기만 막는다. (R) 전체를 막으면 권한 설정 읽기까지 막혀
+        # 시험 뒤 되돌리기(/remove:d)가 거부된다(첫 윈도우 실행에서 확인됨).
+        subprocess.run(["icacls", path, "/deny", "*S-1-1-0:(RD)"], check=True, capture_output=True)
+        return lambda: subprocess.run(["icacls", path, "/remove:d", "*S-1-1-0"], capture_output=True).returncode
     if os.geteuid() != 0:
         os.chmod(path, 0)
-        return lambda: os.chmod(path, 0o755 if os.path.isdir(path) else 0o644)
+        return lambda: os.chmod(path, 0o755 if os.path.isdir(path) else 0o644) or 0
     return None
 
 
@@ -58,12 +60,13 @@ def test_access_denied_is_recorded_and_scan_continues(tmp_path, monkeypatch):
         monkeypatch.setattr(hashing, "hash_file", fake_hash)
     else:
         undo = real
+    undo_codes = []
     try:
         res = scan_dataset(info, str(tmp_path / "out"))
         r = results(info, res.db_path, res.run_id)
     finally:
         for u in undo:
-            u()
+            undo_codes.append(u())  # 되돌리기 실패가 시험 결과를 가리지 않게, 판정은 맨 끝에
     kinds = {(stage, kind) for stage, kind, _ in r["errors"]}
     assert ("목록", "접근거부") in kinds
     assert ("해시", "접근거부") in kinds
@@ -73,6 +76,7 @@ def test_access_denied_is_recorded_and_scan_continues(tmp_path, monkeypatch):
     assert not any(g for g in r["groups"] if any(m["path"].startswith("D/업무/2022업무") for m in g["members"]))
     # 해시를 못 읽은 파일은 중복 묶음에 들지 않는다
     assert not any(any(p.endswith("큰파일_A.bin") for p in g) for g in r["dup"])
+    assert all(c == 0 for c in undo_codes), f"접근 거부 되돌리기 실패: {undo_codes}"
 
 
 def test_file_changed_while_reading(tmp_path, monkeypatch):
