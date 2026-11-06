@@ -1,0 +1,3 @@
+-r requirements.txt
+# 시험용
+pytest>=8,<10

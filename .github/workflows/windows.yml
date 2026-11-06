@@ -1,0 +1,99 @@
+# 윈도우 시험·exe 빌드
+# - 실제 업무 파일은 쓰지 않는다. 모든 시험 데이터는 합성(가짜)이다.
+# - 리눅스 시험은 빠른 확인용, 윈도우 시험은 긴 경로·만든 날짜·정션·접근 거부·볼륨 일련번호 확인용.
+# - 윈도우 작업 끝에서 exe 를 만들고, exe 로 합성 정답셋을 진단해 정답과 맞는지 확인한 뒤 내려받을 수 있게 올린다.
+name: 시험·빌드
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      scale:
+        description: "윈도우 규모 시험 묶음 수 (파일 ≈ 49 × 묶음 수)"
+        default: "400"
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 준비
+        run: python -m pip install -r requirements-dev.txt
+      - name: 시험
+        run: python -m pytest -q -rs
+
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    env:
+      PYTHONUTF8: "1"
+      PYTHONIOENCODING: "utf-8"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 준비
+        run: python -m pip install -r requirements-dev.txt
+
+      - name: 시험 (긴 경로·만든 날짜·정션·접근 거부·볼륨 일련번호 포함)
+        run: python -m pytest -q -rs
+
+      - name: 규모 시험
+        env:
+          FILETIDY_SCALE: ${{ github.event.inputs.scale || '400' }}
+          FILETIDY_SCALE_REPORT: ${{ runner.temp }}\scale.json
+        run: python -m pytest tests/test_scale.py -q -s
+
+      - name: 규모 시험 결과를 실행 요약에 적기
+        shell: pwsh
+        run: |
+          Add-Content $env:GITHUB_STEP_SUMMARY "## 규모 시험 (윈도우)"
+          Add-Content $env:GITHUB_STEP_SUMMARY '```json'
+          Get-Content "$env:RUNNER_TEMP\scale.json" -Encoding utf8 | Add-Content $env:GITHUB_STEP_SUMMARY
+          Add-Content $env:GITHUB_STEP_SUMMARY '```'
+
+      - name: exe 만들기
+        run: |
+          python -m pip install pyinstaller==6.11.1
+          pyinstaller --onefile --clean --noconfirm --name filetidy-scan filetidy_scan.py
+          pyinstaller --onefile --clean --noconfirm --name filetidy-testkit filetidy_testkit.py
+
+      - name: exe 로 합성 정답셋 진단 → 정답과 비교
+        shell: pwsh
+        run: |
+          $t = Join-Path $env:RUNNER_TEMP "exe_check"
+          .\dist\filetidy-testkit.exe generate --out "$t\set"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          .\dist\filetidy-scan.exe scan --sim-drive "C=$t\set\data\C" --sim-drive "D=$t\set\data\D" --sim-drive "E=$t\set\data\E" --out "$t\out" --dest "$t"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+          python tests/check_exe_output.py "$t\set" "$t\out"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
+
+      - name: 지문(SHA-256) 기록
+        shell: pwsh
+        run: |
+          Get-FileHash dist\*.exe -Algorithm SHA256 |
+            ForEach-Object { "$($_.Hash)  $(Split-Path $_.Path -Leaf)" } |
+            Out-File -Encoding utf8 dist\SHA256SUMS.txt
+          Add-Content $env:GITHUB_STEP_SUMMARY "## exe 지문 (SHA-256)"
+          Add-Content $env:GITHUB_STEP_SUMMARY '```'
+          Get-Content dist\SHA256SUMS.txt | Add-Content $env:GITHUB_STEP_SUMMARY
+          Add-Content $env:GITHUB_STEP_SUMMARY '```'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: filetidy-windows-exe
+          path: |
+            dist/filetidy-scan.exe
+            dist/filetidy-testkit.exe
+            dist/SHA256SUMS.txt
+          retention-days: 30

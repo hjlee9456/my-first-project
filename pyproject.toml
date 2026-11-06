@@ -1,0 +1,14 @@
+[project]
+name = "filetidy"
+version = "0.1.0"
+description = "업무 PC 파일 정리 도구 — 1단계 진단기(읽기 전용)와 합성 정답셋 생성기"
+requires-python = ">=3.10"
+dependencies = ["XlsxWriter>=3.1,<4"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "slow: 규모 시험처럼 오래 걸리는 시험 (FILETIDY_SCALE 환경변수를 줄 때만 실행)",
+    "windows: 윈도우에서만 의미 있는 시험",
+]
